@@ -1,0 +1,365 @@
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+#app.selection-screen {
+  background: linear-gradient(90deg, #f9ddaada, #f9ddaab5);
+  gap: 24px;
+}
+.text-button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+.selection-heading h2 {
+  font-size: clamp(32px, 4vw, 55px);
+  line-height: 1;
+  margin: 10px 0 0;
+}
+.selection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: min(1050px, 100%);
+}
+.selection-card {
+  border: 1px solid #79543266;
+  background: #ffe9bd8c;
+  padding: 22px;
+  position: relative;
+}
+.card-caption {
+  font: 10px monospace;
+  letter-spacing: 3px;
+}
+#character-preview,
+.map-art {
+  height: 215px;
+  width: 100%;
+}
+#character-preview canvas {
+  display: block;
+}
+.selection-card h3 {
+  font-size: 27px;
+  margin: 10px 0;
+}
+.selection-card p {
+  line-height: 1.6;
+  font-size: 14px;
+  margin: 10px 0 20px;
+}
+.stats {
+  display: flex;
+  gap: 35px;
+  font: 10px monospace;
+  margin: 20px 0;
+}
+.stats b {
+  display: block;
+  margin-top: 8px;
+  font:
+    16px Georgia,
+    serif;
+}
+.selection-card button {
+  width: 100%;
+}
+.map-art {
+  position: relative;
+  overflow: hidden;
+  margin-top: 15px;
+  background: linear-gradient(#c68d65, #ffe4a0);
+}
+.map-sun {
+  position: absolute;
+  background: #fff0b3;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  top: 25px;
+  left: 27%;
+}
+.map-mesa {
+  position: absolute;
+  width: 180px;
+  height: 150px;
+  right: -5px;
+  bottom: 0;
+  background: #aa704d;
+  clip-path: polygon(
+    0 100%,
+    15% 50%,
+    30% 45%,
+    40% 0,
+    58% 0,
+    70% 35%,
+    100% 50%,
+    100% 100%
+  );
+}
+.map-mesa.two {
+  width: 110px;
+  height: 75px;
+  left: 20px;
+  background: #c59262;
+}
+.map-dune {
+  position: absolute;
+  bottom: -45px;
+  left: -10%;
+  width: 130%;
+  height: 95px;
+  background: #e9b273;
+  border-radius: 50%;
+  transform: rotate(-6deg);
+}
+.selection-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1050px, 100%);
+  gap: 20px;
+}
+.selection-bottom p {
+  font: 12px/1.7 monospace;
+}
+.selection-bottom button {
+  min-width: 230px;
+  text-align: center;
+}
+.empty-shop {
+  margin: auto;
+  text-align: center;
+  padding: 50px 0;
+}
+.empty-shop p {
+  line-height: 1.8;
+}
+.shop-symbol {
+  font-size: 90px;
+  padding: 20px;
+  opacity: 0.55;
+}
+.muted {
+  opacity: 0.7;
+}
+.settings-panel {
+  width: min(480px, 100%);
+  margin: auto;
+  padding: 35px 0;
+}
+.settings-panel p {
+  line-height: 1.7;
+}
+#app.playing-screen {
+  position: fixed;
+  inset: 0;
+  display: block;
+  padding: 0;
+  background: none;
+  min-height: 0;
+}
+#game-host {
+  position: absolute;
+  inset: 0;
+}
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.hud {
+  position: absolute;
+  inset: 0 0 auto;
+  padding: 20px 25px;
+  pointer-events: none;
+  color: #ffebbc;
+  background: linear-gradient(#34251dc9, transparent);
+  font: 12px monospace;
+}
+.xp-track {
+  height: 5px;
+  background: #231d245e;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.xp-track div {
+  height: 100%;
+  background: #ffc94f;
+}
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 18px;
+}
+.hud-row strong {
+  display: block;
+  letter-spacing: 2px;
+}
+.hud-row small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+}
+.hp-track {
+  width: 150px;
+  height: 7px;
+  background: #352321aa;
+  margin-top: 10px;
+}
+.hp-track div {
+  height: 100%;
+  background: #e08c60;
+}
+.clock {
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.clock strong {
+  font-size: 28px;
+}
+.pause-button {
+  pointer-events: auto;
+  padding: 9px 15px;
+  color: #ffe7b1;
+  background: #3c2a1c88;
+  border-color: #eac68a60;
+}
+.hud-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+#intro-caption {
+  position: absolute;
+  top: 42%;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+  font: 16px monospace;
+  letter-spacing: 4px;
+  color: #fff0c8;
+  text-shadow: 0 2px 8px #201b13;
+}
+#level-toast {
+  position: absolute;
+  top: 28%;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+  color: #fff2b5;
+  text-shadow: 0 2px 4px #6b4824;
+  font:
+    bold 19px Georgia,
+    serif;
+}
+.controls-hint {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  text-align: right;
+  font: 10px/1.7 monospace;
+  color: #493220;
+  pointer-events: none;
+}
+#joystick {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  bottom: max(25px, env(safe-area-inset-bottom));
+  left: 25px;
+  border: 1px solid #fff0c285;
+  background: #5c412229;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+}
+#joystick i {
+  pointer-events: none;
+  display: block;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid #fff3c9aa;
+  background: #fff1c460;
+}
+.dialog-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 25px;
+}
+@media (max-width: 650px) {
+  .selection-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .selection-heading h2 {
+    font-size: 34px;
+  }
+  .selection-card {
+    padding: 18px;
+  }
+  #character-preview,
+  .map-art {
+    height: 180px;
+  }
+  .selection-bottom {
+    flex-wrap: wrap;
+  }
+  .selection-bottom button {
+    width: 100%;
+  }
+  .selection-screen .topline {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+  .hud {
+    padding: 20px 14px;
+  }
+  .hud-row strong {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .clock strong {
+    font-size: 23px;
+  }
+  .clock small {
+    display: none !important;
+  }
+  .hp-track {
+    width: 110px;
+  }
+  .hud-stats {
+    gap: 12px;
+    font-size: 10px;
+  }
+  .controls-hint {
+    display: none;
+  }
+  .clock {
+    top: 52px;
+  }
+  .hud-stats {
+    margin-top: 25px;
+  }
+}
+@media (pointer: fine) {
+  #joystick {
+    opacity: 0.45;
+    width: 95px;
+    height: 95px;
+  }
+}
