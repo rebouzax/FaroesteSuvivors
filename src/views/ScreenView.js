@@ -61,6 +61,16 @@ export class ScreenView {
     this.root.className = "selection-screen";
     this.root.innerHTML = `<section class="settings-panel"><p class="eyebrow">AJUSTE SUA JORNADA</p><h2>Configurações</h2><label class="setting">Vento do menu<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">Sons do jogo<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">Música de faroeste<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><p>O cenário do menu respeita a preferência de movimento reduzido do sistema.</p><p id="save-status" role="status"></p><button data-action="menu">Voltar ao menu</button></section>`;
   }
+  audioSettings() {
+    this.root.querySelector("#save-status").insertAdjacentHTML(
+      "afterend",
+      `
+      <p>O som começa após um clique, toque ou tecla. Mantenha o volume do aparelho ligado e esta aba sem silenciar.</p>
+      <button data-action="test-audio">Testar áudio / tentar novamente</button>
+      <p id="audio-status" role="status" aria-live="polite"></p>
+    `,
+    );
+  }
   exit() {
     this.root.className = "selection-screen";
     this.root.innerHTML =

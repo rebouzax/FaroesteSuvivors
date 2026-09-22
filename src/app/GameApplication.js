@@ -26,12 +26,20 @@ export class GameApplication {
     this.controller = new AbortController();
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     const activateAudio = () => this.audio.unlock();
-    document.addEventListener("pointerdown", activateAudio, {
-      signal: this.controller.signal,
-    });
-    document.addEventListener("keydown", activateAudio, {
-      signal: this.controller.signal,
-    });
+    // Touch browsers may grant audio activation only on release/click.
+    // Capture also handles controls that stop propagation.
+    for (const event of [
+      "pointerdown",
+      "pointerup",
+      "touchend",
+      "click",
+      "keydown",
+    ])
+      document.addEventListener(event, activateAudio, {
+        signal: this.controller.signal,
+        capture: true,
+        passive: true,
+      });
     document.addEventListener(
       "visibilitychange",
       () => {
@@ -45,6 +53,7 @@ export class GameApplication {
           this.showRunDialog();
         }
         if (document.hidden) this.audio.suspend();
+        else this.audio.resume();
       },
       { signal: this.controller.signal },
     );
@@ -85,11 +94,21 @@ export class GameApplication {
       } catch {
         host.textContent = "Bento, o Andarilho";
       }
-    } else if (name === "settings") this.screen.settings(this.profile);
-    else if (name === "exit") this.screen.exit();
+    } else if (name === "settings") {
+      this.screen.settings(this.profile);
+      this.screen.audioSettings();
+    } else if (name === "exit") this.screen.exit();
     this.root.querySelector("h2, h1")?.setAttribute("tabindex", "-1");
   }
   action(action) {
+    if (action === "test-audio") {
+      const status = this.root.querySelector("#audio-status");
+      if (status) status.textContent = "Carregando e testando os sons…";
+      this.audio.test().then((message) => {
+        if (status?.isConnected) status.textContent = message;
+      });
+      return;
+    }
     if (action === "buy-health") {
       if (this.current !== "shop") return;
       if (this.profile.buyHealth()) {
