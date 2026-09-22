@@ -6,6 +6,8 @@ import { ScreenView } from "../views/ScreenView.js";
 import { DesertBackgroundView } from "../views/DesertBackgroundView.js";
 import { GameView } from "../views/GameView.js";
 import { CharacterPreview } from "../views/CharacterPreview.js";
+import { MerchantView } from "../views/MerchantView.js";
+import { upgradeCardsMarkup } from "../views/UpgradeCardsView.js";
 
 export class GameApplication {
   constructor(root, canvas) {
@@ -22,18 +24,27 @@ export class GameApplication {
     this.map = false;
     this.current = "menu";
     this.controller = new AbortController();
+    this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
+    const activateAudio = () => this.audio.unlock();
+    document.addEventListener("pointerdown", activateAudio, {
+      signal: this.controller.signal,
+    });
+    document.addEventListener("keydown", activateAudio, {
+      signal: this.controller.signal,
+    });
     document.addEventListener(
       "visibilitychange",
       () => {
         if (
           document.hidden &&
           this.vm &&
-          ["intro", "playing"].includes(this.vm.model.phase)
+          ["intro", "playing", "upgrade"].includes(this.vm.model.phase)
         ) {
           this.vm.paused = true;
           this.input.clear();
           this.showRunDialog();
         }
+        if (document.hidden) this.audio.suspend();
       },
       { signal: this.controller.signal },
     );
@@ -46,10 +57,14 @@ export class GameApplication {
     this.background.setWind(this.profile.data.wind);
   }
   show(name) {
+    this.merchant?.dispose();
+    this.merchant = null;
     this.preview?.dispose();
     this.preview = null;
     this.current = name;
     this.ensureBackground();
+    this.audio.setPaused(false);
+    this.audio.setMusic(name === "exit" ? null : "menu");
     if (name === "menu") this.screen.menu();
     else if (name === "select") {
       const host = this.screen.selection(
@@ -63,12 +78,46 @@ export class GameApplication {
         host.textContent =
           "João Vaqueiro · chapéu de couro, gibão gasto e chicote";
       }
-    } else if (name === "shop") this.screen.shop(this.profile);
-    else if (name === "settings") this.screen.settings(this.profile);
+    } else if (name === "shop") {
+      const host = this.screen.shop(this.profile);
+      try {
+        this.merchant = new MerchantView(host);
+      } catch {
+        host.textContent = "Bento, o Andarilho";
+      }
+    } else if (name === "settings") this.screen.settings(this.profile);
     else if (name === "exit") this.screen.exit();
     this.root.querySelector("h2, h1")?.setAttribute("tabindex", "-1");
   }
   action(action) {
+    if (action === "buy-health") {
+      if (this.current !== "shop") return;
+      if (this.profile.buyHealth()) {
+        this.screen.updateShop(this.profile);
+        this.root.querySelector("#merchant-speech").textContent = this.profile
+          .available
+          ? "“Obrigado, viajante. Que seu coração aguente a estrada.”"
+          : "“Obrigado, viajante.” Melhoria aplicada nesta sessão; não foi possível salvar.";
+        this.merchant?.thank();
+        this.audio.play("purchase");
+      }
+      return;
+    }
+    if (action.startsWith("card:")) {
+      const [, id, token] = action.split(":");
+      if (
+        this.vm &&
+        !this.vm.paused &&
+        Number(token) === this.vm.model.pendingChoices &&
+        this.vm.model.chooseAbility(id)
+      ) {
+        this.input.clear();
+        this.accumulator = 0;
+        this.screen.updateHud(this.vm.model);
+        this.showRunDialog();
+      }
+      return;
+    }
     if (["menu", "select", "shop", "settings", "exit"].includes(action)) {
       if (this.vm) this.endRun();
       this.show(action);
@@ -96,10 +145,10 @@ export class GameApplication {
     }
   }
   setting(key, value) {
-    if (!["sound", "wind"].includes(key)) return;
+    if (!["sound", "wind", "music"].includes(key)) return;
     this.profile.data[key] = value;
     this.profile.save();
-    this.audio.enabled = this.profile.data.sound;
+    this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     this.background?.setWind(this.profile.data.wind);
     const status = this.root.querySelector("#save-status");
     if (status)
@@ -111,11 +160,15 @@ export class GameApplication {
     if (this.vm) return;
     this.preview?.dispose();
     this.preview = null;
+    this.merchant?.dispose();
+    this.merchant = null;
     this.background?.dispose();
     this.background = null;
     this.canvas.hidden = true;
-    this.audio.enabled = this.profile.data.sound;
+    this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     this.audio.unlock();
+    this.audio.setPaused(false);
+    this.audio.setMusic("game");
     this.current = "game";
     this.vm = new GameViewModel(this.profile, this.audio);
     const elements = this.screen.game();
@@ -179,19 +232,34 @@ export class GameApplication {
     if (!this.vm || !this.runDialog) return;
     const run = this.vm.model,
       ended = ["defeat", "victory"].includes(run.phase),
-      state = ended ? run.phase : this.vm.paused ? "paused" : "";
+      state = ended
+        ? run.phase
+        : this.vm.paused
+          ? "paused"
+          : run.phase === "upgrade"
+            ? `upgrade:${run.pendingChoices}`
+            : "";
     if (state === this.dialogState) return;
     this.dialogState = state;
+    this.audio.setPaused(Boolean(state));
+    this.runDialog.classList.toggle(
+      "upgrade-dialog",
+      state.startsWith("upgrade:"),
+    );
     if (!state) {
       this.runDialog.close();
       return;
     }
-    this.runDialog.innerHTML = ended
-      ? `<p class="eyebrow">${run.phase === "victory" ? "O SOL NASCE PARA OS FORTES" : "A POEIRA COBRE MAIS UMA HISTÓRIA"}</p><h2 id="run-dialog-title">${run.phase === "victory" ? "Você sobreviveu!" : "Fim da jornada"}</h2><p>${run.kills} morcegos · Nível ${run.player.level}<br>${run.coins} moedas recolhidas</p><p>${this.profile.available ? "Seu saldo foi salvo." : "Saldo disponível apenas nesta sessão."}</p><div class="dialog-actions"><button class="primary" data-action="retry">Jogar novamente</button><button data-action="select">Voltar à seleção</button></div>`
-      : '<p class="eyebrow">RESPIRAR TAMBÉM É SOBREVIVER</p><h2 id="run-dialog-title">Partida pausada</h2><div class="dialog-actions"><button class="primary" data-action="resume">Continuar</button><button data-action="select">Encerrar e voltar</button></div>';
+    this.runDialog.innerHTML = state.startsWith("upgrade:")
+      ? upgradeCardsMarkup(run)
+      : ended
+        ? `<p class="eyebrow">${run.phase === "victory" ? "O SOL NASCE PARA OS FORTES" : "A POEIRA COBRE MAIS UMA HISTÓRIA"}</p><h2 id="run-dialog-title">${run.phase === "victory" ? "Você sobreviveu!" : "Fim da jornada"}</h2><p>${run.kills} inimigos · Nível ${run.player.level}<br>${run.coins} moedas recolhidas</p><p>${this.profile.available ? "Seu saldo foi salvo." : "Saldo disponível apenas nesta sessão."}</p><div class="dialog-actions"><button class="primary" data-action="retry">Jogar novamente</button><button data-action="select">Voltar à seleção</button></div>`
+        : '<p class="eyebrow">RESPIRAR TAMBÉM É SOBREVIVER</p><h2 id="run-dialog-title">Partida pausada</h2><div class="dialog-actions"><button class="primary" data-action="resume">Continuar</button><button data-action="select">Encerrar e voltar</button></div>';
     if (!this.runDialog.open) this.runDialog.showModal();
   }
   endRun() {
+    this.audio.stopEffects();
+    this.audio.setMusic(null);
     cancelAnimationFrame(this.frame);
     this.runController?.abort();
     this.runDialog?.close();
@@ -206,6 +274,7 @@ export class GameApplication {
   dispose() {
     this.endRun();
     this.preview?.dispose();
+    this.merchant?.dispose();
     this.background?.dispose();
     this.audio.dispose();
     this.screen.dispose();

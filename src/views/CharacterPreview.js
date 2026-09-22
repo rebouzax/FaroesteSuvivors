@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { createCowboy, disposeObject } from "./CharacterFactory.js";
+import { disposeObject } from "./CharacterFactory.js";
+import { createCowboyRig } from "./CowboyRig.js";
 export class CharacterPreview {
   constructor(host) {
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -10,7 +11,7 @@ export class CharacterPreview {
     const sun = new THREE.DirectionalLight(0xffdba7, 3);
     sun.position.set(-2, 4, 3);
     this.scene.add(sun);
-    this.character = createCowboy();
+    this.character = createCowboyRig();
     this.character.rotation.y = -0.4;
     this.scene.add(this.character);
     this.camera = new THREE.PerspectiveCamera(32, 1, 0.1, 30);
@@ -19,7 +20,7 @@ export class CharacterPreview {
     this.observer = new ResizeObserver(() => {
       const w = host.clientWidth,
         h = host.clientHeight;
-      this.renderer.setSize(w, h);
+      this.renderer.setSize(w, h, false);
       this.camera.aspect = w / h;
       this.camera.updateProjectionMatrix();
       this.renderer.render(this.scene, this.camera);

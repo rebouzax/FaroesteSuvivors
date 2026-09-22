@@ -1,0 +1,294 @@
+.ability-bar {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border: 1px solid #f6da9b77;
+  background: #38281dbd;
+  color: #fbe1b2;
+  font: 11px/1.6 monospace;
+  text-align: center;
+  pointer-events: none;
+  max-width: 60%;
+}
+#merchant-preview canvas,
+#character-preview canvas {
+  width: 100%;
+  height: 100%;
+}
+.merchant-side,
+.shop-products,
+.selection-card {
+  min-width: 0;
+}
+dialog.upgrade-dialog {
+  width: min(1040px, calc(100% - 28px));
+  max-height: 90svh;
+  padding: 30px;
+  background: #f6dfb5;
+}
+.upgrade-dialog h2 {
+  font-size: clamp(28px, 4vw, 46px);
+  margin: 10px 0;
+}
+.cards-intro {
+  font-size: 14px;
+}
+.upgrade-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 25px 0;
+}
+.upgrade-card {
+  float: none !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  gap: 14px;
+  min-height: 330px;
+  padding: 20px;
+  border: 2px solid #9d8058;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #fff1d4, #e4c995);
+  box-shadow: 0 6px 0 #7d563d35;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+.upgrade-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 18px #72523a35;
+}
+.upgrade-card span {
+  float: none;
+}
+.upgrade-card strong {
+  font-size: 23px;
+  line-height: 1.1;
+}
+.card-corner,
+.card-rank {
+  font: 10px/1.5 monospace;
+  letter-spacing: 1px;
+}
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 67px;
+  height: 95px;
+  border-block: 1px solid #8f715642;
+  color: #66513d;
+}
+.upgrade-card.fire .card-icon {
+  color: #b45627;
+}
+.upgrade-card.heart .card-icon {
+  color: #a7423d;
+}
+.upgrade-card.steel .card-icon {
+  color: #536b72;
+}
+.card-description {
+  font:
+    14px/1.55 Georgia,
+    serif;
+  letter-spacing: 0;
+}
+.card-combo {
+  font: 10px/1.6 monospace;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #91755360;
+  color: #795231;
+  letter-spacing: 0;
+}
+.deck-rule {
+  font: 11px/1.7 monospace;
+  color: #7c5739;
+}
+#app.shop-screen {
+  background: radial-gradient(ellipse at 25% 45%, #544a3b, #201f20 75%);
+  color: #ead8b6;
+  gap: 25px;
+  min-height: 100svh;
+}
+.shop-screen .topline {
+  border-color: #af9a7940;
+}
+.shop-screen button {
+  color: inherit;
+}
+.shop-screen .text-button {
+  background: none;
+}
+.merchant-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 50px;
+  width: 100%;
+  max-width: 1300px;
+  margin: auto;
+}
+.merchant-side {
+  position: relative;
+  min-height: 640px;
+}
+#merchant-preview {
+  height: 520px;
+  width: 100%;
+  background: radial-gradient(ellipse at 50% 75%, #c4975124, transparent 65%);
+}
+#merchant-preview canvas {
+  display: block;
+}
+.merchant-caption {
+  position: relative;
+  margin-top: -30px;
+  text-align: center;
+}
+.merchant-caption h2 {
+  font-size: 35px;
+  line-height: 1.12;
+}
+.merchant-caption > p:last-child {
+  font:
+    italic 14px/1.6 Georgia,
+    serif;
+  color: #bfae92;
+  min-height: 45px;
+}
+.shop-products {
+  align-self: center;
+  padding: 15px 0;
+}
+.health-product {
+  padding: 30px;
+  border: 1px solid #b49b6770;
+  background: linear-gradient(135deg, #6250377d, #332e28);
+}
+.product-heart {
+  display: block;
+  font-size: 66px;
+  color: #db927b;
+  margin-bottom: 20px;
+}
+.health-product h3 {
+  font-size: 30px;
+  margin: 12px 0;
+}
+.health-product p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #d5c7ae;
+}
+.product-stats {
+  display: flex;
+  gap: 35px;
+  margin: 30px 0;
+  font: 10px monospace;
+  letter-spacing: 1px;
+}
+.product-stats b {
+  display: block;
+  font:
+    26px Georgia,
+    serif;
+  margin-top: 9px;
+}
+.health-product button.primary {
+  width: 100%;
+  text-align: center;
+  background: #c59856;
+  color: #2f241b;
+  box-shadow: none;
+  border-color: #e7be7c;
+}
+.health-product button:disabled {
+  background: #887454;
+  opacity: 0.65;
+}
+.shop-footnote {
+  font: 11px/1.8 monospace;
+  color: #bba98c;
+  max-width: 460px;
+}
+@media (max-width: 700px) {
+  .upgrade-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 15px 0;
+  }
+  .upgrade-card {
+    min-height: 0;
+    padding: 15px;
+    gap: 9px;
+  }
+  .card-icon {
+    height: 42px;
+    font-size: 40px;
+  }
+  .upgrade-card strong {
+    font-size: 23px;
+  }
+  .card-combo {
+    padding-top: 8px;
+  }
+  .upgrade-dialog h2 {
+    font-size: 29px;
+  }
+  dialog.upgrade-dialog {
+    padding: 20px;
+    max-height: 90svh;
+  }
+  .merchant-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .merchant-side {
+    min-height: 0;
+  }
+  #merchant-preview {
+    height: 330px;
+  }
+  .merchant-caption {
+    margin-top: -25px;
+  }
+  .merchant-caption h2 {
+    font-size: 29px;
+  }
+  .shop-products {
+    padding: 0;
+  }
+  .health-product {
+    padding: 23px;
+  }
+  .shop-screen .topline span:nth-child(2) {
+    display: none;
+  }
+  .shop-screen .topline span:last-child {
+    display: block;
+  }
+  .ability-bar {
+    bottom: 15px;
+    left: auto;
+    right: 12px;
+    transform: none;
+    max-width: 52%;
+    font-size: 9px;
+    padding: 7px;
+  }
+  .controls-hint {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .upgrade-card {
+    transition: none;
+  }
+  .upgrade-card:hover {
+    transform: none;
+  }
+}

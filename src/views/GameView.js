@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { CONFIG } from "../config/gameConfig.js";
-import { createCowboy, createBat, disposeObject } from "./CharacterFactory.js";
+import { createBat, disposeObject } from "./CharacterFactory.js";
+import { createCowboyRig, animateCowboy } from "./CowboyRig.js";
+import { createChupacabra } from "./ChupacabraFactory.js";
+import { AbilityEffectsView } from "./AbilityEffectsView.js";
 
 export class GameView {
   constructor(host, run) {
@@ -27,9 +30,13 @@ export class GameView {
     sun.position.set(-15, 30, 10);
     this.scene.add(sun);
     this.buildWorld();
-    this.player = createCowboy();
+    this.player = createCowboyRig();
     this.scene.add(this.player);
     this.batTemplate = createBat();
+    this.dogTemplate = createChupacabra();
+    this.dogPool = [];
+    this.effects = new AbilityEffectsView(this.scene);
+    this.renderTime = 0;
     const ring = new THREE.Mesh(
       new THREE.RingGeometry(0.6, 0.7, 32),
       new THREE.MeshBasicMaterial({
@@ -258,48 +265,57 @@ export class GameView {
   render(run) {
     const p = run.player,
       time = run.time + run.introTime;
-    this.player.position.set(p.x, Math.abs(Math.sin(time * 10)) * 0.04, p.z);
-    this.player.rotation.y = Math.atan2(p.dx, p.dz);
-    const walking =
-      run.phase === "playing" || (run.phase === "intro" && run.introTime < 5.6);
-    this.player.userData.legs.forEach(
-      (leg, i) =>
-        (leg.rotation.x = walking
-          ? Math.sin(time * 10 + i * Math.PI) * 0.55
-          : 0),
-    );
-    this.player.userData.arm.rotation.x = run.attack
-      ? -Math.sin((run.attack.age / CONFIG.whipDuration) * Math.PI) * 1.5
-      : 0;
+    const delta = Math.max(0, Math.min(0.1, time - this.renderTime));
+    this.renderTime = time;
+    animateCowboy(this.player, run, delta);
     this.player.visible =
       p.invulnerable <= 0 || Math.floor(p.invulnerable * 15) % 2 === 0;
     this.playerRing.position.set(p.x, 0.08, p.z);
     this.shadow.position.set(p.x, 0.06, p.z);
     this.camera.position.set(p.x, 24, p.z + 20);
     this.camera.lookAt(p.x, 0, p.z);
-    const live = new Set(run.bats.map((bat) => bat.id));
+    const live = new Set(run.enemies.map((bat) => bat.id));
     for (const [id, view] of this.batViews)
       if (!live.has(id)) {
         view.visible = false;
-        this.batPool.push(view);
+        (view.userData.species === "dog" ? this.dogPool : this.batPool).push(
+          view,
+        );
         this.batViews.delete(id);
       }
-    for (const bat of run.bats) {
+    for (const bat of run.enemies) {
       let view = this.batViews.get(bat.id);
       if (!view) {
-        view = this.batPool.pop() || this.batTemplate.clone(true);
+        view =
+          bat.type === "dog"
+            ? this.dogPool.pop() || this.dogTemplate.clone(true)
+            : this.batPool.pop() || this.batTemplate.clone(true);
+        view.userData.species = bat.type;
         this.scene.add(view);
         this.batViews.set(bat.id, view);
       }
       view.visible = true;
-      view.position.set(bat.x, 1.1 + Math.sin(time * 8 + bat.id) * 0.15, bat.z);
-      // Root children 1 and 4 are the wing pivots; clone userData is not relied upon.
-      for (const child of view.children)
-        if (child.isGroup)
-          child.rotation.y = Math.sin(time * 18 + bat.id) * 0.8;
+      view.scale.setScalar(bat.hitFlash > 0 ? 1.12 : 1);
+      view.position.set(
+        bat.x,
+        bat.type === "dog"
+          ? Math.abs(Math.sin(time * 13 + bat.id)) * 0.06
+          : 1.1 + Math.sin(time * 8 + bat.id) * 0.15,
+        bat.z,
+      );
+      if (bat.type === "dog") {
+        view.rotation.y = Math.atan2(p.x - bat.x, p.z - bat.z);
+        for (let i = 0; i < 4; i++)
+          view.getObjectByName(`dog-leg-${i}`).rotation.x =
+            Math.sin(time * 13 + i * 2) * 0.55;
+      } else
+        for (const child of view.children)
+          if (child.isGroup)
+            child.rotation.y = Math.sin(time * 18 + bat.id) * 0.8;
     }
     this.drawWhip(run);
     this.drawLoot(run, time);
+    this.effects.render(run);
     this.renderer.render(this.scene, this.camera);
   }
   drawWhip(run) {
@@ -362,6 +378,7 @@ export class GameView {
     this.controller.abort();
     disposeObject(this.scene);
     disposeObject(this.batTemplate);
+    disposeObject(this.dogTemplate);
     this.renderer.dispose();
     this.renderer.forceContextLoss();
     this.renderer.domElement.remove();
