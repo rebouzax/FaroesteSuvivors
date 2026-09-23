@@ -1,9 +1,20 @@
 import { CONFIG, levelCost } from "../config/gameConfig.js";
 import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { createWorld } from "./WorldModel.js";
+import { temporaryPrice } from "../config/shopConfig.js";
 export class RunModel {
-  constructor(random = Math.random, permanentHealth = 0) {
+  constructor(random = Math.random, permanentHealth = 0, bonuses = {}) {
     this.random = random;
+    this.attackRate = 1 + (bonuses.attackRank || 0) * 0.08;
+    this.moveSpeed =
+      CONFIG.playerSpeed * (1 + (bonuses.movementRank || 0) * 0.05);
+    this.primaryDamage = CONFIG.whipDamage + (bonuses.primaryRank || 0) * 2;
+    this.whipRank = 0;
+    this.shopPurchases = { whip: 0, pistol: 0, molotov: 0, heart: 0 };
+    this.merchant = null;
+    this.merchantWindow = -1;
+    this.vultureTimer = 0;
+    this.enemyVoiceTimers = { bat: 0, dog: 0 };
     this.phase = "intro";
     this.introTime = 0;
     this.time = 0;
@@ -89,5 +100,31 @@ export class RunModel {
   }
   get requiredXp() {
     return levelCost(this.player.level);
+  }
+  get merchantCards() {
+    return ["whip", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0)];
+  }
+  buyRunUpgrade(id) {
+    if (this.phase !== "merchant" || !this.merchantCards.includes(id))
+      return false;
+    const price = temporaryPrice(this.shopPurchases[id]);
+    if (!Number.isSafeInteger(price) || this.coins < price) return false;
+    this.coins -= price;
+    this.shopPurchases[id]++;
+    if (id === "whip") this.whipRank++;
+    else {
+      this.abilities[id]++;
+      if (id === "heart") {
+        this.player.maxHp += 20;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + 20);
+      }
+    }
+    return true;
+  }
+  leaveMerchant() {
+    if (this.phase !== "merchant") return;
+    this.phase = "playing";
+    this.merchant.reentryLocked = true;
+    this.player.invulnerable = Math.max(this.player.invulnerable, 1.5);
   }
 }

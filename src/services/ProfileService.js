@@ -1,4 +1,5 @@
 import { shopHealthPrice } from "../config/abilityConfig.js";
+import { PERMANENT_UPGRADES, permanentPrice } from "../config/shopConfig.js";
 const KEY = "faroeste:profile:v2";
 export class ProfileService {
   constructor(storage) {
@@ -8,13 +9,22 @@ export class ProfileService {
       music: true,
       wind: true,
       healthRank: 0,
+      attackRank: 0,
+      movementRank: 0,
+      primaryRank: 0,
     };
     this.available = true;
     try {
       this.storage = storage ?? globalThis.localStorage;
       const saved = JSON.parse(this.storage?.getItem(KEY) || "null");
       if (saved) {
-        for (const key of ["coins", "healthRank"])
+        for (const key of [
+          "coins",
+          "healthRank",
+          "attackRank",
+          "movementRank",
+          "primaryRank",
+        ])
           if (Number.isSafeInteger(saved[key]) && saved[key] >= 0)
             this.data[key] = saved[key];
         for (const key of ["wind", "sound", "music"])
@@ -52,10 +62,19 @@ export class ProfileService {
     return 100 + 20 * this.data.healthRank;
   }
   buyHealth() {
-    const price = this.healthPrice;
+    return this.buyUpgrade("health");
+  }
+  price(id) {
+    const upgrade = PERMANENT_UPGRADES[id];
+    return upgrade ? permanentPrice(id, this.data[upgrade.field]) : Infinity;
+  }
+  buyUpgrade(id) {
+    const upgrade = PERMANENT_UPGRADES[id];
+    const price = this.price(id);
+    if (!upgrade) return false;
     if (!Number.isSafeInteger(price) || this.data.coins < price) return false;
     this.data.coins -= price;
-    this.data.healthRank++;
+    this.data[upgrade.field]++;
     this.save();
     return true;
   }

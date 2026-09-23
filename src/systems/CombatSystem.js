@@ -45,7 +45,10 @@ export class CombatSystem {
           : Math.atan2(p.dz, p.dx),
         hit: false,
       };
-      run.cooldown = CONFIG.whipCooldown;
+      run.cooldown = Math.max(
+        CONFIG.whipDuration + 0.02,
+        CONFIG.whipCooldown / run.attackRate,
+      );
     }
     const attack = run.attack;
     if (!attack) return;
@@ -64,7 +67,7 @@ export class CombatSystem {
             Math.max(0.001, distance) >
             -0.1
         )
-          this.damage(enemy, CONFIG.whipDamage);
+          this.damage(enemy, run.primaryDamage + run.whipRank * 3);
       }
     }
     if (attack.age >= CONFIG.whipDuration) run.attack = null;
@@ -89,7 +92,7 @@ export class CombatSystem {
             age: 0,
             damage: stats.damage * this.multiplier(run, "pistol"),
           });
-          run.pistolTimer = stats.cooldown;
+          run.pistolTimer = Math.max(0.15, stats.cooldown / run.attackRate);
           run.shotFlash = 0.2;
           run.shotAngle = angle;
           run.events.push("shot");
@@ -150,7 +153,7 @@ export class CombatSystem {
             ...stats,
             damage: stats.damage * this.multiplier(run, "molotov"),
           });
-          run.molotovTimer = stats.cooldown;
+          run.molotovTimer = Math.max(0.7, stats.cooldown / run.attackRate);
           run.throwFlash = 0.65;
         }
       }

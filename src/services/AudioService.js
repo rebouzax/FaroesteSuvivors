@@ -1,4 +1,7 @@
 const FILES = {
+  bat: new URL("../assets/audio/bat.wav", import.meta.url),
+  dog: new URL("../assets/audio/chupacabra.wav", import.meta.url),
+  vulture: new URL("../assets/audio/vulture.wav", import.meta.url),
   menu: new URL("../assets/audio/menu-western.wav", import.meta.url),
   game: new URL("../assets/audio/desert-western.wav", import.meta.url),
   whip: new URL("../assets/audio/whip.wav", import.meta.url),
@@ -38,6 +41,9 @@ export class AudioService {
         this.musicGain = this.ctx.createGain();
         this.musicGain.gain.value = 0.42;
         this.musicGain.connect(this.ctx.destination);
+        this.uiGain = this.ctx.createGain();
+        this.uiGain.gain.value = 0.65;
+        this.uiGain.connect(this.ctx.destination);
         this.setPaused(this.paused);
         this.ctx.onstatechange = () => {
           if (!this.disposed && this.ctx.state === "running") {
@@ -119,15 +125,15 @@ export class AudioService {
     source.start();
     return source;
   }
-  play(type) {
+  play(type, { ui = false } = {}) {
     if (
       type === "fire" ||
       !this.enabled ||
-      this.paused ||
+      (this.paused && !ui) ||
       this.active.size >= 16
     )
       return;
-    const source = this.source(type, this.effectsGain);
+    const source = this.source(type, ui ? this.uiGain : this.effectsGain);
     if (!source) return;
     this.active.add(source);
     source.onended = () => {

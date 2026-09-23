@@ -8,6 +8,12 @@ import { GameView } from "../views/GameView.js";
 import { CharacterPreview } from "../views/CharacterPreview.js";
 import { MerchantView } from "../views/MerchantView.js";
 import { upgradeCardsMarkup } from "../views/UpgradeCardsView.js";
+import { preparationMarkup } from "../views/PreparationView.js";
+import {
+  permanentShopMarkup,
+  permanentProducts,
+  runShopMarkup,
+} from "../views/ShopView.js";
 
 export class GameApplication {
   constructor(root, canvas) {
@@ -21,8 +27,8 @@ export class GameApplication {
       (key, value) => this.setting(key, value),
     );
     this.character = false;
-    this.map = false;
     this.current = "menu";
+    this.shopReturn = "menu";
     this.controller = new AbortController();
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     const activateAudio = () => this.audio.unlock();
@@ -66,6 +72,10 @@ export class GameApplication {
     this.background.setWind(this.profile.data.wind);
   }
   show(name) {
+    if (name === "shop" && this.current !== "shop")
+      this.shopReturn = ["select", "map-select"].includes(this.current)
+        ? this.current
+        : "menu";
     this.merchant?.dispose();
     this.merchant = null;
     this.preview?.dispose();
@@ -74,21 +84,35 @@ export class GameApplication {
     this.ensureBackground();
     this.audio.setPaused(false);
     this.audio.setMusic(name === "exit" ? null : "menu");
-    if (name === "menu") this.screen.menu();
-    else if (name === "select") {
-      const host = this.screen.selection(
+    if (name === "menu") {
+      this.screen.menu();
+      this.root
+        .querySelector('[data-action="select"]')
+        .insertAdjacentHTML(
+          "afterend",
+          `<button class="market-callout" data-action="shop"><span>◈ Mercado do Bento<small>Melhorias permanentes · ${this.profile.data.coins} moedas</small></span><span>→</span></button>`,
+        );
+      this.root.querySelector("footer span:last-child").textContent =
+        "MERCADORES DO DESERTO / 0.4";
+    } else if (name === "select" || name === "map-select") {
+      this.root.className = "selection-screen preparation-screen";
+      this.root.innerHTML = preparationMarkup(
         this.profile,
-        this.character,
-        this.map,
+        name === "select" ? "character" : "map",
       );
-      try {
-        this.preview = new CharacterPreview(host);
-      } catch {
-        host.textContent =
-          "João Vaqueiro · chapéu de couro, gibão gasto e chicote";
+      const host = this.root.querySelector("#character-preview");
+      if (host) {
+        try {
+          this.preview = new CharacterPreview(host);
+        } catch {
+          host.textContent =
+            "João Vaqueiro · chapéu de couro, gibão gasto e chicote";
+        }
       }
     } else if (name === "shop") {
-      const host = this.screen.shop(this.profile);
+      this.root.className = "shop-screen";
+      this.root.innerHTML = permanentShopMarkup(this.profile, this.shopReturn);
+      const host = this.root.querySelector("#merchant-preview");
       try {
         this.merchant = new MerchantView(host);
       } catch {
@@ -109,13 +133,48 @@ export class GameApplication {
       });
       return;
     }
-    if (action === "buy-health") {
+    if (action.startsWith("run-buy:")) {
+      if (
+        !this.vm ||
+        this.vm.paused ||
+        !this.vm.model.buyRunUpgrade(action.slice(8))
+      )
+        return;
+      const id = action.slice(8);
+      this.runDialog.innerHTML = runShopMarkup(this.vm.model);
+      this.runDialog.querySelector("#run-shop-status").textContent =
+        "“Bom negócio, viajante.” Melhoria aplicada somente nesta partida.";
+      (
+        this.runDialog.querySelector(
+          `[data-action="run-buy:${id}"]:not(:disabled)`,
+        ) || this.runDialog.querySelector('[data-action="leave-merchant"]')
+      ).focus();
+      this.audio.play("purchase", { ui: true });
+      this.screen.updateHud(this.vm.model);
+      return;
+    }
+    if (action === "leave-merchant") {
+      this.vm?.model.leaveMerchant();
+      this.input?.clear();
+      this.accumulator = 0;
+      this.last = null;
+      this.showRunDialog();
+      return;
+    }
+    if (action.startsWith("buy:")) {
       if (this.current !== "shop") return;
-      if (this.profile.buyHealth()) {
-        this.screen.updateShop(this.profile);
+      const id = action.slice(4);
+      if (this.profile.buyUpgrade(id)) {
+        this.root.querySelector("#permanent-products").innerHTML =
+          permanentProducts(this.profile);
+        this.root.querySelector("#shop-wallet").textContent =
+          `◈ ${this.profile.data.coins} guardadas`;
+        this.root
+          .querySelector(`[data-action="buy:${id}"]:not(:disabled)`)
+          ?.focus();
         this.root.querySelector("#merchant-speech").textContent = this.profile
           .available
-          ? "“Obrigado, viajante. Que seu coração aguente a estrada.”"
+          ? "“Obrigado, viajante. Esta melhoria fica com você.”"
           : "“Obrigado, viajante.” Melhoria aplicada nesta sessão; não foi possível salvar.";
         this.merchant?.thank();
         this.audio.play("purchase");
@@ -137,22 +196,22 @@ export class GameApplication {
       }
       return;
     }
-    if (["menu", "select", "shop", "settings", "exit"].includes(action)) {
+    if (
+      ["menu", "select", "map-select", "shop", "settings", "exit"].includes(
+        action,
+      )
+    ) {
       if (this.vm) this.endRun();
       this.show(action);
       return;
     }
     if (action === "character") {
       this.character = true;
-      this.show("select");
-      this.root.querySelector('[data-action="character"]').focus();
+      this.show("map-select");
+      this.root.querySelector('[data-action="play"]').focus();
     }
-    if (action === "map") {
-      this.map = true;
-      this.show("select");
-      this.root.querySelector('[data-action="map"]').focus();
-    }
-    if (action === "play" && this.character && this.map) this.startRun();
+    if (action === "play" && this.character && this.current === "map-select")
+      this.startRun();
     if (action === "pause" || action === "resume") {
       this.vm?.togglePause();
       this.input?.clear();
@@ -215,7 +274,8 @@ export class GameApplication {
       "cancel",
       (event) => {
         event.preventDefault();
-        if (this.vm.paused) this.action("resume");
+        if (this.vm.model.phase === "merchant") this.action("leave-merchant");
+        else if (this.vm.paused) this.action("resume");
       },
       { signal: this.runController.signal },
     );
@@ -231,11 +291,15 @@ export class GameApplication {
     const delta =
       this.last === null ? 0 : Math.min(0.1, (now - this.last) / 1000);
     this.last = now;
-    if (!this.vm.paused) {
+    if (!this.vm.paused && ["intro", "playing"].includes(this.vm.model.phase)) {
       this.accumulator += delta;
       while (this.accumulator >= 1 / 60) {
         this.vm.update(1 / 60, this.input.read());
         this.accumulator -= 1 / 60;
+        if (!["intro", "playing"].includes(this.vm.model.phase)) {
+          this.accumulator = 0;
+          break;
+        }
       }
     } else this.accumulator = 0;
     this.gameView.render(this.vm.model);
@@ -257,26 +321,34 @@ export class GameApplication {
           ? "paused"
           : run.phase === "upgrade"
             ? `upgrade:${run.pendingChoices}`
-            : "";
+            : run.phase === "merchant"
+              ? "merchant"
+              : "";
     if (state === this.dialogState) return;
     this.dialogState = state;
+    if (state) this.input?.clear();
     this.audio.setPaused(Boolean(state));
     this.runDialog.classList.toggle(
       "upgrade-dialog",
       state.startsWith("upgrade:"),
     );
+    this.runDialog.classList.toggle("merchant-dialog", state === "merchant");
     if (!state) {
       this.runDialog.close();
       return;
     }
-    this.runDialog.innerHTML = state.startsWith("upgrade:")
-      ? upgradeCardsMarkup(run)
-      : ended
-        ? `<p class="eyebrow">${run.phase === "victory" ? "O SOL NASCE PARA OS FORTES" : "A POEIRA COBRE MAIS UMA HISTÓRIA"}</p><h2 id="run-dialog-title">${run.phase === "victory" ? "Você sobreviveu!" : "Fim da jornada"}</h2><p>${run.kills} inimigos · Nível ${run.player.level}<br>${run.coins} moedas recolhidas</p><p>${this.profile.available ? "Seu saldo foi salvo." : "Saldo disponível apenas nesta sessão."}</p><div class="dialog-actions"><button class="primary" data-action="retry">Jogar novamente</button><button data-action="select">Voltar à seleção</button></div>`
-        : '<p class="eyebrow">RESPIRAR TAMBÉM É SOBREVIVER</p><h2 id="run-dialog-title">Partida pausada</h2><div class="dialog-actions"><button class="primary" data-action="resume">Continuar</button><button data-action="select">Encerrar e voltar</button></div>';
+    this.runDialog.innerHTML =
+      state === "merchant"
+        ? runShopMarkup(run)
+        : state.startsWith("upgrade:")
+          ? upgradeCardsMarkup(run)
+          : ended
+            ? `<p class="eyebrow">${run.phase === "victory" ? "O SOL NASCE PARA OS FORTES" : "A POEIRA COBRE MAIS UMA HISTÓRIA"}</p><h2 id="run-dialog-title">${run.phase === "victory" ? "Você sobreviveu!" : "Fim da jornada"}</h2><p>${run.kills} inimigos · Nível ${run.player.level}<br>${run.coins} moedas restantes guardadas</p><p>${this.profile.available ? "Seu saldo foi salvo." : "Saldo disponível apenas nesta sessão."}</p><div class="dialog-actions"><button class="primary" data-action="retry">Jogar novamente</button><button data-action="select">Voltar à seleção</button></div>`
+            : '<p class="eyebrow">RESPIRAR TAMBÉM É SOBREVIVER</p><h2 id="run-dialog-title">Partida pausada</h2><div class="dialog-actions"><button class="primary" data-action="resume">Continuar</button><button data-action="select">Encerrar e voltar</button></div>';
     if (!this.runDialog.open) this.runDialog.showModal();
   }
   endRun() {
+    this.vm?.settle();
     this.audio.stopEffects();
     this.audio.setMusic(null);
     cancelAnimationFrame(this.frame);

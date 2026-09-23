@@ -4,6 +4,8 @@ import { createBat, disposeObject } from "./CharacterFactory.js";
 import { createCowboyRig, animateCowboy } from "./CowboyRig.js";
 import { createChupacabra } from "./ChupacabraFactory.js";
 import { AbilityEffectsView } from "./AbilityEffectsView.js";
+import { createVulture } from "./VultureFactory.js";
+import { MapMerchantView } from "./MapMerchantView.js";
 
 export class GameView {
   constructor(host, run) {
@@ -35,6 +37,24 @@ export class GameView {
     this.batTemplate = createBat();
     this.dogTemplate = createChupacabra();
     this.dogPool = [];
+    this.vulturePool = [];
+    this.vultureTemplate = createVulture();
+    this.mapMerchant = new MapMerchantView(this.scene);
+    const warnings = new THREE.BufferGeometry();
+    warnings.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(24 * 2 * 3), 3),
+    );
+    this.chargeWarnings = new THREE.LineSegments(
+      warnings,
+      new THREE.LineBasicMaterial({
+        color: 0xd13722,
+        transparent: true,
+        opacity: 0.8,
+      }),
+    );
+    this.chargeWarnings.frustumCulled = false;
+    this.scene.add(this.chargeWarnings);
     this.effects = new AbilityEffectsView(this.scene);
     this.renderTime = 0;
     const ring = new THREE.Mesh(
@@ -278,18 +298,23 @@ export class GameView {
     for (const [id, view] of this.batViews)
       if (!live.has(id)) {
         view.visible = false;
-        (view.userData.species === "dog" ? this.dogPool : this.batPool).push(
-          view,
-        );
+        (view.userData.species === "vulture"
+          ? this.vulturePool
+          : view.userData.species === "dog"
+            ? this.dogPool
+            : this.batPool
+        ).push(view);
         this.batViews.delete(id);
       }
     for (const bat of run.enemies) {
       let view = this.batViews.get(bat.id);
       if (!view) {
         view =
-          bat.type === "dog"
-            ? this.dogPool.pop() || this.dogTemplate.clone(true)
-            : this.batPool.pop() || this.batTemplate.clone(true);
+          bat.type === "vulture"
+            ? this.vulturePool.pop() || this.vultureTemplate.clone(true)
+            : bat.type === "dog"
+              ? this.dogPool.pop() || this.dogTemplate.clone(true)
+              : this.batPool.pop() || this.batTemplate.clone(true);
         view.userData.species = bat.type;
         this.scene.add(view);
         this.batViews.set(bat.id, view);
@@ -303,7 +328,12 @@ export class GameView {
           : 1.1 + Math.sin(time * 8 + bat.id) * 0.15,
         bat.z,
       );
-      if (bat.type === "dog") {
+      if (bat.type === "vulture") {
+        view.rotation.y = Math.atan2(bat.vx, bat.vz);
+        for (const side of [-1, 1])
+          view.getObjectByName(`vulture-wing-${side}`).rotation.z =
+            side * Math.sin(time * 9 + bat.id) * 0.35;
+      } else if (bat.type === "dog") {
         view.rotation.y = Math.atan2(p.x - bat.x, p.z - bat.z);
         for (let i = 0; i < 4; i++)
           view.getObjectByName(`dog-leg-${i}`).rotation.x =
@@ -316,6 +346,23 @@ export class GameView {
     this.drawWhip(run);
     this.drawLoot(run, time);
     this.effects.render(run);
+    this.mapMerchant.render(run);
+    let warningCount = 0;
+    const positions = this.chargeWarnings.geometry.attributes.position;
+    for (const enemy of run.enemies) {
+      if (enemy.type !== "vulture" || enemy.warning <= 0 || warningCount >= 24)
+        continue;
+      positions.setXYZ(warningCount * 2, enemy.x, 0.09, enemy.z);
+      positions.setXYZ(
+        warningCount * 2 + 1,
+        enemy.x + enemy.vx * 5.2,
+        0.09,
+        enemy.z + enemy.vz * 5.2,
+      );
+      warningCount++;
+    }
+    positions.needsUpdate = true;
+    this.chargeWarnings.geometry.setDrawRange(0, warningCount * 2);
     this.renderer.render(this.scene, this.camera);
   }
   drawWhip(run) {
@@ -379,6 +426,7 @@ export class GameView {
     disposeObject(this.scene);
     disposeObject(this.batTemplate);
     disposeObject(this.dogTemplate);
+    disposeObject(this.vultureTemplate);
     this.renderer.dispose();
     this.renderer.forceContextLoss();
     this.renderer.domElement.remove();

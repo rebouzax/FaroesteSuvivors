@@ -32,12 +32,12 @@ export function abilityStats(id, level) {
     };
   return { health: 20 };
 }
-export function cardDescription(id, nextLevel) {
+export function cardDescription(id, nextLevel, attackRate = 1) {
   const stats = abilityStats(id, nextLevel);
   if (id === "pistol")
-    return `${stats.damage} de dano · um tiro a cada ${stats.cooldown.toFixed(2)} s.`;
+    return `${stats.damage} de dano · um tiro a cada ${Math.max(0.15, stats.cooldown / attackRate).toFixed(2)} s.`;
   if (id === "molotov")
-    return `${stats.damage} de dano/s · fogo por ${stats.duration.toFixed(2)} s · arremesso a cada ${stats.cooldown.toFixed(2)} s.`;
+    return `${stats.damage} de dano/s · fogo por ${stats.duration.toFixed(2)} s · arremesso a cada ${Math.max(0.7, stats.cooldown / attackRate).toFixed(2)} s.`;
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);

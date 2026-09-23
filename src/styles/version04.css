@@ -1,0 +1,178 @@
+.preparation-panel {
+  width: min(620px, 100%);
+  margin: auto;
+}
+.preparation-panel h2 {
+  font-size: clamp(28px, 5vw, 43px);
+  margin: 12px 0;
+}
+.selection-steps {
+  display: flex;
+  gap: 22px;
+  padding: 0;
+  list-style: none;
+  font: 12px monospace;
+  color: #896d52;
+}
+.selection-steps [aria-current="step"] {
+  color: #572f19;
+  font-weight: bold;
+  border-bottom: 2px solid;
+  padding-bottom: 8px;
+}
+.focused-card {
+  margin: 20px 0 16px;
+}
+.market-callout,
+nav .market-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 76px;
+  padding: 16px 22px;
+  background: #4b3425;
+  color: #ffe2a6;
+  border: 2px solid #b08043;
+  box-shadow: 0 5px 0 #37221633;
+  text-align: left;
+}
+.market-callout:hover {
+  background: #68452c;
+  color: #fff0c9;
+}
+.market-callout span {
+  float: none;
+}
+.market-callout strong {
+  font-size: 20px;
+}
+.market-callout small {
+  display: block;
+  font: 11px/1.6 monospace;
+  letter-spacing: 0;
+  margin-top: 5px;
+}
+.market-icon {
+  font-size: 32px;
+}
+.preparation-help {
+  font: 12px/1.7 monospace;
+}
+.permanent-products,
+.run-shop-products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.market-product {
+  padding: 20px;
+  border: 1px solid #b99b6580;
+  background: #70573422;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.market-product h3 {
+  margin: 0;
+  font-size: 23px;
+}
+.market-product p {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.market-product .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.product-symbol {
+  font-size: 31px;
+}
+.market-product button {
+  margin-top: auto;
+  min-height: 48px;
+  font-size: 12px;
+  padding: 13px;
+}
+.shop-screen .market-product button {
+  background: #cda364;
+  color: #2f2115;
+}
+.shop-screen .market-product button:disabled {
+  opacity: 0.6;
+}
+dialog.merchant-dialog {
+  width: min(850px, calc(100% - 24px));
+  max-height: 90svh;
+  padding: 28px;
+  overflow-y: auto;
+  background: #f6dfb5;
+}
+.merchant-dialog h2 {
+  font-size: clamp(26px, 4vw, 38px);
+  margin: 10px 0;
+}
+.merchant-dialog > p {
+  line-height: 1.5;
+}
+.merchant-dialog button {
+  float: none;
+}
+.merchant-dialog > .primary {
+  width: 100%;
+  margin-top: 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  box-shadow: 0 -5px 12px #f6dfb5;
+}
+.merchant-hint,
+.vulture-warning {
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 12px;
+  background: #322317dd;
+  color: #ffe1a3;
+  line-height: 1.5;
+  border: 1px solid #b99b65;
+}
+.vulture-warning {
+  background: #682c20ee;
+  color: #fff1d5;
+}
+.hud-stats {
+  flex-wrap: wrap;
+}
+@media (max-width: 650px) {
+  .permanent-products,
+  .run-shop-products {
+    grid-template-columns: 1fr;
+  }
+  .merchant-layout {
+    gap: 20px;
+  }
+  .market-product {
+    padding: 16px;
+  }
+  .preparation-panel .focused-card {
+    padding: 16px;
+  }
+  .market-callout {
+    padding: 14px;
+  }
+  dialog.merchant-dialog {
+    padding: 18px;
+  }
+  .merchant-hint,
+  .vulture-warning {
+    font-size: 10px;
+  }
+  .merchant-side {
+    min-height: 0;
+  }
+  .shop-screen #merchant-preview {
+    height: 240px;
+  }
+}

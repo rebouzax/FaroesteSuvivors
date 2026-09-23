@@ -1,12 +1,14 @@
 import { CONFIG } from "../config/gameConfig.js";
 import { EnemySystem } from "./EnemySystem.js";
 import { CombatSystem } from "./CombatSystem.js";
+import { MerchantSystem } from "./MerchantSystem.js";
 const clamp = (value) =>
   Math.max(-CONFIG.mapHalf + 1, Math.min(CONFIG.mapHalf - 1, value));
 export class RunSystem {
   constructor() {
     this.enemies = new EnemySystem();
     this.combat = new CombatSystem();
+    this.merchant = new MerchantSystem();
   }
   update(run, dt, input) {
     run.events.length = 0;
@@ -28,6 +30,8 @@ export class RunSystem {
     p.invulnerable = Math.max(0, p.invulnerable - dt);
     run.levelFlash = Math.max(0, run.levelFlash - dt);
     this.move(run, dt, input);
+    this.merchant.update(run);
+    if (run.phase === "merchant") return;
     this.enemies.update(run, dt);
     this.combat.update(run, dt);
     run.enemies = run.enemies.filter((enemy) => {
@@ -41,6 +45,7 @@ export class RunSystem {
       return false;
     });
     for (const enemy of run.enemies) {
+      if (enemy.warning > 0) continue;
       if (
         Math.hypot(enemy.x - p.x, enemy.z - p.z) <
           (enemy.type === "dog" ? 1 : 0.85) &&
@@ -66,8 +71,8 @@ export class RunSystem {
       p.dx = input.x / length;
       p.dz = input.z / length;
     }
-    p.x = clamp(p.x + p.dx * CONFIG.playerSpeed * dt);
-    p.z = clamp(p.z + p.dz * CONFIG.playerSpeed * dt);
+    p.x = clamp(p.x + p.dx * run.moveSpeed * dt);
+    p.z = clamp(p.z + p.dz * run.moveSpeed * dt);
     for (const prop of run.props) {
       const dx = p.x - prop.x,
         dz = p.z - prop.z,

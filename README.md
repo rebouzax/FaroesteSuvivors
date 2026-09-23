@@ -1,136 +1,158 @@
-# Faroeste Survivors — versão 0.3 · Cartas do Sertão
+# Faroeste Survivors — versão 0.4 · Mercadores do Deserto
 
-Atualização da versão 0.2: animação articulada de João Vaqueiro, três cartas de evolução, pistola, molotov, chupacabras, dificuldade crescente, loja com melhoria permanente de vida e mercador 3D animado. Inclui efeitos e duas músicas originais sintetizadas, em arquivos WAV dentro de `src/assets/audio`.
+Atualização sobre o commit `376ee95` do repositório: seleção em etapas, mercado destacado, quatro melhorias permanentes, mercador itinerante, urubus em formação e sons dos monstros. Preserva as correções de áudio da versão 0.3, as cartas de evolução, a animação de João e os controles de toque.
 
-## Instalação
+## Aplicar este pacote
 
-1. Faça backup do projeto atual e revise conflitos caso tenha feito alterações próprias.
-2. Extraia o ZIP e copie `src`, `index.html` e este README para `C:\projetos\webjogos\FaroesteSuvivors`, mesclando pastas e substituindo os arquivos desta entrega.
-3. Preserve seu `package.json`, `package-lock.json` e as configurações do Vite. O projeto continua JavaScript com ES Modules (`"type": "module"`).
-4. Execute na pasta do projeto:
+1. Faça backup do projeto e revise conflitos se tiver alterações locais posteriores.
+2. Extraia o ZIP e copie `src`, `index.html` e `README.md` para `C:\projetos\webjogos\FaroesteSuvivors`, mesclando as pastas e substituindo os arquivos correspondentes.
+3. Preserve `package.json`, `package-lock.json`, configuração do Vite e workflow do GitHub Pages. Não há dependências novas; usa o Three.js e o Vite existentes.
+4. Execute:
 
 ```powershell
-npm install three@0.186.0
 npm run dev
+npm run build
 ```
 
-Se o PowerShell bloquear `npm.ps1`, use `npm.cmd`. Abra o endereço informado pelo Vite; não use `file://`.
+Use `npm ci` antes se as dependências ainda não estiverem instaladas. Se o PowerShell bloquear `npm.ps1`, use `npm.cmd`. Abra o endereço do Vite, não o arquivo HTML diretamente.
 
-O ZIP contém somente `src`, `index.html` e README. Não inclui testes, `node_modules`, `dist`, configurações ou package.json. A entrada permanece `src/menu-main.js`; arquivos antigos que não são importados podem continuar no projeto.
+O pacote contém somente `src/`, `index.html` e este README. Testes, ferramentas de validação, `dist` e `node_modules` não estão incluídos. Como o package.json foi preservado, o log do npm pode continuar mostrando 0.0.3; a interface e esta entrega são 0.4.
 
-É necessário WebGL2 e aceleração gráfica. Não há nova biblioteca de runtime além do Three.js já utilizado. Áudio e modelos estão no pacote; não há CDN, fontes externas ou download de arte durante a partida.
+Para publicar, envie os arquivos atualizados ao repositório. O workflow existente fará o build. Mantenha `base: "/FaroesteSuvivors/"` na configuração do Vite. Após a publicação, atualize a página com Ctrl+F5.
 
-## O que mudou
+## Preparação e acesso ao mercado
 
-- João tem ombros, cotovelos, joelhos, giro suavizado, movimento de cabeça, balanço do gibão e do corpo, recuo no tiro e gesto de arremesso. O ciclo das pernas para ao ficar bloqueado. O chicote enrolado aparece na mão quando não está atacando.
-- Ao subir de nível, a partida e seus temporizadores congelam e surgem três cartas. Uma escolha por nível. Se uma coleta atravessar vários níveis, as escolhas são apresentadas sucessivamente, sem perder o XP excedente.
-- Cartas adquiridas reaparecem como evolução de grau nas próximas escolhas. As três opções sempre são pistola, molotov e coração.
-- Morcegos e chupacabras aumentam vida, dano e armadura com o tempo, inclusive os já presentes.
-- A loja tem Bento, o Andarilho: mercador procedural encapuzado, mochila, bolsas, braços cruzados, respiração e gesto de agradecimento após compra aprovada. Sua roupa e silhueta usam a referência visual como inspiração em estilo low-poly.
-- A melhoria permanente de vida usa moedas coletadas nas partidas. O saldo da v0.2 é preservado.
+- Novo jogo abre apenas a escolha de personagem.
+- Escolher João abre apenas a escolha de fase.
+- Escolher o Deserto dos Esquecidos inicia a partida.
+- Voltar permite trocar a escolha anterior.
+- Mercado do Bento aparece como botão grande logo abaixo de Novo jogo e junto das escolhas, com o saldo guardado.
+- Entrar no mercado e voltar preserva a etapa de preparação.
 
-## Cartas e regras de combate
+## Mercado permanente do menu
 
-| Carta | Primeiro grau | Próximos graus |
+| Produto | Bônus por compra | Preço inicial |
 | --- | --- | --- |
-| Pistola do Sertão · Ferro | 15 de dano; uma bala a cada 1,7 s; mira no inimigo próximo até 18 unidades | +5 de dano por grau; intervalo -0,08 s por grau, mínimo 0,65 s |
-| Coquetel Molotov · Fogo | Arremessa a cada 5 s quando existe inimigo até 12 unidades; mira no mais próximo; fogo circular por 4 s; 10 de dano por segundo | +3 de dano/s, +0,25 s de duração (máximo 6 s), +0,15 de raio (máximo 4) e -0,15 s no intervalo (mínimo 3 s) por grau |
-| Coração de Vaqueiro · Vida | +20 de vida máxima e recupera 20 de vida na partida | Cada nova escolha repete +20 de vida máxima e recuperação de 20 |
+| Coração de Vaqueiro | +20 de vida inicial | 25 |
+| Mãos Ligeiras | +8% de velocidade de ataque, aplicada a todas as armas | 35 |
+| Passo do Sertão | +5% de velocidade de movimento | 30 |
+| Couro e Aço | +2 de dano base da arma principal; para João, o chicote | 40 |
 
-A pistola atira na última direção de movimento quando não encontra alvo. A bala percorre o cenário e acerta o primeiro inimigo em sua trajetória; colisão considera todo o segmento percorrido no passo, evitando atravessar inimigos entre quadros.
+O preço de cada produto é `ceil(preço inicial × 1,55 ^ compras anteriores daquele produto)`. São compras repetíveis; cada produto tem seu próprio nível e preço. Valores que ultrapassam o intervalo seguro de números são recusados.
 
-O molotov viaja por 0,65 s e deixa o fogo na posição escolhida no lançamento. O círculo permanece no chão e não persegue o alvo. No grau inicial são quatro pulsos de 10 de dano, aos 1, 2, 3 e 4 segundos. Nos graus com duração fracionada, o último trecho aplica dano proporcional. Regiões sobrepostas causam dano independentemente. O fogo não machuca João.
+Os bônus de velocidade são aditivos sobre a base: duas compras de ataque dão +16%; duas de movimento dão +10%. O intervalo de ataque é dividido pelo multiplicador de velocidade. Para respeitar as animações e limitar a carga, os intervalos finais têm mínimos: chicote 0,40 s, pistola 0,15 s, molotov 0,70 s.
 
-Os valores de dano são anteriores à redução por armadura e aos bônus de sequência. O chicote mantém 10 de dano e ataque automático da v0.2. Esta versão não adiciona uma quarta carta para ele.
+O dano do chicote é `10 + 2 × nível permanente + 3 × melhorias temporárias`, antes da armadura do alvo.
 
-### Mecânica original: Trinca do Sertão
+## Mercador itinerante da partida
 
-Cada carta pertence a um naipe: Ferro, Fogo ou Vida. A ordem das escolhas forma uma sequência:
+Bento aparece uma vez em cada janela, usando tempo efetivo da partida:
 
-- Primeira escolha: sequência 1.
-- Escolher um naipe diferente do anterior aumenta a sequência, até 3.
-- Repetir o mesmo naipe melhora o grau normalmente e reinicia a sequência em 1.
-- Pistola ou molotov na sequência 2 ganha +20% de dano durante 20 segundos; na sequência 3, +40%. O bônus vale para novos disparos/arremessos da habilidade escolhida. Cada projétil preserva o dano que tinha ao ser lançado.
-- Coração na sequência 2 recupera 10 de vida extra; na sequência 3, 20 extras, respeitando o máximo. A vida máxima continua aumentando em 20.
-- Uma nova escolha substitui o bônus temporário anterior. O tempo do bônus congela durante pausa e escolha de cartas.
+| Aparece | Desaparece |
+| --- | --- |
+| 1:40 (100 s) | 3:00 (180 s) |
+| 7:00 (420 s) | 10:00 (600 s) |
 
-Assim há uma decisão entre concentrar graus em uma habilidade ou alternar naipes para obter um impulso imediato. As cartas mostram o próximo grau, seus atributos e o bônus previsto antes da escolha.
+Cada aparição escolhe um ponto aleatório numa clareira a aproximadamente 18–30 unidades do jogador, dentro dos limites do mapa. Há busca alternativa de clareira caso os obstáculos bloqueiem as tentativas. O mercador tem um modelo 3D, banca, anel dourado e marcador flutuante. O HUD mostra direção, distância e tempo até a partida de Bento.
 
-Graus e aumentos de vida das cartas duram somente a partida. O nível de João segue 100 XP para 1→2, 300 para 2→3, 600 para 3→4, 1000 para 4→5; fórmula por nível: `100 × nível × (nível + 1) / 2`.
+Aproximar-se a menos de 2,4 unidades abre a loja automaticamente. Personagem, inimigos, ataques, efeitos temporizados e relógio congelam. Portanto Bento não desaparece enquanto o jogador está comprando.
 
-## Inimigos e dificuldade
+A loja apresenta apenas habilidades já possuídas:
 
-| Inimigo | Vida base | Dano base | Armadura base | Recompensa |
+- Chicote: sempre disponível; +3 de dano por compra temporária.
+- Pistola: aparece após desbloqueada; compra sobe um grau, usando a mesma progressão das cartas.
+- Molotov: aparece após desbloqueado; compra sobe um grau.
+- Coração: aparece após adquirido por carta; +20 de vida máxima e recupera 20 de vida.
+
+Cada produto começa em 8 moedas da partida. Preço: `ceil(8 × 1,6 ^ compras anteriores daquele produto nesta partida)` → 8, 13, 21, 33… Os graus obtidos ao subir de nível não aumentam o contador de compras. Compras no mercador não consomem escolhas de nível nem ativam/alteram a sequência de naipes.
+
+Voltar à partida ou Escape fecha a loja. João recebe 1,5 s de proteção de contato e precisa se afastar mais de 4 unidades antes de reabrir a mesma banca. O preço e as melhorias persistem entre as duas visitas da mesma partida; tudo temporário é reiniciado na próxima.
+
+## Duas carteiras e salvamento
+
+- **Moedas guardadas:** saldo do menu. Compra melhorias permanentes.
+- **Moedas da partida:** começa em zero e recebe as moedas recolhidas no mapa. Compra melhorias temporárias.
+- O saldo guardado nunca é debitado pelas compras no mapa.
+- Ao vencer, perder ou encerrar pelo menu, somente as moedas não gastas da partida são transferidas ao saldo guardado, uma única vez.
+- Gastos temporários não são reembolsados. Uma nova partida começa sem as melhorias temporárias e com carteira zero.
+
+A chave de armazenamento continua `faroeste:profile:v2`. Saldo, vida e preferências existentes são preservados; os novos níveis de ataque, movimento e arma principal começam em zero. Se o navegador bloquear o armazenamento, as alterações valem apenas na sessão e a interface informa.
+
+Não existe salvamento da partida em andamento: fechar ou recarregar a página antes de encerrar perde o progresso e as moedas daquela partida. Use Encerrar e voltar para guardar o saldo restante. O armazenamento é local por navegador, perfil e origem (host/porta/protocolo); não sincroniza entre aparelhos.
+
+## Inimigos e urubus
+
+| Inimigo | Entrada | Vida base | Dano base | Comportamento |
 | --- | --- | --- | --- | --- |
-| Morcego | 10 | 10 | 0 | Bala de 10 XP; 1 moeda nos marcos de cinco abates quando o abatido é morcego |
-| Chupacabra | 35 | 14 | 2 | Bala de 20 XP e 2 moedas |
+| Morcego | Início | 10 | 10 | Persegue João |
+| Chupacabra | 1:00 | 35 | 14 | Persegue João, mais rápido e resistente |
+| Urubu carniceiro | 2:00 | 6 | 2 | Bando de seis, avanço em linhas paralelas |
 
-O primeiro chupacabra pode surgir a partir de 60 segundos de partida, inicialmente um por onda. O intervalo começa em 7 s e diminui até 2 s; a quantidade aumenta a cada quatro minutos após sua estreia. Os morcegos continuam surgindo. Há limite total de 160 inimigos ativos para controlar o custo de renderização e simulação.
+Morcegos e chupacabras mantêm a progressão anterior: a cada minuto, vida base × `(1 + 0,18 × minuto)`, dano base × `(1 + 0,12 × minuto)`, arredondados; armadura base + `floor(minuto / 2)`. Base de armadura: morcego 0, chupacabra 2. Os urubus ficam com 6 de vida, 2 de dano e zero armadura durante toda a fase.
 
-A cada minuto completo, a vida base é multiplicada por `1 + 0,18 × minuto`, o dano por `1 + 0,12 × minuto` (ambos arredondados) e a armadura recebe `floor(minuto / 2)`. A velocidade também cresce moderadamente. Como o chupacabra estreia no minuto 1, seu primeiro exemplar tem 41 de vida e 16 de dano. Inimigos existentes preservam a porcentagem de vida restante quando seus atributos crescem.
+O primeiro bando surge aos 120 s; os próximos usam intervalo `max(12, 22 - minuto)` segundos. Cada bando fixa a direção na posição de João no instante do surgimento. São seis faixas paralelas espaçadas em 1,4 unidade, com origem a 26 unidades do alvo inicial:
 
-Mitigação: `dano recebido = dano bruto × 20 / (20 + armadura)`. A armadura afeta chicote, balas e fogo. A proteção de João após contato permanece em 0,9 s.
+1. Aviso de 1,5 s, com faixas vermelhas no solo, texto no HUD e som de urubu.
+2. Avanço a 10 unidades/s, sem perseguir a nova posição de João.
+3. Após atravessar a área, os sobreviventes saem e são removidos aos 10 s de existência, sem gerar recompensa.
 
-## Loja e salvamento
+Urubus em aviso ainda não causam contato. Mortos em combate deixam bala de 10 XP; seguem a regra de moeda a cada quinto abate não canino. Chupacabras deixam 20 XP e duas moedas. A armadura reduz dano pela fórmula `dano × 20 / (20 + armadura)`.
 
-**Fôlego de Vaqueiro:** cada compra acrescenta permanentemente +20 de vida inicial. Sem compra: 100; uma compra: 120; duas: 140, e assim por diante.
+A população de perseguidores respeita o limite geral anterior de 160; bandos têm reserva de até 24 urubus, permitindo no máximo 184 entidades no cenário.
 
-Preço: `ceil(25 × 1,55 ^ compras anteriores)` → **25, 39, 61, 94, 145…** moedas. Não há teto de compras definido no balanceamento; valores fora do intervalo numérico seguro são recusados. O botão é desabilitado se o saldo não for suficiente. Uma compra desconta o preço atual e incrementa a melhoria exatamente uma vez.
+## Cartas e controles preservados
 
-Moedas recolhidas são creditadas imediatamente. O saldo, a melhoria de vida e as preferências usam a mesma chave local da v0.2, `faroeste:profile:v2`, com campos adicionais. Portanto, atualizar não limpa o saldo. Se o navegador bloquear o armazenamento, as alterações continuam somente na sessão e a interface avisa. Não há salvamento da partida em andamento, sincronização online ou moedas pagas com dinheiro real.
+A partida dura 15 minutos após a entrada animada de seis segundos. WASD/setas ou joystick de toque mudam a direção; João continua andando automaticamente na última direção. As armas atacam automaticamente.
 
-Para manter o saldo, use a mesma origem de antes: navegador/perfil, protocolo, host e porta. `localhost:5173` e `localhost:5174`, por exemplo, têm armazenamentos distintos.
+Ao subir de nível, as três opções continuam sendo pistola, molotov e coração, uma escolha por nível. XP exigido dentro de cada nível: 100, 300, 600, 1000… (`100 × nível × (nível + 1) / 2`).
 
-## Áudio incluído
+- Pistola: 15 de dano e intervalo base de 1,7 s; +5 de dano e -0,08 s por grau, até 0,65 s antes do bônus permanente de ataque.
+- Molotov: 10 de dano/s, fogo por 4 s e intervalo base de 5 s. Cada grau acrescenta 3 de dano/s, 0,25 s de duração (máximo 6 s), 0,15 de raio (máximo 4) e reduz 0,15 s do intervalo (mínimo 3 s antes do bônus permanente).
+- Coração: +20 de vida máxima e recuperação de 20 por escolha.
+- Alternar naipes nas cartas aumenta a sequência até 3: pistola/molotov recebem +20%/+40% de dano por 20 s; coração recupera 10/20 extras. Repetir reinicia a sequência em 1.
+- Escape pausa/retoma; dentro do mercador, fecha a loja. Tab/Enter e toque funcionam nos menus.
+- Pausa, cartas e loja não consomem o tempo da fase.
 
-Todos os arquivos abaixo estão em `src/assets/audio`, WAV mono de 22.050 Hz:
+## Áudio
+
+Todos os 12 arquivos WAV ficam em `src/assets/audio/`. São efeitos e músicas sintetizados, PCM mono de 22.050 Hz:
 
 | Arquivo | Uso |
 | --- | --- |
-| menu-western.wav | Tema do menu/loja, cerca de 41,74 s, 92 BPM, loop |
-| desert-western.wav | Tema da primeira fase, cerca de 34,29 s, 112 BPM, loop |
-| whip.wav | Estalo do chicote |
-| shot.wav | Disparo da pistola |
-| glass.wav | Garrafa quebrando ao atingir o chão |
-| fire.wav | Crepitação em loop enquanto houver regiões de fogo |
-| level.wav | Subida de nível |
-| purchase.wav | Compra aprovada |
-| hurt.wav | João recebendo dano |
+| menu-western.wav | Música do menu e mercado permanente |
+| desert-western.wav | Música da partida |
+| whip.wav, shot.wav | Chicote e disparo |
+| glass.wav, fire.wav | Garrafa e fogo |
+| level.wav, purchase.wav, hurt.wav | Evolução, compra e dano |
+| bat.wav | Guincho agudo e asas de morcego |
+| chupacabra.wav | Rosnado |
+| vulture.wav | Grasnado de aviso do bando |
 
-As duas composições são originais, instrumentais e sintetizadas, com assovio, cordas dedilhadas com timbre de violão, baixo e percussão leve. Não contêm canto nem gravações de músicas comerciais. São trilhas de protótipo, prontas para substituir por gravações produzidas posteriormente.
+Vocalizações de morcegos e chupacabras só ocorrem com a espécie a menos de 18 unidades. Há intervalo por espécie (5–8 s para morcegos, 7–11 s para chupacabras), evitando um som por monstro a cada quadro. Urubus emitem um aviso por bando.
 
-Por exigência dos navegadores, o áudio começa após um clique, toque ou tecla. Música e efeitos têm controles separados nas Configurações. Ao entrar na fase, o tema muda; ao voltar aos menus, retorna ao tema do menu. Pausas/cartas reduzem a música e silenciam efeitos; ocultar a aba suspende o áudio. Os loops e os efeitos são descartados corretamente ao sair/reiniciar.
+O áudio inicia após clique, toque ou tecla. Configurações permite ligar efeitos, música e testar/repetir o carregamento. Ao voltar à aba, o contexto de áudio é retomado quando o navegador permite. Na loja da partida os sons de combate ficam suspensos, mas o som de compra usa um canal de interface separado. Nenhuma gravação comercial foi adicionada.
 
-## Controles e ciclo de partida
+## Organização MVVM adaptada
 
-- A entrada de João dura seis segundos: caminha por 5,6 s e para por 0,4 s. O cronômetro e inimigos só começam depois.
-- WASD/setas ou joystick de toque mudam a direção. João continua automaticamente na última direção escolhida.
-- Chicote, pistola e molotov atacam automaticamente; os dois últimos precisam ser desbloqueados nas cartas.
-- Escape/botão pausa: interrompe a simulação. Se usado durante uma escolha, permite pausar/sair e retornar às mesmas cartas; não elimina escolhas pendentes.
-- Tab/Enter e toque permitem selecionar cartas e produtos. As cartas ficam em uma coluna com rolagem no celular.
-- Vitória aos 15 minutos de tempo de jogo; derrota ao zerar a vida. Introdução, pausas e escolhas não consomem a duração da fase. Reiniciar limpa os graus das cartas, preservando a melhoria comprada na loja.
+- `models/RunModel.js`: estado, habilidades, carteira e compras temporárias.
+- `services/ProfileService.js`: preferências, migração, carteira e compras permanentes.
+- `viewmodels/GameViewModel.js`: simulação, eventos sonoros e transferência única do saldo restante.
+- `config/shopConfig.js`: catálogo, preços e janelas do mercador.
+- `systems/MerchantSystem.js`: aparição, clareiras, aproximação e reentrada.
+- `systems/EnemySystem.js`: ondas, progressão, vocalizações e cargas dos urubus.
+- `systems/CombatSystem.js`: bônus das armas, projéteis e fogo.
+- `views/PreparationView.js`: personagem e fase em telas distintas.
+- `views/ShopView.js`: produtos e cartas das duas lojas.
+- `views/MapMerchantView.js`, `VultureFactory.js`: modelos procedurais no cenário.
+- `app/GameApplication.js`: navegação, ciclo e coordenação dos diálogos.
+- `styles/version04.css`: seleção, mercado, avisos e adaptação ao celular.
 
-## Arquitetura
-
-- `models/RunModel.js`: estado da partida, XP, escolhas e sequência de naipes.
-- `config/abilityConfig.js`: atributos, descrições, progressão dos inimigos e preço da loja.
-- `systems/RunSystem.js`: movimento, contatos, drops e coleta.
-- `systems/EnemySystem.js`: ondas, perseguição e escalada de dificuldade.
-- `systems/CombatSystem.js`: chicote, balas, arremessos, fogo e mitigação.
-- `viewmodels/GameViewModel.js`: coordenação entre simulação, áudio e saldo.
-- `views/CowboyRig.js`: modelo articulado e animação; `ChupacabraFactory.js`: novo inimigo.
-- `views/MerchantView.js`: mercador, animação de repouso e agradecimento.
-- `views/AbilityEffectsView.js`: renderização instanciada dos projéteis, garrafas, fogo e impactos.
-- `views/UpgradeCardsView.js`: apresentação das cartas; `ScreenView.js`: telas e HUD.
-- `services/ProfileService.js`: migração, compra e persistência; `AudioService.js`: arquivos de áudio, buses, loops e preferências.
-- `app/GameApplication.js`: composição, navegação e ciclo de vida.
-
-Os Models e Systems não importam Three.js nem acessam DOM. A simulação usa passos fixos de 1/60 s. Balas usam colisão contínua por segmento; os inimigos reutilizam modelos, e efeitos/XP usam instanciamento. Renders, eventos, contextos e buffers são liberados ao trocar telas. A entrega permanece em HTML, CSS e JavaScript, sem Angular.
+Modelos e sistemas não dependem do DOM ou de Three.js. Não há novo framework, backend, serviços externos ou mudança de deploy.
 
 ## Validação desta entrega
 
-Build de produção com Vite 8.3.0 e Three.js 0.186.0. Nove testes de regras verificam pausa de evolução, escolhas enfileiradas, atributos, cadência/dano da pistola, quatro pulsos de fogo, surgimento e escalada dos cães, armadura, migração/compras e uma simulação completa de 15 minutos.
-
-Fluxos de navegador verificados: compra e agradecimento, leitura dos nove arquivos de áudio, troca de música, escolha e evolução das cartas, vida máxima, pausa, cão após um minuto, fogo no chão e layouts desktop/celular. Os testes utilizados na produção não estão no ZIP.
-
-Ainda é um protótipo: visual low-poly procedural, animações por código e música sintetizada. O balanceamento foi definido para esta etapa e deve ser ajustado com partidas reais. A verificação automatizada não substitui a avaliação de desempenho e áudio no celular/computador de destino.
+- Build de produção do Vite concluído, incluindo os 12 WAVs no caminho do GitHub Pages.
+- Seis testes automatizados das regras: migração e bônus, carteiras e compras, janelas e pausa do mercador, trajetória dos urubus, seleção em etapas e integridade dos WAVs.
+- Fluxo exercitado em Chromium, com viewport de computador (1280×900) e celular (390×844): seleção, compras permanentes, encontro com Bento, compras temporárias, relógio congelado, retorno e bando de urubus. Sem erros de JavaScript ou rolagem horizontal nos menus verificados.
+- Os 12 arquivos foram decodificados no navegador; contexto Web Audio em execução e sinal não nulo medido na música. Isso não substitui ouvir e testar o volume em aparelhos físicos, especialmente Safari/iOS.
+- O aviso já existente sobre o tamanho do pacote JavaScript permanece; ele não impede a compilação.

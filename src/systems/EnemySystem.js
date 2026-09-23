@@ -32,12 +32,20 @@ export class EnemySystem {
     if (minute !== run.difficulty) {
       run.difficulty = minute;
       for (const enemy of run.enemies) {
+        if (enemy.type === "vulture") continue;
         const stats = enemyStats(enemy.type, minute),
           fraction = enemy.hp / enemy.maxHp;
         Object.assign(enemy, stats, {
           hp: stats.hp * fraction,
           maxHp: stats.hp,
         });
+      }
+    }
+    if (run.time >= 120) {
+      run.vultureTimer -= dt;
+      if (run.vultureTimer <= 0) {
+        run.vultureTimer = Math.max(12, 22 - minute);
+        this.spawnVultures(run);
       }
     }
     run.spawnTimer -= dt;
@@ -62,6 +70,17 @@ export class EnemySystem {
       }
     }
     for (const enemy of run.enemies) {
+      if (enemy.type === "vulture") {
+        enemy.age += dt;
+        enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
+        if (enemy.warning > 0) {
+          enemy.warning = Math.max(0, enemy.warning - dt);
+          continue;
+        }
+        enemy.x += enemy.vx * dt;
+        enemy.z += enemy.vz * dt;
+        continue;
+      }
       let dx = run.player.x - enemy.x,
         dz = run.player.z - enemy.z,
         distance = Math.hypot(dx, dz);
@@ -77,5 +96,56 @@ export class EnemySystem {
       }
       enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
     }
+    // A charge never follows or teleports back to João. It leaves the arena.
+    run.enemies = run.enemies.filter(
+      (enemy) => enemy.type !== "vulture" || enemy.hp <= 0 || enemy.age < 10,
+    );
+    for (const type of ["bat", "dog"]) {
+      run.enemyVoiceTimers[type] -= dt;
+      if (
+        run.enemyVoiceTimers[type] <= 0 &&
+        run.enemies.some(
+          (e) =>
+            e.type === type &&
+            Math.hypot(e.x - run.player.x, e.z - run.player.z) < 18,
+        )
+      ) {
+        run.events.push(type);
+        run.enemyVoiceTimers[type] =
+          type === "bat" ? 5 + run.random() * 3 : 7 + run.random() * 4;
+      }
+    }
+  }
+  spawnVultures(run) {
+    if (run.enemies.filter((e) => e.type === "vulture").length > 18) return;
+    const angle = run.random() * Math.PI * 2;
+    const dx = Math.cos(angle),
+      dz = Math.sin(angle);
+    // Snapshot at spawn: six parallel lanes, never a homing attack.
+    const targetX = run.player.x,
+      targetZ = run.player.z;
+    for (let i = 0; i < 6; i++) {
+      const offset = (i - 2.5) * 1.4;
+      run.enemies.push({
+        id: ++run.nextId,
+        type: "vulture",
+        hp: 6,
+        maxHp: 6,
+        damage: 2,
+        armor: 0,
+        speed: 10,
+        xp: 10,
+        x: targetX - dx * 26 - dz * offset,
+        z: targetZ - dz * 26 + dx * offset,
+        vx: dx * 10,
+        vz: dz * 10,
+        targetX,
+        targetZ,
+        hitFlash: 0,
+        warning: 1.5,
+        age: 0,
+      });
+    }
+    run.events.push("vulture");
   }
 }
