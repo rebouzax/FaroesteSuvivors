@@ -2,6 +2,8 @@ import { CONFIG } from "../config/gameConfig.js";
 import { EnemySystem } from "./EnemySystem.js";
 import { CombatSystem } from "./CombatSystem.js";
 import { MerchantSystem } from "./MerchantSystem.js";
+import { BossSystem } from "./BossSystem.js";
+import { abilityStats } from "../config/abilityConfig.js";
 const clamp = (value) =>
   Math.max(-CONFIG.mapHalf + 1, Math.min(CONFIG.mapHalf - 1, value));
 export class RunSystem {
@@ -9,6 +11,7 @@ export class RunSystem {
     this.enemies = new EnemySystem();
     this.combat = new CombatSystem();
     this.merchant = new MerchantSystem();
+    this.boss = new BossSystem();
   }
   update(run, dt, input) {
     run.events.length = 0;
@@ -30,14 +33,24 @@ export class RunSystem {
     p.invulnerable = Math.max(0, p.invulnerable - dt);
     run.levelFlash = Math.max(0, run.levelFlash - dt);
     this.move(run, dt, input);
-    this.merchant.update(run);
+    if (!run.bossEncounter.active) this.merchant.update(run);
     if (run.phase === "merchant") return;
+    if (run.time >= 360 && !run.bossEncounter.completed && !run.bossEncounter.active) this.boss.start(run);
+    this.boss.updateArena(run, dt);
+    if (run.phase === "defeat") return;
     this.enemies.update(run, dt);
+    if (run.phase === "defeat") return;
     this.combat.update(run, dt);
     run.enemies = run.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;
       run.kills++;
       this.drop(run, enemy.x, enemy.z, "xp", enemy.xp);
+      if (run.abilities.soulHarvest)
+        p.hp = Math.min(p.maxHp, p.hp + abilityStats("soulHarvest", run.abilities.soulHarvest).heal);
+      if (enemy.type === "boss") {
+        this.drop(run, enemy.x + 0.4, enemy.z, "coin", 80);
+        this.boss.defeated(run);
+      }
       if (enemy.type === "dog")
         this.drop(run, enemy.x + 0.3, enemy.z, "coin", 2);
       else if (run.kills % 5 === 0)
@@ -48,10 +61,10 @@ export class RunSystem {
       if (enemy.warning > 0) continue;
       if (
         Math.hypot(enemy.x - p.x, enemy.z - p.z) <
-          (enemy.type === "dog" ? 1 : 0.85) &&
+          (enemy.type === "boss" ? 1.25 : enemy.type === "dog" ? 1 : 0.85) &&
         p.invulnerable <= 0
       ) {
-        p.hp = Math.max(0, p.hp - enemy.damage);
+        p.hp = Math.max(0, p.hp - enemy.damage * 20 / (20 + run.playerArmor));
         p.invulnerable = 0.9;
         run.events.push("hurt");
         if (p.hp === 0) {
@@ -102,7 +115,7 @@ export class RunSystem {
       const dx = p.x - item.x,
         dz = p.z - item.z,
         distance = Math.hypot(dx, dz);
-      if (distance < CONFIG.magnetRadius) item.attracted = true;
+      if (distance < run.magnetRadius) item.attracted = true;
       if (distance < 0.6 || (item.attracted && distance < 15 * dt)) {
         if (item.type === "xp") run.addXp(item.value);
         else run.coins += item.value;

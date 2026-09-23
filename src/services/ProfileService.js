@@ -12,6 +12,8 @@ export class ProfileService {
       attackRank: 0,
       movementRank: 0,
       primaryRank: 0,
+      armorRank: 0,
+      magnetRank: 0,
     };
     this.available = true;
     try {
@@ -24,6 +26,8 @@ export class ProfileService {
           "attackRank",
           "movementRank",
           "primaryRank",
+          "armorRank",
+          "magnetRank",
         ])
           if (Number.isSafeInteger(saved[key]) && saved[key] >= 0)
             this.data[key] = saved[key];

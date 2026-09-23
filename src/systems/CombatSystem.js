@@ -34,6 +34,8 @@ export class CombatSystem {
     this.horseshoes(run, dt);
     this.ghostShot(run, dt);
     this.requiem(run, dt);
+    this.silverRain(run, dt);
+    this.lantern(run, dt);
     run.impacts = run.impacts.filter((impact) => (impact.age += dt) < 0.3);
   }
   whip(run, dt) {
@@ -124,7 +126,7 @@ export class CombatSystem {
         );
         if (
           Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) <
-            (enemy.type === "dog" ? 0.65 : 0.5) &&
+            (enemy.type === "boss" ? 1.35 : enemy.type === "dog" ? 0.65 : 0.5) &&
           t < nearest
         ) {
           nearest = t;
@@ -238,7 +240,7 @@ export class CombatSystem {
       for (const enemy of run.enemies) {
         if (enemy.hp <= 0 || shot.hit.has(enemy.id)) continue;
         const t = Math.max(0, Math.min(1, ((enemy.x - oldX) * sx + (enemy.z - oldZ) * sz) / (sx * sx + sz * sz || 1)));
-        if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (enemy.type === "dog" ? 0.7 : 0.5)) {
+        if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (enemy.type === "boss" ? 1.35 : enemy.type === "dog" ? 0.7 : 0.5)) {
           this.damage(enemy, shot.damage);
           shot.hit.add(enemy.id);
           shot.pierce--;
@@ -270,5 +272,50 @@ export class CombatSystem {
       }
     }
     run.pulses = run.pulses.filter(pulse => (pulse.age += dt) < 0.55);
+  }
+  silverRain(run, dt) {
+    if (run.abilities.silverRain) {
+      run.silverTimer -= dt;
+      if (run.silverTimer <= 0) {
+        const stats = abilityStats("silverRain", run.abilities.silverRain);
+        for (let i = 0; i < stats.count; i++) {
+          const angle = i * Math.PI * 2 / stats.count;
+          run.silverShots.push({
+            x: run.player.x, z: run.player.z,
+            vx: Math.cos(angle) * 12, vz: Math.sin(angle) * 12,
+            damage: stats.damage * this.multiplier(run, "silverRain"), age: 0,
+          });
+        }
+        run.silverTimer = stats.cooldown / run.attackRate;
+        if (run.silverShots.length > 80) run.silverShots.splice(0,run.silverShots.length-80);
+      }
+    }
+    run.silverShots = run.silverShots.filter(shot => {
+      const oldX=shot.x, oldZ=shot.z;
+      shot.x+=shot.vx*dt; shot.z+=shot.vz*dt; shot.age+=dt;
+      for (const enemy of run.enemies) {
+        if (enemy.hp <= 0) continue;
+        const sx=shot.x-oldX, sz=shot.z-oldZ;
+        const t=Math.max(0,Math.min(1,((enemy.x-oldX)*sx+(enemy.z-oldZ)*sz)/(sx*sx+sz*sz||1)));
+        if (Math.hypot(enemy.x-oldX-t*sx,enemy.z-oldZ-t*sz)<(enemy.type==="boss"?1.35:0.52)) {
+          this.damage(enemy,shot.damage);
+          run.impacts.push({x:enemy.x,z:enemy.z,age:0});
+          return false;
+        }
+      }
+      return shot.age<1.25;
+    });
+  }
+  lantern(run, dt) {
+    if (!run.abilities.lantern) return;
+    run.lanternTimer -= dt;
+    if (run.lanternTimer > 0) return;
+    const stats=abilityStats("lantern",run.abilities.lantern);
+    for (const enemy of run.enemies) {
+      if (enemy.hp > 0 && Math.hypot(enemy.x-run.player.x,enemy.z-run.player.z)<=stats.radius)
+        this.damage(enemy,stats.damage*this.multiplier(run,"lantern"));
+    }
+    run.lanternTimer += 1;
+    if (run.lanternTimer < 0) run.lanternTimer=1;
   }
 }

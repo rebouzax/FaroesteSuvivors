@@ -149,6 +149,22 @@ dialog.merchant-dialog {
 .hud-stats {
   flex-wrap: wrap;
 }
+.boss-hud {
+  position: fixed;
+  top: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100vw - 30px));
+  padding: 9px 14px;
+  border: 1px solid #f7aa69;
+  background: #3a1715e8;
+  color: #ffddac;
+  text-align: center;
+  font: 11px/1.6 monospace;
+  pointer-events: none;
+}
+.boss-health { height: 9px; background: #190e13; margin: 7px 0; }
+.boss-health i { display: block; height: 100%; background: linear-gradient(90deg, #ffb634, #cf3730); }
 @media (max-width: 650px) {
   .permanent-products,
   .run-shop-products {

@@ -9,8 +9,10 @@ export class RunModel {
     this.moveSpeed =
       CONFIG.playerSpeed * (1 + (bonuses.movementRank || 0) * 0.05);
     this.primaryDamage = CONFIG.whipDamage + (bonuses.primaryRank || 0) * 2;
+    this.playerArmor = (bonuses.armorRank || 0) * 2;
+    this.magnetRadius = CONFIG.magnetRadius + (bonuses.magnetRank || 0) * 0.7;
     this.whipRank = 0;
-    this.shopPurchases = Object.fromEntries(["whip", ...ABILITY_IDS].map(id => [id, 0]));
+    this.shopPurchases = Object.fromEntries(["whip", "haste", "spur", ...ABILITY_IDS].map(id => [id, 0]));
     this.merchant = null;
     this.merchantWindow = -1;
     this.vultureTimer = 0;
@@ -41,6 +43,10 @@ export class RunModel {
     this.nextId = 0;
     this.spawnTimer = 0;
     this.dogTimer = 0;
+    this.skeletonTimer = 0;
+    this.minerTimer = 0;
+    this.bossEncounter = { active: false, completed: false, radius: 12, age: 0, x: 0, z: 0 };
+    this.enemyShots = [];
     this.difficulty = 0;
     this.attack = null;
     this.cooldown = 0.3;
@@ -55,6 +61,9 @@ export class RunModel {
     this.molotovTimer = 0;
     this.ghostTimer = 0;
     this.requiemTimer = 0;
+    this.silverTimer = 0;
+    this.lanternTimer = 1;
+    this.silverShots = [];
     this.ghostShots = [];
     this.pulses = [];
     this.projectiles = [];
@@ -119,7 +128,7 @@ export class RunModel {
     return levelCost(this.player.level);
   }
   get merchantCards() {
-    return ["whip", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0)];
+    return ["whip", "haste", "spur", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0)];
   }
   buyRunUpgrade(id) {
     if (this.phase !== "merchant" || !this.merchantCards.includes(id))
@@ -129,6 +138,8 @@ export class RunModel {
     this.coins -= price;
     this.shopPurchases[id]++;
     if (id === "whip") this.whipRank++;
+    else if (id === "haste") this.attackRate += 0.06;
+    else if (id === "spur") this.moveSpeed += CONFIG.playerSpeed * 0.05;
     else {
       this.abilities[id]++;
       if (id === "heart") {

@@ -13,6 +13,7 @@ const MUSIC = {
   menu: new URL("../assets/audio/one-bullet-left.mp3", import.meta.url),
   game: new URL("../assets/audio/the-outlaws-last-prayer.mp3", import.meta.url),
 };
+export const GAME_MUSIC_LOOP = Object.freeze({ start: 16, end: 143 });
 export class AudioService {
   constructor() {
     this.enabled = true;
@@ -161,8 +162,16 @@ export class AudioService {
     if (!this.musicSource && MUSIC[desired]) {
       if (!this.musicTracks.has(desired)) {
         const audio = new Audio(MUSIC[desired].href);
-        audio.loop = true;
+        audio.loop = desired !== "game";
         audio.preload = "metadata";
+        if (desired === "game") {
+          audio.addEventListener("timeupdate", () => this.updateMusicLoop());
+          audio.addEventListener("ended", () => {
+            if (this.musicSource !== audio || this.disposed) return;
+            audio.currentTime = GAME_MUSIC_LOOP.start;
+            audio.play().catch(() => {});
+          });
+        }
         this.musicTracks.set(desired, audio);
       }
       this.musicSource = this.musicTracks.get(desired);
@@ -174,6 +183,13 @@ export class AudioService {
       this.musicSource.play().catch((error) => {
         if (!this.disposed) console.warn("Música aguarda interação do usuário.", error);
       });
+  }
+  updateMusicLoop() {
+    if (this.playingTrack !== "game" || !this.musicSource) return;
+    const audio = this.musicSource;
+    if (audio.currentTime >= GAME_MUSIC_LOOP.end) {
+      audio.currentTime = GAME_MUSIC_LOOP.start + (audio.currentTime - GAME_MUSIC_LOOP.end) % (GAME_MUSIC_LOOP.end - GAME_MUSIC_LOOP.start);
+    }
   }
   setFire(active) {
     this.fireActive = active;

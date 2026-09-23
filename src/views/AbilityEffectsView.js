@@ -73,6 +73,22 @@ export class AbilityEffectsView {
       new THREE.MeshBasicMaterial({color:0xa9f1e2,transparent:true,opacity:0.84,depthWrite:false}),
       48,
     );
+    this.silver = instances(
+      new THREE.SphereGeometry(0.12,6,4),
+      new THREE.MeshBasicMaterial({color:0xf2e7cc}),
+      80,
+    );
+    this.enemyBullets = instances(
+      new THREE.SphereGeometry(0.17,6,4),
+      new THREE.MeshBasicMaterial({color:0xb85331}),
+      40,
+    );
+    this.lanternAura = new THREE.Mesh(
+      new THREE.RingGeometry(0.91,1,56),
+      new THREE.MeshBasicMaterial({color:0x8de0ae,transparent:true,opacity:0.32,side:THREE.DoubleSide,depthWrite:false}),
+    );
+    this.lanternAura.rotation.x=-Math.PI/2;
+    this.group.add(this.lanternAura);
     this.pulseRings = instances(
       new THREE.RingGeometry(0.86, 1, 48),
       new THREE.MeshBasicMaterial({color:0xd9eed6,transparent:true,opacity:0.62,side:THREE.DoubleSide,depthWrite:false}),
@@ -188,12 +204,23 @@ export class AbilityEffectsView {
     run.ghostShots.slice(0,48).forEach((shot,i) =>
       this.put(this.ghosts,i,shot.x,1,shot.z,1,1,1,Math.PI/2,0,Math.atan2(shot.vz,shot.vx)));
     this.ghosts.count=Math.min(48,run.ghostShots.length);
+    run.silverShots.slice(0,80).forEach((shot,i)=>this.put(this.silver,i,shot.x,0.9,shot.z));
+    this.silver.count=Math.min(80,run.silverShots.length);
+    run.enemyShots.slice(0,40).forEach((shot,i)=>this.put(this.enemyBullets,i,shot.x,0.85,shot.z));
+    this.enemyBullets.count=Math.min(40,run.enemyShots.length);
+    this.lanternAura.visible=Boolean(run.abilities.lantern);
+    if (run.abilities.lantern) {
+      const radius=abilityStats("lantern",run.abilities.lantern).radius;
+      this.lanternAura.position.set(run.player.x,0.1,run.player.z);
+      this.lanternAura.scale.set(radius,radius,1);
+      this.lanternAura.material.opacity=0.24+Math.sin(run.time*5)*0.07;
+    }
     run.pulses.slice(0,8).forEach((pulse,i)=> {
       const size=pulse.radius*Math.max(0.03,pulse.age/0.55);
       this.put(this.pulseRings,i,pulse.x,0.1,pulse.z,size,size,1,-Math.PI/2);
     });
     this.pulseRings.count=Math.min(8,run.pulses.length);
     for (const mesh of this.group.children)
-      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.isInstancedMesh) mesh.instanceMatrix.needsUpdate = true;
   }
 }

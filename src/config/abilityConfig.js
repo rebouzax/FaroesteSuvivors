@@ -1,4 +1,4 @@
-export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem"];
+export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest"];
 export const ABILITIES = {
   pistol: {
     name: "Pistola do Sertão",
@@ -16,6 +16,9 @@ export const ABILITIES = {
   horseshoe: { name: "Ferraduras Malditas", icon: "♧", suit: "SOMBRA", color: "steel" },
   ghostShot: { name: "Bala Fantasma", icon: "✧", suit: "ALMA", color: "steel" },
   requiem: { name: "Réquiem da Poeira", icon: "◎", suit: "VENTO", color: "fire" },
+  silverRain: { name: "Chuva de Prata", icon: "✺", suit: "PRATA", color: "steel" },
+  lantern: { name: "Lampião Maldito", icon: "♨", suit: "MALDIÇÃO", color: "fire" },
+  soulHarvest: { name: "Colheita de Almas", icon: "☥", suit: "ALMA", color: "heart" },
 };
 export function abilityStats(id, level) {
   const extra = Math.max(0, level - 1);
@@ -36,6 +39,9 @@ export function abilityStats(id, level) {
   if (id === "horseshoe") return { damage: 8 + extra * 3, count: Math.min(6, 2 + Math.floor(extra / 2)), radius: 2.5 + Math.min(1.2, extra * 0.2) };
   if (id === "ghostShot") return { damage: 18 + extra * 5, cooldown: Math.max(1.2, 3.5 - extra * 0.2), pierce: Math.min(6, 2 + extra), range: 17 };
   if (id === "requiem") return { damage: 12 + extra * 4, cooldown: Math.max(2.5, 6 - extra * 0.3), radius: Math.min(7, 4.3 + extra * 0.35), push: 1.8 };
+  if (id === "silverRain") return { damage: 9 + extra * 3, count: Math.min(14, 6 + extra * 2), cooldown: Math.max(2.2, 4 - extra * 0.18) };
+  if (id === "lantern") return { damage: 4 + extra * 2, radius: Math.min(6, 3.2 + extra * 0.3) };
+  if (id === "soulHarvest") return { heal: 2 + extra };
   return { health: 20 };
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
@@ -47,6 +53,9 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
   if (id === "horseshoe") return `${stats.count} ferraduras giram ao redor de João · ${stats.damage} de dano por contato.`;
   if (id === "ghostShot") return `${stats.damage} de dano · atravessa ${stats.pierce} inimigos · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
   if (id === "requiem") return `Onda de poeira de ${stats.radius.toFixed(1)} m · ${stats.damage} de dano e empurra inimigos · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
+  if (id === "silverRain") return `${stats.count} balas em círculo · ${stats.damage} de dano por projétil · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
+  if (id === "lantern") return `A luz profana queima inimigos próximos: ${stats.damage} de dano/s até ${stats.radius.toFixed(1)} m.`;
+  if (id === "soulHarvest") return `Recupera ${stats.heal} de vida ao abater um inimigo (até a vida máxima).`;
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);
@@ -54,6 +63,10 @@ export function enemyStats(type, minute) {
   const base =
     type === "dog"
       ? { hp: 35, damage: 14, armor: 2, speed: 3.5, xp: 20 }
+      : type === "skeleton"
+        ? { hp: 22, damage: 8, armor: 1, speed: 1.7, xp: 15 }
+      : type === "miner"
+        ? { hp: 42, damage: 12, armor: 1, speed: 2.9, xp: 25 }
       : { hp: 10, damage: 10, armor: 0, speed: 2.5, xp: 10 };
   return {
     hp: Math.round(base.hp * (1 + minute * 0.18)),

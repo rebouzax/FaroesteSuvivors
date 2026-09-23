@@ -18,13 +18,15 @@ export function runShopMarkup(run) {
   return `<p class="eyebrow">BENTO NO DESERTO · PARTIDA PAUSADA</p><h2 id="run-dialog-title">Um reforço para a jornada</h2><p>◈ <strong>${run.coins}</strong> moedas desta partida · saldo separado do menu.</p><p>As compras abaixo duram somente esta partida. Apenas habilidades já adquiridas aparecem.</p><div class="run-shop-products">${run.merchantCards
     .map((id) => {
       const price = temporaryPrice(run.shopPurchases[id]);
-      const name = id === "whip" ? "Chicote de João" : ABILITIES[id].name;
+      const name = id === "whip" ? "Chicote de João" : id === "haste" ? "Tambor Acelerado" : id === "spur" ? "Esporas do Andarilho" : ABILITIES[id].name;
       const description =
         id === "whip"
           ? `+3 de dano. Próximo dano: ${run.primaryDamage + (run.whipRank + 1) * 3}.`
+          : id === "haste" ? "+6% de velocidade de ataque nesta partida."
+          : id === "spur" ? "+5% de velocidade de movimento nesta partida."
           : cardDescription(id, run.abilities[id] + 1, run.attackRate);
-      const rank = id === "whip" ? run.whipRank : run.abilities[id];
-      return `<article class="market-product"><span class="product-symbol" aria-hidden="true">${id === "whip" ? "~" : ABILITIES[id].icon}</span><p class="eyebrow">SÓ NESTA PARTIDA · ${id === "whip" ? "MELHORIAS" : "NÍVEL"} ${rank}</p><h3>${name}</h3><p>${description}</p><button data-action="run-buy:${id}" ${!Number.isSafeInteger(price) || run.coins < price ? "disabled" : ""}>${Number.isSafeInteger(price) ? `Comprar · ◈ ${price}` : "Limite atingido"}</button></article>`;
+      const rank = ["whip", "haste", "spur"].includes(id) ? run.shopPurchases[id] : run.abilities[id];
+      return `<article class="market-product"><span class="product-symbol" aria-hidden="true">${id === "whip" ? "~" : id === "haste" ? "↻" : id === "spur" ? "➤" : ABILITIES[id].icon}</span><p class="eyebrow">SÓ NESTA PARTIDA · ${["whip","haste","spur"].includes(id) ? "MELHORIAS" : "NÍVEL"} ${rank}</p><h3>${name}</h3><p>${description}</p><button data-action="run-buy:${id}" ${!Number.isSafeInteger(price) || run.coins < price ? "disabled" : ""}>${Number.isSafeInteger(price) ? `Comprar · ◈ ${price}` : "Limite atingido"}</button></article>`;
     })
     .join(
       "",

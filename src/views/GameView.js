@@ -1,10 +1,9 @@
 import * as THREE from "three";
 import { CONFIG } from "../config/gameConfig.js";
-import { createBat, disposeObject } from "./CharacterFactory.js";
-import { createCowboyRig, animateCowboy } from "./CowboyRig.js";
-import { createChupacabra } from "./ChupacabraFactory.js";
+import { disposeObject } from "./CharacterFactory.js";
+import { createCowboyRig, animateCowboy, disposeCowboyRig } from "./CowboyRig.js";
 import { AbilityEffectsView } from "./AbilityEffectsView.js";
-import { createVulture } from "./VultureFactory.js";
+import { EnemyAssetView } from "./EnemyAssetView.js";
 import { MapMerchantView } from "./MapMerchantView.js";
 import { buildDesertWorld } from "./DesertWorldView.js";
 
@@ -12,8 +11,9 @@ export class GameView {
   constructor(host, run) {
     this.host = host;
     this.run = run;
-    this.batViews = new Map();
-    this.batPool = [];
+    this.enemyViews = new Map();
+    this.enemyPools = new Map();
+    this.enemyAssets = new EnemyAssetView();
     this.dummy = new THREE.Object3D();
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -35,11 +35,6 @@ export class GameView {
     this.buildWorld();
     this.player = createCowboyRig();
     this.scene.add(this.player);
-    this.batTemplate = createBat();
-    this.dogTemplate = createChupacabra();
-    this.dogPool = [];
-    this.vulturePool = [];
-    this.vultureTemplate = createVulture();
     this.mapMerchant = new MapMerchantView(this.scene);
     const warnings = new THREE.BufferGeometry();
     warnings.setAttribute(
@@ -57,6 +52,22 @@ export class GameView {
     this.chargeWarnings.frustumCulled = false;
     this.scene.add(this.chargeWarnings);
     this.effects = new AbilityEffectsView(this.scene);
+    this.arenaRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.955,1,96),
+      new THREE.MeshBasicMaterial({color:0xff6728,transparent:true,opacity:0.88,depthWrite:false}),
+    );
+    this.arenaRing.rotation.x=-Math.PI/2;
+    this.arenaRing.visible=false;
+    this.scene.add(this.arenaRing);
+    this.arenaFlames=new THREE.InstancedMesh(
+      new THREE.ConeGeometry(0.34,1.7,5),
+      new THREE.MeshBasicMaterial({color:0xffa536,transparent:true,opacity:0.88,depthWrite:false}),
+      64,
+    );
+    this.arenaFlames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.arenaFlames.frustumCulled=false;
+    this.arenaFlames.count=0;
+    this.scene.add(this.arenaFlames);
     this.renderTime = 0;
     const ring = new THREE.Mesh(
       new THREE.RingGeometry(0.6, 0.7, 32),
@@ -171,55 +182,38 @@ export class GameView {
     this.shadow.position.set(p.x, 0.06, p.z);
     this.camera.position.set(p.x, 24, p.z + 20);
     this.camera.lookAt(p.x, 0, p.z);
-    const live = new Set(run.enemies.map((bat) => bat.id));
-    for (const [id, view] of this.batViews)
+    const live = new Set(run.enemies.map(enemy => enemy.id));
+    for (const [id, view] of this.enemyViews)
       if (!live.has(id)) {
         view.visible = false;
-        (view.userData.species === "vulture"
-          ? this.vulturePool
-          : view.userData.species === "dog"
-            ? this.dogPool
-            : this.batPool
-        ).push(view);
-        this.batViews.delete(id);
+        const pool=this.enemyPools.get(view.userData.species)||[];
+        pool.push(view);
+        this.enemyPools.set(view.userData.species,pool);
+        this.enemyViews.delete(id);
       }
-    for (const bat of run.enemies) {
-      let view = this.batViews.get(bat.id);
+    for (const enemy of run.enemies) {
+      let view = this.enemyViews.get(enemy.id);
       if (!view) {
-        view =
-          bat.type === "vulture"
-            ? this.vulturePool.pop() || this.vultureTemplate.clone(true)
-            : bat.type === "dog"
-              ? this.dogPool.pop() || this.dogTemplate.clone(true)
-              : this.batPool.pop() || this.batTemplate.clone(true);
-        view.userData.species = bat.type;
+        const pool=this.enemyPools.get(enemy.type)||[];
+        view=pool.pop() || this.enemyAssets.create(enemy.type);
+        view.userData.seed=enemy.id;
+        view.userData.species=enemy.type;
         this.scene.add(view);
-        this.batViews.set(bat.id, view);
+        this.enemyViews.set(enemy.id,view);
       }
       view.visible = true;
-      view.scale.setScalar(bat.hitFlash > 0 ? 1.12 : 1);
-      view.position.set(
-        bat.x,
-        bat.type === "dog"
-          ? Math.abs(Math.sin(time * 13 + bat.id)) * 0.06
-          : 1.1 + Math.sin(time * 8 + bat.id) * 0.15,
-        bat.z,
-      );
-      if (bat.type === "vulture") {
-        view.rotation.y = Math.atan2(bat.vx, bat.vz);
-        for (const side of [-1, 1])
-          view.getObjectByName(`vulture-wing-${side}`).rotation.z =
-            side * Math.sin(time * 9 + bat.id) * 0.35;
-      } else if (bat.type === "dog") {
-        view.rotation.y = Math.atan2(p.x - bat.x, p.z - bat.z);
-        for (let i = 0; i < 4; i++)
-          view.getObjectByName(`dog-leg-${i}`).rotation.x =
-            Math.sin(time * 13 + i * 2) * 0.55;
-      } else
-        for (const child of view.children)
-          if (child.isGroup)
-            child.rotation.y = Math.sin(time * 18 + bat.id) * 0.8;
+      view.scale.setScalar(enemy.hitFlash>0 ? 1.12 : 1);
+      const airborne=enemy.type === "bat" || enemy.type === "vulture";
+      view.position.set(enemy.x, airborne ? 1.1+Math.sin(time*7+enemy.id)*0.13 : enemy.type==="dog" ? Math.abs(Math.sin(time*12+enemy.id))*0.055 : 0, enemy.z);
+      view.rotation.y=enemy.type==="vulture" ? Math.atan2(enemy.vx,enemy.vz) : Math.atan2(p.x-enemy.x,p.z-enemy.z);
+      if (enemy.attackFlash > 0.45 && !view.userData.attacking && view.userData.attackAction) {
+        view.userData.attackAction.stop();
+        view.userData.attackAction.reset().play();
+        view.userData.attacking=true;
+      } else if (enemy.attackFlash <= 0.45) view.userData.attacking=false;
+      if (Math.hypot(enemy.x-p.x,enemy.z-p.z)<44) view.userData.mixer?.update(delta);
     }
+    this.drawBossArena(run,time);
     this.drawWhip(run);
     this.drawLoot(run, time);
     this.effects.render(run);
@@ -241,6 +235,24 @@ export class GameView {
     positions.needsUpdate = true;
     this.chargeWarnings.geometry.setDrawRange(0, warningCount * 2);
     this.renderer.render(this.scene, this.camera);
+  }
+  drawBossArena(run,time){
+    const arena=run.bossEncounter;
+    this.arenaRing.visible=arena.active;
+    this.arenaFlames.count=arena.active?64:0;
+    if (!arena.active) return;
+    this.arenaRing.position.set(arena.x,0.18,arena.z);
+    this.arenaRing.scale.set(arena.radius,arena.radius,1);
+    for(let i=0;i<64;i++){
+      const angle=i*Math.PI*2/64;
+      const h=0.7+Math.abs(Math.sin(time*8+i*1.7))*0.8;
+      this.dummy.position.set(arena.x+Math.cos(angle)*arena.radius,h*0.5,arena.z+Math.sin(angle)*arena.radius);
+      this.dummy.rotation.set(0,0,Math.sin(time*5+i)*0.12);
+      this.dummy.scale.set(1,h,1);
+      this.dummy.updateMatrix();
+      this.arenaFlames.setMatrixAt(i,this.dummy.matrix);
+    }
+    this.arenaFlames.instanceMatrix.needsUpdate=true;
   }
   drawWhip(run) {
     const attack = run.attack;
@@ -300,10 +312,10 @@ export class GameView {
   }
   dispose() {
     this.controller.abort();
+    disposeCowboyRig(this.player);
     disposeObject(this.scene);
-    disposeObject(this.batTemplate);
-    disposeObject(this.dogTemplate);
-    disposeObject(this.vultureTemplate);
+    for (const view of this.enemyViews.values()) view.userData.disposed=true;
+    for (const pool of this.enemyPools.values()) for (const view of pool) view.userData.disposed=true;
     this.renderer.dispose();
     this.renderer.forceContextLoss();
     this.renderer.domElement.remove();

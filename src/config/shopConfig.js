@@ -27,6 +27,20 @@ export const PERMANENT_UPGRADES = {
     base: 40,
     description: "+2 de dano base à arma principal por compra. João: chicote.",
   },
+  armor: {
+    name: "Couro Reforçado",
+    icon: "⬟",
+    field: "armorRank",
+    base: 45,
+    description: "+2 de armadura inicial por compra. Reduz dano sofrido.",
+  },
+  magnet: {
+    name: "Ímã do Garimpo",
+    icon: "◉",
+    field: "magnetRank",
+    base: 38,
+    description: "+0,7 unidade ao raio de atração de XP e moedas por compra.",
+  },
 };
 export const permanentPrice = (id, rank) =>
   Math.ceil((PERMANENT_UPGRADES[id]?.base ?? Infinity) * 1.55 ** rank);

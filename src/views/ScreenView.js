@@ -24,7 +24,7 @@ export class ScreenView {
   }
   menu() {
     this.root.className = "";
-    this.root.innerHTML = `<header class="topline"><span>EST. 1887 / TERRAS SEM LEI</span><span>CAPÍTULO UM</span></header><section class="menu-panel"><p class="eyebrow">UM SOL IMPLACÁVEL. UMA ÚLTIMA CHANCE.</p><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><p class="tagline">O deserto não enterra seus mortos.<br>Ele os devolve.</p><div class="ornament" aria-hidden="true">────── ✦ ──────</div><nav aria-label="Menu principal"><button class="primary" data-action="select">Novo jogo <span>↗</span></button><button data-action="settings">Configurações <span>⚙</span></button><button data-action="exit">Sair <span>→</span></button></nav><p class="menu-note">SOBREVIVA ATÉ O ÚLTIMO PÔR DO SOL</p></section><footer><span>UM SURVIVOR NO VELHO OESTE</span><span>CARTAS DO SERTÃO / 0.4</span></footer>`;
+    this.root.innerHTML = `<header class="topline"><span>EST. 1887 / TERRAS SEM LEI</span><span>CAPÍTULO UM</span></header><section class="menu-panel"><p class="eyebrow">UM SOL IMPLACÁVEL. UMA ÚLTIMA CHANCE.</p><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><p class="tagline">O deserto não enterra seus mortos.<br>Ele os devolve.</p><div class="ornament" aria-hidden="true">────── ✦ ──────</div><nav aria-label="Menu principal"><button class="primary" data-action="select">Novo jogo <span>↗</span></button><button data-action="settings">Configurações <span>⚙</span></button><button data-action="exit">Sair <span>→</span></button></nav><p class="menu-note">SOBREVIVA ATÉ O ÚLTIMO PÔR DO SOL</p></section><footer><span>UM SURVIVOR NO VELHO OESTE</span><span>CARTAS DO SERTÃO / 0.5</span></footer>`;
   }
   settings(profile) {
     this.root.className = "selection-screen";
@@ -52,7 +52,7 @@ export class ScreenView {
       .querySelector(".hud")
       .insertAdjacentHTML(
         "beforeend",
-        '<p id="merchant-hint" class="merchant-hint" role="status" hidden></p><p id="vulture-warning" class="vulture-warning" role="status" hidden></p>',
+        '<p id="merchant-hint" class="merchant-hint" role="status" hidden></p><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong>COVEIRO MALDITO · A ARENA ESTÁ EM CHAMAS</strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div>',
       );
     this.hud = {};
     for (const id of [
@@ -94,6 +94,13 @@ export class ScreenView {
       (e) => e.type === "vulture" && e.warning > 0,
     );
     warning.textContent = "⚠ Bando de urubus! Saia da rota marcada!";
+    const boss = run.enemies.find(e => e.type === "boss" && e.hp > 0);
+    const bossHud = this.root.querySelector("#boss-hud");
+    bossHud.hidden = !run.bossEncounter.active || !boss;
+    if (boss) {
+      this.root.querySelector("#boss-health-fill").style.width = `${Math.max(0,boss.hp / boss.maxHp * 100)}%`;
+      this.root.querySelector("#boss-health-label").textContent = `${Math.ceil(boss.hp)} / ${boss.maxHp} VIDA · Não toque no círculo de fogo`;
+    }
     this.hud["timer"].textContent = `${minutes}:${seconds}`;
     this.hud["hp-label"].textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.hud["hp-fill"].style.width = `${(p.hp / p.maxHp) * 100}%`;

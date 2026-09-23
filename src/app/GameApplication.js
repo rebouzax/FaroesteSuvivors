@@ -93,7 +93,7 @@ export class GameApplication {
           `<button class="market-callout" data-action="shop"><span>◈ Mercado do Bento<small>Melhorias permanentes · ${this.profile.data.coins} moedas</small></span><span>→</span></button>`,
         );
       this.root.querySelector("footer span:last-child").textContent =
-        "MERCADORES DO DESERTO / 0.4";
+        "CERCO DO COVEIRO / 0.5";
     } else if (name === "select" || name === "map-select") {
       this.root.className = "selection-screen preparation-screen";
       this.root.innerHTML = preparationMarkup(
@@ -288,6 +288,7 @@ export class GameApplication {
   }
   tick = (now) => {
     if (!this.vm) return;
+    this.audio.updateMusicLoop();
     const delta =
       this.last === null ? 0 : Math.min(0.1, (now - this.last) / 1000);
     this.last = now;
@@ -326,6 +327,7 @@ export class GameApplication {
               : "";
     if (state === this.dialogState) return;
     this.dialogState = state;
+    if (ended) this.audio.setMusic(null);
     if (state) this.input?.clear();
     this.audio.setPaused(Boolean(state));
     this.runDialog.classList.toggle(
