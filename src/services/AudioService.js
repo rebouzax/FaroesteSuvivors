@@ -1,9 +1,6 @@
 const FILES = {
-  bat: new URL("../assets/audio/bat.wav", import.meta.url),
   dog: new URL("../assets/audio/chupacabra.wav", import.meta.url),
   vulture: new URL("../assets/audio/vulture.wav", import.meta.url),
-  menu: new URL("../assets/audio/menu-western.wav", import.meta.url),
-  game: new URL("../assets/audio/desert-western.wav", import.meta.url),
   whip: new URL("../assets/audio/whip.wav", import.meta.url),
   shot: new URL("../assets/audio/shot.wav", import.meta.url),
   glass: new URL("../assets/audio/glass.wav", import.meta.url),
@@ -11,6 +8,10 @@ const FILES = {
   level: new URL("../assets/audio/level.wav", import.meta.url),
   purchase: new URL("../assets/audio/purchase.wav", import.meta.url),
   hurt: new URL("../assets/audio/hurt.wav", import.meta.url),
+};
+const MUSIC = {
+  menu: new URL("../assets/audio/one-bullet-left.mp3", import.meta.url),
+  game: new URL("../assets/audio/the-outlaws-last-prayer.mp3", import.meta.url),
 };
 export class AudioService {
   constructor() {
@@ -20,6 +21,8 @@ export class AudioService {
     this.buffers = {};
     this.track = "menu";
     this.musicSource = null;
+    this.musicTracks = new Map();
+    this.musicUnlocked = false;
     this.fireSource = null;
     this.active = new Set();
     this.paused = false;
@@ -38,9 +41,6 @@ export class AudioService {
         this.effectsGain = this.ctx.createGain();
         this.effectsGain.gain.value = 0.65;
         this.effectsGain.connect(this.ctx.destination);
-        this.musicGain = this.ctx.createGain();
-        this.musicGain.gain.value = 0.42;
-        this.musicGain.connect(this.ctx.destination);
         this.uiGain = this.ctx.createGain();
         this.uiGain.gain.value = 0.65;
         this.uiGain.connect(this.ctx.destination);
@@ -55,6 +55,10 @@ export class AudioService {
       // Must be invoked inside the user gesture, before fetching/awaiting files.
       const resumed =
         this.ctx.state === "running" ? Promise.resolve() : this.ctx.resume();
+      // Streaming music starts during the interaction; long MP3s are not decoded
+      // into large in-memory AudioBuffers on phones.
+      this.musicUnlocked = true;
+      this.syncMusic();
       if (!this.loading && (!this.loadAttempted || retry)) {
         this.loadAttempted = true;
         this.loading = this.loadFiles().finally(() => {
@@ -148,14 +152,28 @@ export class AudioService {
   syncMusic() {
     const desired = this.musicEnabled ? this.track : null;
     if (this.musicSource && this.playingTrack !== desired) {
-      this.musicSource.stop();
-      this.musicSource.disconnect();
+      this.musicSource.pause();
+      this.musicSource.currentTime = 0;
       this.musicSource = null;
+      this.playingTrack = null;
     }
-    if (desired && !this.musicSource) {
-      this.musicSource = this.source(desired, this.musicGain, true);
-      if (this.musicSource) this.playingTrack = desired;
+    if (!desired || !this.musicUnlocked || this.disposed) return;
+    if (!this.musicSource && MUSIC[desired]) {
+      if (!this.musicTracks.has(desired)) {
+        const audio = new Audio(MUSIC[desired].href);
+        audio.loop = true;
+        audio.preload = "metadata";
+        this.musicTracks.set(desired, audio);
+      }
+      this.musicSource = this.musicTracks.get(desired);
+      this.playingTrack = desired;
     }
+    if (!this.musicSource) return;
+    this.musicSource.volume = this.paused ? 0.12 : 0.42;
+    if (this.musicSource.paused)
+      this.musicSource.play().catch((error) => {
+        if (!this.disposed) console.warn("Música aguarda interação do usuário.", error);
+      });
   }
   setFire(active) {
     this.fireActive = active;
@@ -175,12 +193,8 @@ export class AudioService {
         this.ctx.currentTime,
         0.05,
       );
-      this.musicGain.gain.setTargetAtTime(
-        paused ? 0.12 : 0.42,
-        this.ctx.currentTime,
-        0.15,
-      );
     }
+    if (this.musicSource) this.musicSource.volume = paused ? 0.12 : 0.42;
     if (paused) this.setFire(false);
   }
   setPreferences(sound, music) {
@@ -208,7 +222,11 @@ export class AudioService {
   dispose() {
     this.disposed = true;
     this.stopEffects();
-    this.musicSource?.stop();
+    for (const audio of this.musicTracks.values()) {
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    }
     if (this.ctx) this.ctx.onstatechange = null;
     this.ctx?.close().catch(() => {});
   }

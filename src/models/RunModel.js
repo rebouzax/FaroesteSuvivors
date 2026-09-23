@@ -10,11 +10,11 @@ export class RunModel {
       CONFIG.playerSpeed * (1 + (bonuses.movementRank || 0) * 0.05);
     this.primaryDamage = CONFIG.whipDamage + (bonuses.primaryRank || 0) * 2;
     this.whipRank = 0;
-    this.shopPurchases = { whip: 0, pistol: 0, molotov: 0, heart: 0 };
+    this.shopPurchases = Object.fromEntries(["whip", ...ABILITY_IDS].map(id => [id, 0]));
     this.merchant = null;
     this.merchantWindow = -1;
     this.vultureTimer = 0;
-    this.enemyVoiceTimers = { bat: 0, dog: 0 };
+    this.enemyVoiceTimers = { dog: 0 };
     this.phase = "intro";
     this.introTime = 0;
     this.time = 0;
@@ -45,13 +45,18 @@ export class RunModel {
     this.attack = null;
     this.cooldown = 0.3;
     this.levelFlash = 0;
-    this.abilities = { pistol: 0, molotov: 0, heart: 0 };
+    this.abilities = Object.fromEntries(ABILITY_IDS.map(id => [id, 0]));
     this.pendingChoices = 0;
+    this.cardOffers = [];
     this.lastCard = null;
     this.chain = 0;
     this.empowered = { id: null, remaining: 0, multiplier: 1 };
     this.pistolTimer = 0;
     this.molotovTimer = 0;
+    this.ghostTimer = 0;
+    this.requiemTimer = 0;
+    this.ghostShots = [];
+    this.pulses = [];
     this.projectiles = [];
     this.bottles = [];
     this.fires = [];
@@ -69,13 +74,24 @@ export class RunModel {
       this.levelFlash = 2;
       this.events.push("level");
     }
-    if (this.pendingChoices && this.phase === "playing") this.phase = "upgrade";
+    if (this.pendingChoices && this.phase === "playing") {
+      this.phase = "upgrade";
+      this.dealCards();
+    }
+  }
+  dealCards() {
+    const deck = [...ABILITY_IDS];
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.min(i, Math.floor(this.random() * (i + 1)));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    this.cardOffers = deck.slice(0, 3);
   }
   chooseAbility(id) {
     if (
       this.phase !== "upgrade" ||
       !this.pendingChoices ||
-      !ABILITY_IDS.includes(id)
+      !this.cardOffers.includes(id)
     )
       return false;
     this.chain =
@@ -95,7 +111,8 @@ export class RunModel {
         this.player.hp + 20 + 10 * (this.chain - 1),
       );
     }
-    if (!this.pendingChoices) this.phase = "playing";
+    if (!this.pendingChoices) { this.phase = "playing"; this.cardOffers = []; }
+    else this.dealCards();
     return true;
   }
   get requiredXp() {

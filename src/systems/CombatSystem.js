@@ -31,6 +31,9 @@ export class CombatSystem {
     this.whip(run, dt);
     this.pistol(run, dt);
     this.molotov(run, dt);
+    this.horseshoes(run, dt);
+    this.ghostShot(run, dt);
+    this.requiem(run, dt);
     run.impacts = run.impacts.filter((impact) => (impact.age += dt) < 0.3);
   }
   whip(run, dt) {
@@ -193,5 +196,79 @@ export class CombatSystem {
       run.events.push("glass", "fire");
       return false;
     });
+  }
+  horseshoes(run, dt) {
+    const rank = run.abilities.horseshoe;
+    if (!rank) return;
+    const stats = abilityStats("horseshoe", rank);
+    for (const enemy of run.enemies) {
+      if (enemy.hp <= 0 || Math.hypot(enemy.x - run.player.x, enemy.z - run.player.z) > stats.radius + 0.8) continue;
+      for (let i = 0; i < stats.count; i++) {
+        const angle = run.time * 2.7 + (i * Math.PI * 2) / stats.count;
+        const x = run.player.x + Math.cos(angle) * stats.radius;
+        const z = run.player.z + Math.sin(angle) * stats.radius;
+        if (Math.hypot(enemy.x - x, enemy.z - z) < 0.7 && run.time >= (enemy.orbitHitAt || 0)) {
+          this.damage(enemy, stats.damage * this.multiplier(run, "horseshoe"));
+          enemy.orbitHitAt = run.time + 0.45;
+          run.impacts.push({ x: enemy.x, z: enemy.z, age: 0 });
+          break;
+        }
+      }
+    }
+  }
+  ghostShot(run, dt) {
+    const rank = run.abilities.ghostShot;
+    if (rank) {
+      run.ghostTimer -= dt;
+      if (run.ghostTimer <= 0) {
+        const stats = abilityStats("ghostShot", rank);
+        const p = run.player, target = this.closest(run, stats.range);
+        const angle = target ? Math.atan2(target.z - p.z, target.x - p.x) : Math.atan2(p.dz, p.dx);
+        run.ghostShots.push({ x: p.x, z: p.z, vx: Math.cos(angle) * 15, vz: Math.sin(angle) * 15, age: 0, damage: stats.damage * this.multiplier(run, "ghostShot"), pierce: stats.pierce, hit: new Set() });
+        run.ghostTimer = stats.cooldown / run.attackRate;
+        if (run.ghostShots.length > 48) run.ghostShots.shift();
+      }
+    }
+    run.ghostShots = run.ghostShots.filter(shot => {
+      const oldX = shot.x, oldZ = shot.z;
+      shot.x += shot.vx * dt;
+      shot.z += shot.vz * dt;
+      shot.age += dt;
+      const sx = shot.x - oldX, sz = shot.z - oldZ;
+      for (const enemy of run.enemies) {
+        if (enemy.hp <= 0 || shot.hit.has(enemy.id)) continue;
+        const t = Math.max(0, Math.min(1, ((enemy.x - oldX) * sx + (enemy.z - oldZ) * sz) / (sx * sx + sz * sz || 1)));
+        if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (enemy.type === "dog" ? 0.7 : 0.5)) {
+          this.damage(enemy, shot.damage);
+          shot.hit.add(enemy.id);
+          shot.pierce--;
+          run.impacts.push({ x: enemy.x, z: enemy.z, age: 0 });
+          if (!shot.pierce) break;
+        }
+      }
+      return shot.age < 1.3 && shot.pierce > 0;
+    });
+  }
+  requiem(run, dt) {
+    if (run.abilities.requiem) {
+      run.requiemTimer -= dt;
+      if (run.requiemTimer <= 0) {
+        const stats = abilityStats("requiem", run.abilities.requiem);
+        const p = run.player;
+        run.pulses.push({ x: p.x, z: p.z, radius: stats.radius, age: 0 });
+        if (run.pulses.length > 8) run.pulses.shift();
+        for (const enemy of run.enemies) {
+          const dx = enemy.x - p.x, dz = enemy.z - p.z, distance = Math.hypot(dx, dz);
+          if (enemy.hp <= 0 || distance > stats.radius) continue;
+          this.damage(enemy, stats.damage * this.multiplier(run, "requiem"));
+          if (distance > 0.01) {
+            enemy.x = Math.max(-119, Math.min(119, enemy.x + dx / distance * stats.push));
+            enemy.z = Math.max(-119, Math.min(119, enemy.z + dz / distance * stats.push));
+          }
+        }
+        run.requiemTimer = stats.cooldown / run.attackRate;
+      }
+    }
+    run.pulses = run.pulses.filter(pulse => (pulse.age += dt) < 0.55);
   }
 }

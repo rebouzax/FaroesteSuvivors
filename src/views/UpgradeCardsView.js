@@ -1,13 +1,12 @@
 import {
   ABILITIES,
-  ABILITY_IDS,
   cardDescription,
 } from "../config/abilityConfig.js";
 export function upgradeCardsMarkup(run) {
   return `<p class="eyebrow">NÍVEL ${run.player.level} · ${run.pendingChoices} ESCOLHA(S) PENDENTE(S)</p>
     <h2 id="run-dialog-title">Escreva seu destino.</h2>
     <p class="cards-intro">Escolha uma carta. A partida fica parada enquanto você decide.</p>
-    <div class="upgrade-cards">${ABILITY_IDS.map((id) => {
+    <div class="upgrade-cards">${run.cardOffers.map((id) => {
       const card = ABILITIES[id],
         level = run.abilities[id],
         chain =

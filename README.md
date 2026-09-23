@@ -1,11 +1,11 @@
-# Faroeste Survivors — versão 0.4 · Mercadores do Deserto
+# Faroeste Survivors — versão 0.4 · Expansão do Sertão
 
-Atualização sobre o commit `376ee95` do repositório: seleção em etapas, mercado destacado, quatro melhorias permanentes, mercador itinerante, urubus em formação e sons dos monstros. Preserva as correções de áudio da versão 0.3, as cartas de evolução, a animação de João e os controles de toque.
+Continuação da versão 0.4 do repositório público: nova arte de menu, chupacabra animado, personagem e deserto 3D refinados, três novas habilidades e trilhas musicais fornecidas pelo autor. Mantém as funcionalidades dos mercadores e dos urubus.
 
 ## Aplicar este pacote
 
 1. Faça backup do projeto e revise conflitos se tiver alterações locais posteriores.
-2. Extraia o ZIP e copie `src`, `index.html` e `README.md` para `C:\projetos\webjogos\FaroesteSuvivors`, mesclando as pastas e substituindo os arquivos correspondentes.
+2. Extraia o ZIP. Após preservar quaisquer mudanças suas, substitua a pasta `src` inteira em `C:\projetos\webjogos\FaroesteSuvivors` pela versão do ZIP, e copie `index.html` e `README.md`. Assim os antigos WAV do morcego e das músicas também serão removidos.
 3. Preserve `package.json`, `package-lock.json`, configuração do Vite e workflow do GitHub Pages. Não há dependências novas; usa o Three.js e o Vite existentes.
 4. Execute:
 
@@ -104,33 +104,34 @@ A população de perseguidores respeita o limite geral anterior de 160; bandos t
 
 A partida dura 15 minutos após a entrada animada de seis segundos. WASD/setas ou joystick de toque mudam a direção; João continua andando automaticamente na última direção. As armas atacam automaticamente.
 
-Ao subir de nível, as três opções continuam sendo pistola, molotov e coração, uma escolha por nível. XP exigido dentro de cada nível: 100, 300, 600, 1000… (`100 × nível × (nível + 1) / 2`).
+Ao subir de nível, aparecem três cartas sorteadas entre seis habilidades: pistola, molotov, coração, ferraduras, bala fantasma e réquiem. Apenas uma carta pode ser escolhida por nível. As opções mudam a cada evolução; uma habilidade adquirida poderá voltar como melhoria em uma evolução futura. XP exigido dentro de cada nível: 100, 300, 600, 1000… (`100 × nível × (nível + 1) / 2`).
 
 - Pistola: 15 de dano e intervalo base de 1,7 s; +5 de dano e -0,08 s por grau, até 0,65 s antes do bônus permanente de ataque.
 - Molotov: 10 de dano/s, fogo por 4 s e intervalo base de 5 s. Cada grau acrescenta 3 de dano/s, 0,25 s de duração (máximo 6 s), 0,15 de raio (máximo 4) e reduz 0,15 s do intervalo (mínimo 3 s antes do bônus permanente).
 - Coração: +20 de vida máxima e recuperação de 20 por escolha.
-- Alternar naipes nas cartas aumenta a sequência até 3: pistola/molotov recebem +20%/+40% de dano por 20 s; coração recupera 10/20 extras. Repetir reinicia a sequência em 1.
+- Ferraduras Malditas: começam com duas ferraduras girando ao redor de João, causando 8 de dano por contato; ganham 3 de dano por grau e uma ferradura extra a cada dois graus, até seis. Um mesmo inimigo tem intervalo de 0,45 s entre contatos.
+- Bala Fantasma: dispara sozinha na direção do inimigo mais próximo e atravessa dois alvos, 18 de dano inicial e intervalo base de 3,5 s; cada grau dá +5 de dano, +1 alvo atravessado e reduz 0,2 s do intervalo.
+- Réquiem da Poeira: libera onda circular ao redor do personagem, começa com raio 4,3 unidades, 12 de dano e intervalo de 6 s; empurra inimigos atingidos e aumenta dano/raio a cada grau.
+- Alternar naipes nas cartas aumenta a sequência até 3: qualquer carta ofensiva recebe +20%/+40% de dano por 20 s; coração recupera 10/20 extras. Repetir reinicia a sequência em 1.
 - Escape pausa/retoma; dentro do mercador, fecha a loja. Tab/Enter e toque funcionam nos menus.
 - Pausa, cartas e loja não consomem o tempo da fase.
 
-## Áudio
+## Música e efeitos
 
-Todos os 12 arquivos WAV ficam em `src/assets/audio/`. São efeitos e músicas sintetizados, PCM mono de 22.050 Hz:
+As duas faixas MP3 enviadas foram incluídas em `src/assets/audio/`. O anexo da segunda música se chamava **The_Outlaw_s_Last_Prayer.mp3.mpeg** (no pedido, “Last Player”); por isso usamos a música realmente fornecida.
 
-| Arquivo | Uso |
+| Arquivo | Onde toca |
 | --- | --- |
-| menu-western.wav | Música do menu e mercado permanente |
-| desert-western.wav | Música da partida |
-| whip.wav, shot.wav | Chicote e disparo |
-| glass.wav, fire.wav | Garrafa e fogo |
-| level.wav, purchase.wav, hurt.wav | Evolução, compra e dano |
-| bat.wav | Guincho agudo e asas de morcego |
-| chupacabra.wav | Rosnado |
-| vulture.wav | Grasnado de aviso do bando |
+| `one-bullet-left.mp3` | Menu principal, seleção, configurações e mercado permanente |
+| `the-outlaws-last-prayer.mp3` | Partida, incluindo a loja do mercador itinerante |
 
-Vocalizações de morcegos e chupacabras só ocorrem com a espécie a menos de 18 unidades. Há intervalo por espécie (5–8 s para morcegos, 7–11 s para chupacabras), evitando um som por monstro a cada quadro. Urubus emitem um aviso por bando.
+As músicas tocam em loop via elemento de áudio, evitando decodificar três minutos de MP3 na memória. O navegador exige o primeiro clique ou toque para iniciar o áudio. Configurações permite ligar/desligar os efeitos e a música. Efeitos de chicote, bala, garrafa, fogo, compra, dano, nível, chupacabra e urubu continuam em WAV. **O som de morcego foi removido**: não há arquivo nem acionamento em jogo. As faixas WAV sintetizadas anteriores do menu e da partida foram substituídas pelas músicas novas. Ajuste o volume do aparelho e a opção de áudio do site caso o navegador esteja mudo.
 
-O áudio inicia após clique, toque ou tecla. Configurações permite ligar efeitos, música e testar/repetir o carregamento. Ao voltar à aba, o contexto de áudio é retomado quando o navegador permite. Na loja da partida os sons de combate ficam suspensos, mas o som de compra usa um canal de interface separado. Nenhuma gravação comercial foi adicionada.
+## Arte e desempenho
+
+A logo do menu é um PNG transparente baseado na capa do próprio jogo. Um chupacabra desenhado por código rói um osso no deserto de fundo; com movimento reduzido do sistema, ele fica estático. João mantém seu chapéu de vaqueiro, cabelo curto e rosto sem barba/lenço, agora com lapelas, cinturão, coldre, esporas, revolver mais detalhado e animações de caminhada, chicote e disparo aprimoradas. O retrato 3D na seleção tem animação suave de espera.
+
+O mapa ganhou ondulações rasas, cores do terreno por vértice, cercas, arbustos, ossos, cactos e paredões mais variados. Grande parte da decoração está em `InstancedMesh` para reduzir chamadas de desenho, preservando o solo transitável plano e os limites da fase. Os novos efeitos usam instâncias com limites fixos para evitar crescimento infinito em partidas longas.
 
 ## Organização MVVM adaptada
 
@@ -140,7 +141,10 @@ O áudio inicia após clique, toque ou tecla. Configurações permite ligar efei
 - `config/shopConfig.js`: catálogo, preços e janelas do mercador.
 - `systems/MerchantSystem.js`: aparição, clareiras, aproximação e reentrada.
 - `systems/EnemySystem.js`: ondas, progressão, vocalizações e cargas dos urubus.
-- `systems/CombatSystem.js`: bônus das armas, projéteis e fogo.
+- `systems/CombatSystem.js`: bônus das armas, projéteis, fogo e novas habilidades.
+- `config/abilityConfig.js`: catálogo, progressão e textos das seis cartas.
+- `views/DesertWorldView.js`, `MenuChupacabraView.js`: cenário otimizado e mascote animado do menu.
+- `views/CowboyRig.js`, `AbilityEffectsView.js`: João e efeitos das habilidades.
 - `views/PreparationView.js`: personagem e fase em telas distintas.
 - `views/ShopView.js`: produtos e cartas das duas lojas.
 - `views/MapMerchantView.js`, `VultureFactory.js`: modelos procedurais no cenário.
@@ -149,10 +153,6 @@ O áudio inicia após clique, toque ou tecla. Configurações permite ligar efei
 
 Modelos e sistemas não dependem do DOM ou de Three.js. Não há novo framework, backend, serviços externos ou mudança de deploy.
 
-## Validação desta entrega
+## Verificação
 
-- Build de produção do Vite concluído, incluindo os 12 WAVs no caminho do GitHub Pages.
-- Seis testes automatizados das regras: migração e bônus, carteiras e compras, janelas e pausa do mercador, trajetória dos urubus, seleção em etapas e integridade dos WAVs.
-- Fluxo exercitado em Chromium, com viewport de computador (1280×900) e celular (390×844): seleção, compras permanentes, encontro com Bento, compras temporárias, relógio congelado, retorno e bando de urubus. Sem erros de JavaScript ou rolagem horizontal nos menus verificados.
-- Os 12 arquivos foram decodificados no navegador; contexto Web Audio em execução e sinal não nulo medido na música. Isso não substitui ouvir e testar o volume em aparelhos físicos, especialmente Safari/iOS.
-- O aviso já existente sobre o tamanho do pacote JavaScript permanece; ele não impede a compilação.
+Execute `npm ci` (se necessário) e `npm run build` antes de enviar ao GitHub Pages. Teste em navegador com áudio liberado após interação, incluindo troca de menu para partida, evoluções, chegada ao mercador e controles no celular. Os arquivos `package.json`, Vite e workflow existentes permanecem compatíveis; o pacote solicitado traz somente `src`, `index.html` e `README.md`.

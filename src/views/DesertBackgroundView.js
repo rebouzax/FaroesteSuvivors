@@ -1,4 +1,5 @@
-// Procedural 2D menu backdrop. No textures, image downloads or Three.js dependency.
+import { drawMenuChupacabra } from "./MenuChupacabraView.js";
+// Procedural 2D menu backdrop. No Three.js dependency.
 // Scene coordinates are normalized to 1600 × 1000; rendering scales to the viewport.
 export class DesertBackgroundView {
   constructor(canvas) {
@@ -189,7 +190,6 @@ export class DesertBackgroundView {
     const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(this.staticLayer, 0, 0);
-    if (!this.wind || this.motion.matches) return;
     ctx.setTransform(
       this.canvas.width / 1600,
       0,
@@ -198,6 +198,8 @@ export class DesertBackgroundView {
       0,
       0,
     );
+    drawMenuChupacabra(ctx, this.motion.matches ? 0 : this.time);
+    if (!this.wind || this.motion.matches) return;
     // Wind ribbons and small grains drift at different speeds to suggest depth.
     for (let i = 0; i < 34; i++) {
       const x = ((i * 173.7 + this.time * (35 + (i % 5) * 13)) % 1950) - 180;

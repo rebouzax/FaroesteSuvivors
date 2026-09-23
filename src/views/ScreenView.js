@@ -1,3 +1,5 @@
+import logoUrl from "../assets/logo-faroeste-survivors.png";
+import { ABILITIES, ABILITY_IDS } from "../config/abilityConfig.js";
 export class ScreenView {
   constructor(root, onAction, onSetting) {
     this.root = root;
@@ -22,7 +24,7 @@ export class ScreenView {
   }
   menu() {
     this.root.className = "";
-    this.root.innerHTML = `<header class="topline"><span>EST. 1887 / TERRAS SEM LEI</span><span>CAPÍTULO UM</span></header><section class="menu-panel"><p class="eyebrow">UM SOL IMPLACÁVEL. UMA ÚLTIMA CHANCE.</p><h1>FAROESTE<span>SURVIVORS</span></h1><p class="tagline">O deserto não enterra seus mortos.<br>Ele os devolve.</p><div class="ornament" aria-hidden="true">────── ✦ ──────</div><nav aria-label="Menu principal"><button class="primary" data-action="select">Novo jogo <span>↗</span></button><button data-action="settings">Configurações <span>⚙</span></button><button data-action="exit">Sair <span>→</span></button></nav><p class="menu-note">SOBREVIVA ATÉ O ÚLTIMO PÔR DO SOL</p></section><footer><span>UM SURVIVOR NO VELHO OESTE</span><span>CARTAS DO SERTÃO / 0.3</span></footer>`;
+    this.root.innerHTML = `<header class="topline"><span>EST. 1887 / TERRAS SEM LEI</span><span>CAPÍTULO UM</span></header><section class="menu-panel"><p class="eyebrow">UM SOL IMPLACÁVEL. UMA ÚLTIMA CHANCE.</p><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><p class="tagline">O deserto não enterra seus mortos.<br>Ele os devolve.</p><div class="ornament" aria-hidden="true">────── ✦ ──────</div><nav aria-label="Menu principal"><button class="primary" data-action="select">Novo jogo <span>↗</span></button><button data-action="settings">Configurações <span>⚙</span></button><button data-action="exit">Sair <span>→</span></button></nav><p class="menu-note">SOBREVIVA ATÉ O ÚLTIMO PÔR DO SOL</p></section><footer><span>UM SURVIVOR NO VELHO OESTE</span><span>CARTAS DO SERTÃO / 0.4</span></footer>`;
   }
   settings(profile) {
     this.root.className = "selection-screen";
@@ -101,7 +103,7 @@ export class ScreenView {
     this.hud.kills.textContent = `☠ ${run.kills}`;
     this.hud.coins.textContent = `◈ Partida: ${run.coins}`;
     this.root.querySelector("#ability-bar").textContent =
-      `✦ Pistola ${run.abilities.pistol}  ·  ♨ Molotov ${run.abilities.molotov}  ·  ♥ Vida ${run.abilities.heart}` +
+      ABILITY_IDS.filter(id => run.abilities[id]).map(id => `${ABILITIES[id].icon} ${ABILITIES[id].name} ${run.abilities[id]}`).join("  ·  ") +
       (run.empowered.remaining > 0
         ? `  |  Sequência ${run.chain} · ${Math.ceil(run.empowered.remaining)}s`
         : "");

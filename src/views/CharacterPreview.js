@@ -15,8 +15,23 @@ export class CharacterPreview {
     this.character.rotation.y = -0.4;
     this.scene.add(this.character);
     this.camera = new THREE.PerspectiveCamera(32, 1, 0.1, 30);
-    this.camera.position.set(3, 2.7, 5);
+    this.camera.position.set(2.55, 2.4, 3.9);
     this.camera.lookAt(0, 1.1, 0);
+    this.started = performance.now();
+    this.frame = 0;
+    this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    const tick = now => {
+      if (!this.reducedMotion.matches) {
+        const t = (now-this.started)/1000;
+        const rig = this.character.userData.rig;
+        rig.torso.rotation.y = Math.sin(t*0.7)*0.08;
+        rig.head.rotation.x = Math.sin(t*1.15)*0.035;
+        rig.arms[1].rotation.x = -0.17+Math.sin(t*0.8)*0.05;
+        this.character.rotation.y = -0.45+Math.sin(t*0.35)*0.15;
+        this.renderer.render(this.scene,this.camera);
+      }
+      this.frame = requestAnimationFrame(tick);
+    };
     this.observer = new ResizeObserver(() => {
       const w = host.clientWidth,
         h = host.clientHeight;
@@ -26,8 +41,10 @@ export class CharacterPreview {
       this.renderer.render(this.scene, this.camera);
     });
     this.observer.observe(host);
+    this.frame = requestAnimationFrame(tick);
   }
   dispose() {
+    cancelAnimationFrame(this.frame);
     this.observer.disconnect();
     disposeObject(this.scene);
     this.renderer.dispose();

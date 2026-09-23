@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { abilityStats } from "../config/abilityConfig.js";
 export class AbilityEffectsView {
   constructor(scene) {
     this.group = new THREE.Group();
@@ -61,6 +62,21 @@ export class AbilityEffectsView {
       new THREE.SphereGeometry(0.15, 6, 4),
       new THREE.MeshBasicMaterial({ color: 0xffe9ae }),
       64,
+    );
+    this.horseshoes = instances(
+      new THREE.TorusGeometry(0.31, 0.065, 5, 9, Math.PI * 1.6),
+      new THREE.MeshStandardMaterial({color:0xc3a56a,metalness:0.68,roughness:0.42,emissive:0x31200c}),
+      6,
+    );
+    this.ghosts = instances(
+      new THREE.ConeGeometry(0.23, 0.8, 6),
+      new THREE.MeshBasicMaterial({color:0xa9f1e2,transparent:true,opacity:0.84,depthWrite:false}),
+      48,
+    );
+    this.pulseRings = instances(
+      new THREE.RingGeometry(0.86, 1, 48),
+      new THREE.MeshBasicMaterial({color:0xd9eed6,transparent:true,opacity:0.62,side:THREE.DoubleSide,depthWrite:false}),
+      8,
     );
   }
   put(mesh, index, x, y, z, sx = 1, sy = 1, sz = 1, rx = 0, ry = 0, rz = 0) {
@@ -160,6 +176,23 @@ export class AbilityEffectsView {
         ),
       );
     this.impacts.count = Math.min(64, run.impacts.length);
+    const rank = run.abilities.horseshoe;
+    if (rank) {
+      const {count,radius} = abilityStats("horseshoe",rank);
+      for(let i=0;i<count;i++) {
+        const angle = run.time*2.7 + i*Math.PI*2/count;
+        this.put(this.horseshoes,i,run.player.x+Math.cos(angle)*radius,0.5,run.player.z+Math.sin(angle)*radius,1,1,1,-Math.PI/2,0,angle);
+      }
+      this.horseshoes.count=count;
+    } else this.horseshoes.count=0;
+    run.ghostShots.slice(0,48).forEach((shot,i) =>
+      this.put(this.ghosts,i,shot.x,1,shot.z,1,1,1,Math.PI/2,0,Math.atan2(shot.vz,shot.vx)));
+    this.ghosts.count=Math.min(48,run.ghostShots.length);
+    run.pulses.slice(0,8).forEach((pulse,i)=> {
+      const size=pulse.radius*Math.max(0.03,pulse.age/0.55);
+      this.put(this.pulseRings,i,pulse.x,0.1,pulse.z,size,size,1,-Math.PI/2);
+    });
+    this.pulseRings.count=Math.min(8,run.pulses.length);
     for (const mesh of this.group.children)
       mesh.instanceMatrix.needsUpdate = true;
   }

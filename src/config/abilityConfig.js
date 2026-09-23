@@ -1,4 +1,4 @@
-export const ABILITY_IDS = ["pistol", "molotov", "heart"];
+export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem"];
 export const ABILITIES = {
   pistol: {
     name: "Pistola do Sertão",
@@ -13,6 +13,9 @@ export const ABILITIES = {
     suit: "VIDA",
     color: "heart",
   },
+  horseshoe: { name: "Ferraduras Malditas", icon: "♧", suit: "SOMBRA", color: "steel" },
+  ghostShot: { name: "Bala Fantasma", icon: "✧", suit: "ALMA", color: "steel" },
+  requiem: { name: "Réquiem da Poeira", icon: "◎", suit: "VENTO", color: "fire" },
 };
 export function abilityStats(id, level) {
   const extra = Math.max(0, level - 1);
@@ -30,6 +33,9 @@ export function abilityStats(id, level) {
       radius: Math.min(4, 2.8 + 0.15 * extra),
       range: 12,
     };
+  if (id === "horseshoe") return { damage: 8 + extra * 3, count: Math.min(6, 2 + Math.floor(extra / 2)), radius: 2.5 + Math.min(1.2, extra * 0.2) };
+  if (id === "ghostShot") return { damage: 18 + extra * 5, cooldown: Math.max(1.2, 3.5 - extra * 0.2), pierce: Math.min(6, 2 + extra), range: 17 };
+  if (id === "requiem") return { damage: 12 + extra * 4, cooldown: Math.max(2.5, 6 - extra * 0.3), radius: Math.min(7, 4.3 + extra * 0.35), push: 1.8 };
   return { health: 20 };
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
@@ -38,6 +44,9 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
     return `${stats.damage} de dano · um tiro a cada ${Math.max(0.15, stats.cooldown / attackRate).toFixed(2)} s.`;
   if (id === "molotov")
     return `${stats.damage} de dano/s · fogo por ${stats.duration.toFixed(2)} s · arremesso a cada ${Math.max(0.7, stats.cooldown / attackRate).toFixed(2)} s.`;
+  if (id === "horseshoe") return `${stats.count} ferraduras giram ao redor de João · ${stats.damage} de dano por contato.`;
+  if (id === "ghostShot") return `${stats.damage} de dano · atravessa ${stats.pierce} inimigos · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
+  if (id === "requiem") return `Onda de poeira de ${stats.radius.toFixed(1)} m · ${stats.damage} de dano e empurra inimigos · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);

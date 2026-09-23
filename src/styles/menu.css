@@ -64,6 +64,17 @@ h1 span {
   letter-spacing: 7px;
   margin-top: 13px;
 }
+.game-logo {
+  margin: 16px 0 16px;
+  letter-spacing: normal;
+  line-height: 1;
+  filter: drop-shadow(0 9px 6px #49321f99);
+}
+.game-logo img {
+  display: block;
+  width: min(100%, 480px);
+  height: auto;
+}
 .tagline {
   font-size: 18px;
   line-height: 1.6;

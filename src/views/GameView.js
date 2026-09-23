@@ -6,6 +6,7 @@ import { createChupacabra } from "./ChupacabraFactory.js";
 import { AbilityEffectsView } from "./AbilityEffectsView.js";
 import { createVulture } from "./VultureFactory.js";
 import { MapMerchantView } from "./MapMerchantView.js";
+import { buildDesertWorld } from "./DesertWorldView.js";
 
 export class GameView {
   constructor(host, run) {
@@ -25,7 +26,7 @@ export class GameView {
     host.prepend(this.renderer.domElement);
     this.renderer.domElement.className = "game-canvas";
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0xeac48e, 45, 95);
+    this.scene.fog = new THREE.Fog(0xeac48e, 55, 115);
     this.camera = new THREE.OrthographicCamera(-20, 20, 15, -15, 0.1, 200);
     this.scene.add(new THREE.HemisphereLight(0xffeac3, 0xa77746, 2.4));
     const sun = new THREE.DirectionalLight(0xffd59b, 3);
@@ -143,131 +144,7 @@ export class GameView {
     this.resize();
   }
   buildWorld() {
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(240, 240),
-      new THREE.MeshStandardMaterial({ color: 0xe0ae69, roughness: 1 }),
-    );
-    ground.rotation.x = -Math.PI / 2;
-    this.scene.add(ground);
-    const ripplePositions = [];
-    for (let i = 0; i < 900; i++) {
-      const x = Math.sin(i * 12.73) * 117;
-      const z = Math.cos(i * 8.31) * 117;
-      const length = 0.5 + (i % 5) * 0.3;
-      ripplePositions.push(x, 0.025, z, x + length, 0.025, z + 0.07);
-    }
-    const ripples = new THREE.BufferGeometry();
-    ripples.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(ripplePositions, 3),
-    );
-    this.scene.add(
-      new THREE.LineSegments(
-        ripples,
-        new THREE.LineBasicMaterial({
-          color: 0xffe5a9,
-          transparent: true,
-          opacity: 0.28,
-        }),
-      ),
-    );
-    // Low dune relief sits below the movement plane so navigation remains flat.
-    const duneMaterial = new THREE.MeshStandardMaterial({
-      color: 0xeaba77,
-      flatShading: true,
-      roughness: 1,
-    });
-    for (let i = 0; i < 35; i++) {
-      const dune = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 12, 5),
-        duneMaterial,
-      );
-      dune.scale.set(10 + (i % 5) * 3, 0.6, 6 + (i % 4) * 3);
-      dune.position.set(Math.sin(i * 42) * 108, -0.5, Math.cos(i * 17) * 108);
-      this.scene.add(dune);
-    }
-    const rockMaterial = new THREE.MeshStandardMaterial({
-        color: 0xb87b50,
-        flatShading: true,
-        roughness: 1,
-      }),
-      cactusMaterial = new THREE.MeshStandardMaterial({
-        color: 0x79834a,
-        flatShading: true,
-        roughness: 1,
-      });
-    const rockGeometry = new THREE.DodecahedronGeometry(1, 0),
-      stemGeometry = new THREE.CylinderGeometry(0.24, 0.29, 2.4, 7);
-    for (const prop of this.run.props) {
-      const group = new THREE.Group();
-      group.position.set(prop.x, 0, prop.z);
-      group.scale.setScalar(prop.size);
-      if (prop.type === "rock") {
-        const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-        rock.position.y = 0.65;
-        rock.scale.set(1, 1.3, 0.85);
-        rock.rotation.y = prop.x;
-        group.add(rock);
-      } else {
-        const stem = new THREE.Mesh(stemGeometry, cactusMaterial);
-        stem.position.y = 1.2;
-        group.add(stem);
-        for (const sign of [-1, 1]) {
-          const branch = new THREE.Mesh(stemGeometry, cactusMaterial);
-          branch.scale.set(0.65, 0.32, 0.65);
-          branch.rotation.z = (sign * Math.PI) / 2;
-          branch.position.set(sign * 0.38, 1.1 + sign * 0.18, 0);
-          group.add(branch);
-          const tip = new THREE.Mesh(stemGeometry, cactusMaterial);
-          tip.scale.set(0.65, 0.3, 0.65);
-          tip.position.set(sign * 0.72, 1.4 + sign * 0.18, 0);
-          group.add(tip);
-        }
-      }
-      this.scene.add(group);
-    }
-    const wallGeometry = new THREE.BoxGeometry(8, 8, 8);
-    for (let i = -120; i <= 120; i += 8)
-      for (const side of [-1, 1]) {
-        for (const [x, z] of [
-          [i, side * 124],
-          [side * 124, i],
-        ]) {
-          const wall = new THREE.Mesh(wallGeometry, rockMaterial);
-          wall.position.set(x, 2 + Math.sin(i) * 0.5, z);
-          wall.scale.y = 1 + Math.abs(Math.sin(i)) * 0.6;
-          this.scene.add(wall);
-        }
-      }
-    // A few broken fence fragments establish places to explore without blocking paths.
-    const wood = new THREE.MeshStandardMaterial({
-      color: 0x886243,
-      roughness: 1,
-    });
-    for (const [x, z] of [
-      [15, -6],
-      [-20, 18],
-      [38, 24],
-      [-45, -34],
-    ]) {
-      for (let i = 0; i < 4; i++) {
-        const post = new THREE.Mesh(
-          new THREE.BoxGeometry(0.16, 1.2, 0.18),
-          wood,
-        );
-        post.position.set(x + i * 1.5, 0.6, z);
-        this.scene.add(post);
-        if (i < 3) {
-          const rail = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 0.12, 0.12),
-            wood,
-          );
-          rail.position.set(x + i * 1.5 + 0.75, 0.8, z);
-          rail.rotation.z = 0.05;
-          this.scene.add(rail);
-        }
-      }
-    }
+    buildDesertWorld(this.scene, this.run.props);
   }
   resize() {
     const width = this.host.clientWidth || innerWidth,

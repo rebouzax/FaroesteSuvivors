@@ -2,6 +2,10 @@
   width: min(620px, 100%);
   margin: auto;
 }
+.preparation-panel #character-preview { height: 255px; }
+@media (max-width: 600px) {
+  .preparation-panel #character-preview { height: 205px; }
+}
 .preparation-panel h2 {
   font-size: clamp(28px, 5vw, 43px);
   margin: 12px 0;

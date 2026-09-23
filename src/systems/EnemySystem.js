@@ -100,7 +100,7 @@ export class EnemySystem {
     run.enemies = run.enemies.filter(
       (enemy) => enemy.type !== "vulture" || enemy.hp <= 0 || enemy.age < 10,
     );
-    for (const type of ["bat", "dog"]) {
+    for (const type of ["dog"]) {
       run.enemyVoiceTimers[type] -= dt;
       if (
         run.enemyVoiceTimers[type] <= 0 &&
@@ -111,8 +111,7 @@ export class EnemySystem {
         )
       ) {
         run.events.push(type);
-        run.enemyVoiceTimers[type] =
-          type === "bat" ? 5 + run.random() * 3 : 7 + run.random() * 4;
+        run.enemyVoiceTimers[type] = 7 + run.random() * 4;
       }
     }
   }
