@@ -1,0 +1,45 @@
+/* V0.6: cartões de couro, placas de cobre e tipografia de cartaz. */
+.language-picker{display:inline-flex;align-items:center;gap:9px;letter-spacing:.5px;font:11px/1.4 ui-monospace,monospace;color:#563725}
+.language-picker select{min-height:36px;padding:5px 23px 5px 9px;border:1px solid #845b39;border-radius:3px;background:#f5dfb5;color:#382219;font:12px ui-monospace,monospace;cursor:pointer}
+.topline .language-picker{margin-left:auto; margin-right:clamp(5px,5vw,100px)}
+.menu-panel{padding:30px 24px 30px 18px;border-left:3px double #6e492bc4;background:linear-gradient(90deg,#f7d69c99,#f7d69c18 95%);box-shadow:8px 9px 0 #5b341512}
+.menu-panel nav{max-width:360px}
+#app.selection-screen{background:linear-gradient(115deg,#f2d4a9ed,#f2d4a9a1)}
+.preparation-panel{width:min(850px,100%)}
+.choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:18px 0}
+.choice-card{min-height:132px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:7px;background:#f9e2baad;border:2px solid #7c5b4060;padding:14px;color:#472e22;text-align:left;box-shadow:0 4px 0 #4e302523}
+.choice-card.active{border-color:#b47130;background:#fff0ca;box-shadow:inset 0 0 0 1px #42251b,0 5px 0 #794016}
+.choice-card strong{font-size:18px;line-height:1.1}
+.choice-card small{font:12px/1.3 Georgia,serif;letter-spacing:0;opacity:.8}
+.choice-card>span:last-child{font:10px/1.5 ui-monospace,monospace;margin-top:auto;letter-spacing:0}
+.choice-icon{font-size:31px;line-height:1;color:#9f5925}
+.map-choice{min-height:161px}
+.map-swatch{width:100%;height:55px;border:1px solid #4d322a80;display:block}
+.map-desert{background:radial-gradient(circle at 75% 30%,#fff0b3 0 15px,transparent 16px),linear-gradient(157deg,#dfa56b 45%,#8b5941 46% 65%,#ecbf81 66%)}
+.map-mine{background:repeating-linear-gradient(90deg,transparent 0 27px,#6c5337 28px 33px,transparent 34px 42px),radial-gradient(circle at 70% 30%,#ffd389 0 4px,transparent 20px),linear-gradient(#302d39,#6f5a55)}
+.map-town{background:linear-gradient(180deg,transparent 0 56%,#443029 57% 65%,#8e674e 66%),repeating-linear-gradient(90deg,#9d775d 0 24px,#d0a471 24px 35px,#4f3430 35px 42px)}
+.preparation-panel .focused-card{display:flex;align-items:center;gap:28px;min-height:142px;padding:20px 24px;background:linear-gradient(110deg,#f4d5a9,#f2e2c0)}
+.preparation-panel .focused-card.character-focus{min-height:215px}
+.preparation-panel .focused-card #character-preview{flex:0 0 40%;height:205px}
+.focus-copy{flex:1}
+.preparation-panel .focused-card:not(.character-focus){display:block}
+.focused-card .primary{max-width:370px}
+.preparation-panel .market-callout{min-height:65px}
+.hud{padding:13px 18px 0;background:linear-gradient(#221714d4,transparent 155px);font:11px ui-monospace,monospace}
+.hud-row{align-items:center}
+.hud-hero,.clock{padding:8px 13px;background:linear-gradient(#40251fe8,#221817df);border:1px solid #bf925f;box-shadow:0 3px 0 #0a080a55}
+.hud-hero{min-width:170px}.clock{text-align:center;min-width:156px}.clock strong{font-size:26px;letter-spacing:3px!important}
+.hud-stats{width:fit-content;padding:6px 11px;margin-top:7px;background:#271b19c9;border:1px solid #845f4c;display:flex;gap:13px}
+.controls-hint{padding:7px 11px;background:#231816b5;color:#ffebc2;border:1px solid #c3986666;font:10px/1.5 ui-monospace,monospace}
+.mission-hud,.weather-hud{position:fixed;top:147px;left:50%;transform:translateX(-50%);width:min(450px,calc(100vw - 26px));padding:11px 13px;text-align:center;background:#211d22ec;border:1px solid #dab278;color:#fff0d1;box-shadow:0 5px 0 #1a1217aa;font:11px/1.6 ui-monospace,monospace;z-index:3}
+.weather-hud{top:202px;background:#4b3628ea;border-color:#f7d183}
+.boss-hud{top:148px;background:#341d1deb;border:2px solid #d09350;box-shadow:0 5px 0 #21101688}
+.mission-hud:not([hidden])~.boss-hud{top:206px}
+.reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.reward-grid .upgrade-card{min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.reward-grid .card-icon{font-size:41px}
+.market-product{background:linear-gradient(145deg,#f5dbac,#f1cb91);border:1px solid #865839;box-shadow:3px 4px 0 #56342032}
+.shop-screen .market-product,.shop-screen .market-product h3,.shop-screen .market-product .eyebrow,.merchant-dialog .market-product{color:#382519}
+.merchant-dialog .market-product{background:#f4d8ab}
+@media(max-width:660px){.choice-grid{grid-template-columns:1fr;gap:7px}.choice-card{min-height:70px;padding:10px 13px;display:grid;grid-template-columns:32px 1fr;gap:0 10px}.choice-card .choice-icon,.choice-card .map-swatch{grid-row:span 3}.choice-card .map-swatch{width:32px;height:50px}.choice-card strong{font-size:16px}.choice-card small{font-size:11px}.choice-card>span:last-child{font-size:9px}.preparation-panel .focused-card.character-focus{min-height:160px}.preparation-panel .focused-card #character-preview{height:135px}.preparation-panel .focused-card{gap:10px}.topline .language-picker{margin-right:0}.topline .language-picker>span{display:none}.language-picker select{max-width:160px}.hud{padding:7px 10px 0}.hud-row{min-height:84px}.hud-hero,.clock{padding:6px 8px;min-width:0}.clock strong{font-size:19px}.hud-stats{margin-top:5px;gap:7px;max-width:calc(100vw - 15px)}.mission-hud,.boss-hud{top:150px}.weather-hud{top:204px}.reward-grid{grid-template-columns:1fr}.reward-grid .upgrade-card{min-height:88px;display:flex;flex-direction:row}.reward-grid .card-icon{font-size:27px}}
+@media(max-height:700px){.preparation-panel .focused-card #character-preview{height:120px}.choice-card{min-height:85px}.menu-panel{padding:12px 18px}.game-logo img{max-width:300px}}

@@ -7,8 +7,16 @@ import { DesertBackgroundView } from "../views/DesertBackgroundView.js";
 import { GameView } from "../views/GameView.js";
 import { CharacterPreview } from "../views/CharacterPreview.js";
 import { MerchantView } from "../views/MerchantView.js";
-import { upgradeCardsMarkup } from "../views/UpgradeCardsView.js";
+import {
+  upgradeCardsMarkup,
+  missionRewardMarkup,
+  missionCardMarkup,
+} from "../views/UpgradeCardsView.js";
 import { preparationMarkup } from "../views/PreparationView.js";
+import { t } from "../services/I18n.js";
+import { CHARACTERS } from "../config/characterConfig.js";
+import { MAPS } from "../config/mapConfig.js";
+import { gameIcon } from "../views/GameIcons.js";
 import {
   permanentShopMarkup,
   permanentProducts,
@@ -27,6 +35,8 @@ export class GameApplication {
       (key, value) => this.setting(key, value),
     );
     this.character = false;
+    this.characterId = "joao";
+    this.mapId = "desert";
     this.current = "menu";
     this.shopReturn = "menu";
     this.controller = new AbortController();
@@ -72,6 +82,9 @@ export class GameApplication {
     this.background.setWind(this.profile.data.wind);
   }
   show(name) {
+    const lang = this.profile.data.language;
+    document.documentElement.lang =
+      lang === "pt" ? "pt-BR" : lang === "es" ? "es" : "en";
     if (name === "shop" && this.current !== "shop")
       this.shopReturn = ["select", "map-select"].includes(this.current)
         ? this.current
@@ -85,52 +98,101 @@ export class GameApplication {
     this.audio.setPaused(false);
     this.audio.setMusic(name === "exit" ? null : "menu");
     if (name === "menu") {
-      this.screen.menu();
+      this.screen.menu(lang);
       this.root
         .querySelector('[data-action="select"]')
         .insertAdjacentHTML(
           "afterend",
-          `<button class="market-callout" data-action="shop"><span>◈ Mercado do Bento<small>Melhorias permanentes · ${this.profile.data.coins} moedas</small></span><span>→</span></button>`,
+          `<button class="market-callout" data-action="shop"><span class="market-icon">${gameIcon("merchant")}</span><span><strong>${t(lang, "market")}</strong><small>${t(lang, "permanentUpgrades")} · ${this.profile.data.coins} ${t(lang, "coins")}</small></span><span>→</span></button>`,
         );
-      this.root.querySelector("footer span:last-child").textContent =
-        "CERCO DO COVEIRO / 0.5";
     } else if (name === "select" || name === "map-select") {
       this.root.className = "selection-screen preparation-screen";
       this.root.innerHTML = preparationMarkup(
         this.profile,
         name === "select" ? "character" : "map",
+        this.characterId,
+        this.mapId,
       );
       const host = this.root.querySelector("#character-preview");
       if (host) {
         try {
-          this.preview = new CharacterPreview(host);
+          this.preview = new CharacterPreview(host, this.characterId);
         } catch {
-          host.textContent =
-            "João Vaqueiro · chapéu de couro, gibão gasto e chicote";
+          host.textContent = CHARACTERS[this.characterId].name;
         }
       }
     } else if (name === "shop") {
       this.root.className = "shop-screen";
       this.root.innerHTML = permanentShopMarkup(this.profile, this.shopReturn);
+      const deck = this.root.querySelector("#permanent-products");
+      const updatePage = () => {
+        const page =
+          Math.round(deck.scrollLeft / Math.max(1, deck.clientWidth)) + 1;
+        this.root.querySelector("#shop-page-count").textContent =
+          `${Math.max(1, Math.min(8, page))} / 8`;
+      };
+      deck.addEventListener("scroll", updatePage, { passive: true });
       const host = this.root.querySelector("#merchant-preview");
       try {
         this.merchant = new MerchantView(host);
       } catch {
-        host.textContent = "Bento, o Andarilho";
+        host.textContent = t(lang, "merchantName");
       }
     } else if (name === "settings") {
       this.screen.settings(this.profile);
-      this.screen.audioSettings();
-    } else if (name === "exit") this.screen.exit();
+      this.screen.audioSettings(lang);
+    } else if (name === "exit") this.screen.exit(lang);
     this.root.querySelector("h2, h1")?.setAttribute("tabindex", "-1");
   }
   action(action) {
+    const lang = this.profile.data.language;
+    if (action.startsWith("choose-character:")) {
+      const id = action.slice(17);
+      if (this.current === "select" && CHARACTERS[id]) {
+        this.characterId = id;
+        this.show("select");
+        this.root
+          .querySelector(`[data-action="choose-character:${id}"]`)
+          ?.focus();
+      }
+      return;
+    }
+    if (action.startsWith("choose-map:")) {
+      const id = action.slice(11);
+      if (this.current === "map-select" && MAPS[id]) {
+        this.mapId = id;
+        this.show("map-select");
+        this.root.querySelector(`[data-action="choose-map:${id}"]`)?.focus();
+      }
+      return;
+    }
+    if (action.startsWith("reward:")) {
+      if (this.vm?.model.chooseMissionReward(action.slice(7))) {
+        this.audio.play("purchase", { ui: true });
+        this.showRunDialog();
+      }
+      return;
+    }
+    if (action.startsWith("mission-card:")) {
+      if (this.vm?.model.chooseMissionCard(action.slice(13))) {
+        this.audio.play("level", { ui: true });
+        this.showRunDialog();
+      }
+      return;
+    }
     if (action === "test-audio") {
       const status = this.root.querySelector("#audio-status");
-      if (status) status.textContent = "Carregando e testando os sons…";
-      this.audio.test().then((message) => {
+      if (status) status.textContent = t(lang, "audioLoading");
+      this.audio.test(lang).then((message) => {
         if (status?.isConnected) status.textContent = message;
       });
+      return;
+    }
+    if (action === "product-next" || action === "product-prev") {
+      const deck = this.root.querySelector("#permanent-products");
+      if (this.current !== "shop" || !deck) return;
+      const step = deck.clientWidth * (action === "product-next" ? 1 : -1);
+      deck.scrollBy({ left: step, behavior: "smooth" });
       return;
     }
     if (action.startsWith("run-buy:")) {
@@ -141,16 +203,18 @@ export class GameApplication {
       )
         return;
       const id = action.slice(8);
-      this.runDialog.innerHTML = runShopMarkup(this.vm.model);
-      this.runDialog.querySelector("#run-shop-status").textContent =
-        "“Bom negócio, viajante.” Melhoria aplicada somente nesta partida.";
+      this.runDialog.innerHTML = runShopMarkup(this.vm.model, lang);
+      this.runDialog.querySelector("#run-shop-status").textContent = t(
+        lang,
+        "merchantThanks",
+      );
       (
         this.runDialog.querySelector(
           `[data-action="run-buy:${id}"]:not(:disabled)`,
         ) || this.runDialog.querySelector('[data-action="leave-merchant"]')
       ).focus();
       this.audio.play("purchase", { ui: true });
-      this.screen.updateHud(this.vm.model);
+      this.screen.updateHud(this.vm.model, lang);
       return;
     }
     if (action === "leave-merchant") {
@@ -167,15 +231,18 @@ export class GameApplication {
       if (this.profile.buyUpgrade(id)) {
         this.root.querySelector("#permanent-products").innerHTML =
           permanentProducts(this.profile);
-        this.root.querySelector("#shop-wallet").textContent =
-          `◈ ${this.profile.data.coins} guardadas`;
+        this.root.querySelector("#shop-wallet").textContent = t(
+          lang,
+          "savedCoins",
+          { coins: this.profile.data.coins },
+        );
         this.root
           .querySelector(`[data-action="buy:${id}"]:not(:disabled)`)
           ?.focus();
         this.root.querySelector("#merchant-speech").textContent = this.profile
           .available
-          ? "“Obrigado, viajante. Esta melhoria fica com você.”"
-          : "“Obrigado, viajante.” Melhoria aplicada nesta sessão; não foi possível salvar.";
+          ? t(lang, "merchantThanksForever")
+          : t(lang, "saveFailed");
         this.merchant?.thank();
         this.audio.play("purchase");
       }
@@ -191,7 +258,7 @@ export class GameApplication {
       ) {
         this.input.clear();
         this.accumulator = 0;
-        this.screen.updateHud(this.vm.model);
+        this.screen.updateHud(this.vm.model, lang);
         this.showRunDialog();
       }
       return;
@@ -223,6 +290,13 @@ export class GameApplication {
     }
   }
   setting(key, value) {
+    if (key === "language") {
+      if (!["en", "es", "pt"].includes(value)) return;
+      this.profile.data.language = value;
+      this.profile.save();
+      this.show(this.current);
+      return;
+    }
     if (!["sound", "wind", "music"].includes(key)) return;
     this.profile.data[key] = value;
     this.profile.save();
@@ -231,8 +305,8 @@ export class GameApplication {
     const status = this.root.querySelector("#save-status");
     if (status)
       status.textContent = this.profile.available
-        ? "Preferência salva."
-        : "Aplicado nesta sessão; salvamento indisponível.";
+        ? t(this.profile.data.language, "saved")
+        : t(this.profile.data.language, "saveFailed");
   }
   startRun() {
     if (this.vm) return;
@@ -248,8 +322,14 @@ export class GameApplication {
     this.audio.setPaused(false);
     this.audio.setMusic("game");
     this.current = "game";
-    this.vm = new GameViewModel(this.profile, this.audio);
-    const elements = this.screen.game();
+    this.vm = new GameViewModel(this.profile, this.audio, {
+      characterId: this.characterId,
+      mapId: this.mapId,
+    });
+    const elements = this.screen.game(
+      this.vm.model,
+      this.profile.data.language,
+    );
     try {
       this.gameView = new GameView(elements.host, this.vm.model);
     } catch (error) {
@@ -257,8 +337,7 @@ export class GameApplication {
       this.show("select");
       const message = document.createElement("p");
       message.setAttribute("role", "alert");
-      message.textContent =
-        "Não foi possível iniciar o 3D. Verifique WebGL e a aceleração de hardware do navegador.";
+      message.textContent = t(this.profile.data.language, "webglFailed");
       this.root.append(message);
       console.error(error);
       return;
@@ -282,8 +361,9 @@ export class GameApplication {
     this.last = null;
     this.accumulator = 0;
     this.hudTime = 0;
+    this.lastDraw = null;
     this.dialogState = "";
-    this.screen.updateHud(this.vm.model);
+    this.screen.updateHud(this.vm.model, this.profile.data.language);
     this.frame = requestAnimationFrame(this.tick);
   }
   tick = (now) => {
@@ -303,10 +383,17 @@ export class GameApplication {
         }
       }
     } else this.accumulator = 0;
-    this.gameView.render(this.vm.model);
+    if (!this.vm.paused || this.lastDraw == null || now - this.lastDraw > 85) {
+      this.gameView.render(this.vm.model);
+      this.lastDraw = now;
+    }
     this.hudTime += delta;
     if (this.hudTime >= 0.1) {
-      this.screen.updateHud(this.vm.model);
+      this.screen.updateHud(
+        this.vm.model,
+        this.profile.data.language,
+        this.gameView.merchantIndicator(this.vm.model),
+      );
       this.hudTime = 0;
     }
     this.showRunDialog();
@@ -315,6 +402,7 @@ export class GameApplication {
   showRunDialog() {
     if (!this.vm || !this.runDialog) return;
     const run = this.vm.model,
+      lang = this.profile.data.language,
       ended = ["defeat", "victory"].includes(run.phase),
       state = ended
         ? run.phase
@@ -324,7 +412,11 @@ export class GameApplication {
             ? `upgrade:${run.pendingChoices}`
             : run.phase === "merchant"
               ? "merchant"
-              : "";
+              : run.phase === "mission-reward"
+                ? "mission-reward"
+                : run.phase === "mission-card"
+                  ? "mission-card"
+                  : "";
     if (state === this.dialogState) return;
     this.dialogState = state;
     if (ended) this.audio.setMusic(null);
@@ -332,7 +424,7 @@ export class GameApplication {
     this.audio.setPaused(Boolean(state));
     this.runDialog.classList.toggle(
       "upgrade-dialog",
-      state.startsWith("upgrade:"),
+      state.startsWith("upgrade:") || state.startsWith("mission-"),
     );
     this.runDialog.classList.toggle("merchant-dialog", state === "merchant");
     if (!state) {
@@ -341,12 +433,16 @@ export class GameApplication {
     }
     this.runDialog.innerHTML =
       state === "merchant"
-        ? runShopMarkup(run)
-        : state.startsWith("upgrade:")
-          ? upgradeCardsMarkup(run)
-          : ended
-            ? `<p class="eyebrow">${run.phase === "victory" ? "O SOL NASCE PARA OS FORTES" : "A POEIRA COBRE MAIS UMA HISTÓRIA"}</p><h2 id="run-dialog-title">${run.phase === "victory" ? "Você sobreviveu!" : "Fim da jornada"}</h2><p>${run.kills} inimigos · Nível ${run.player.level}<br>${run.coins} moedas restantes guardadas</p><p>${this.profile.available ? "Seu saldo foi salvo." : "Saldo disponível apenas nesta sessão."}</p><div class="dialog-actions"><button class="primary" data-action="retry">Jogar novamente</button><button data-action="select">Voltar à seleção</button></div>`
-            : '<p class="eyebrow">RESPIRAR TAMBÉM É SOBREVIVER</p><h2 id="run-dialog-title">Partida pausada</h2><div class="dialog-actions"><button class="primary" data-action="resume">Continuar</button><button data-action="select">Encerrar e voltar</button></div>';
+        ? runShopMarkup(run, lang)
+        : state === "mission-reward"
+          ? missionRewardMarkup(run, lang)
+          : state === "mission-card"
+            ? missionCardMarkup(run, lang)
+            : state.startsWith("upgrade:")
+              ? upgradeCardsMarkup(run, lang)
+              : ended
+                ? `<p class="eyebrow">${t(lang, run.phase === "victory" ? "winIntro" : "loseIntro")}</p><h2 id="run-dialog-title">${t(lang, run.phase === "victory" ? "winTitle" : "loseTitle")}</h2><p>${t(lang, "statSummary", { kills: run.kills, level: run.player.level })}<br>${t(lang, "coinsSaved", { coins: run.coins })}</p><p>${this.profile.available ? t(lang, "saved") : t(lang, "coinsSession")}</p><div class="dialog-actions"><button class="primary" data-action="retry">${t(lang, "retry")}</button><button data-action="select">${t(lang, "backSelect")}</button></div>`
+                : `<p class="eyebrow">${t(lang, "paused")}</p><h2 id="run-dialog-title">${t(lang, "pauseTitle")}</h2><div class="dialog-actions"><button class="primary" data-action="resume">${t(lang, "resumeButton")}</button><button data-action="select">${t(lang, "endButton")}</button></div>`;
     if (!this.runDialog.open) this.runDialog.showModal();
   }
   endRun() {
@@ -363,6 +459,7 @@ export class GameApplication {
     this.gameView = null;
     this.runDialog = null;
     this.last = null;
+    this.lastDraw = null;
   }
   dispose() {
     this.endRun();

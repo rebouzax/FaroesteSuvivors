@@ -2,15 +2,22 @@ import { CONFIG, levelCost } from "../config/gameConfig.js";
 import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { createWorld } from "./WorldModel.js";
 import { temporaryPrice } from "../config/shopConfig.js";
+import { CHARACTERS } from "../config/characterConfig.js";
+import { MAPS } from "../config/mapConfig.js";
 export class RunModel {
-  constructor(random = Math.random, permanentHealth = 0, bonuses = {}) {
+  constructor(random = Math.random, permanentHealth = 0, bonuses = {}, options = {}) {
     this.random = random;
+    this.characterId = CHARACTERS[options.characterId] ? options.characterId : "joao";
+    this.mapId = MAPS[options.mapId] ? options.mapId : "desert";
+    this.hero = CHARACTERS[this.characterId];
     this.attackRate = 1 + (bonuses.attackRank || 0) * 0.08;
     this.moveSpeed =
-      CONFIG.playerSpeed * (1 + (bonuses.movementRank || 0) * 0.05);
-    this.primaryDamage = CONFIG.whipDamage + (bonuses.primaryRank || 0) * 2;
+      this.hero.speed * (1 + (bonuses.movementRank || 0) * 0.05);
+    this.primaryDamage = this.hero.damage + (bonuses.primaryRank || 0) * 2;
     this.playerArmor = (bonuses.armorRank || 0) * 2;
     this.magnetRadius = CONFIG.magnetRadius + (bonuses.magnetRank || 0) * 0.7;
+    this.crateBandageChance=Math.min(0.75,0.38+(bonuses.crateLuckRank||0)*0.04);
+    this.xpMultiplier=1+(bonuses.xpRank||0)*0.05;
     this.whipRank = 0;
     this.shopPurchases = Object.fromEntries(["whip", "haste", "spur", ...ABILITY_IDS].map(id => [id, 0]));
     this.merchant = null;
@@ -20,7 +27,7 @@ export class RunModel {
     this.phase = "intro";
     this.introTime = 0;
     this.time = 0;
-    const maxHp = CONFIG.playerHp + permanentHealth;
+    const maxHp = this.hero.hp + permanentHealth;
     this.player = {
       x: 0,
       z: 8,
@@ -36,7 +43,15 @@ export class RunModel {
     };
     this.enemies = [];
     this.loot = [];
-    this.props = createWorld();
+    this.props = createWorld(this.mapId);
+    this.crates = [];
+    this.crateSpawnTimer = 0;
+    this.cratesBroken = 0;
+    this.tornadoes = [];
+    this.weather = {nextAt: 150, windEnds: 0, windX: 0, windZ: 0, alert: "", alertUntil: 0};
+    this.mission = null;
+    this.missionIndex = 0;
+    this.missionOffers = [];
     this.events = [];
     this.kills = 0;
     this.coins = 0;
@@ -45,7 +60,7 @@ export class RunModel {
     this.dogTimer = 0;
     this.skeletonTimer = 0;
     this.minerTimer = 0;
-    this.bossEncounter = { active: false, completed: false, radius: 12, age: 0, x: 0, z: 0 };
+    this.bossEncounter = { active: false, completed: false, nextBoss: 0, radius: 12, age: 0, x: 0, z: 0, type: null };
     this.enemyShots = [];
     this.difficulty = 0;
     this.attack = null;
@@ -62,11 +77,14 @@ export class RunModel {
     this.ghostTimer = 0;
     this.requiemTimer = 0;
     this.silverTimer = 0;
+    this.boneTimer = 0;
     this.lanternTimer = 1;
     this.silverShots = [];
     this.ghostShots = [];
     this.pulses = [];
     this.projectiles = [];
+    this.primaryShots = [];
+    this.primaryFlash = 0;
     this.bottles = [];
     this.fires = [];
     this.impacts = [];
@@ -120,8 +138,38 @@ export class RunModel {
         this.player.hp + 20 + 10 * (this.chain - 1),
       );
     }
+    if(id==="ironWill")this.playerArmor+=3;
     if (!this.pendingChoices) { this.phase = "playing"; this.cardOffers = []; }
     else this.dealCards();
+    return true;
+  }
+  chooseMissionReward(reward) {
+    if(this.phase!=="mission-reward" || !this.mission?.success) return false;
+    if(reward==="coins")this.coins+=25;
+    else if(reward==="health"){
+      this.player.maxHp+=20;
+      this.player.hp=Math.min(this.player.maxHp,this.player.hp+40);
+    }else if(reward==="card"){
+      const owned=ABILITY_IDS.filter(id=>this.abilities[id]>0);
+      this.missionOffers=(owned.length?owned:ABILITY_IDS).slice(0,3);
+      this.phase="mission-card";
+      return true;
+    }else return false;
+    this.mission=null;
+    this.phase="playing";
+    return true;
+  }
+  chooseMissionCard(id) {
+    if(this.phase!=="mission-card"||!this.missionOffers.includes(id))return false;
+    this.abilities[id]++;
+    if(id==="ironWill")this.playerArmor+=3;
+    if(id==="heart"){
+      this.player.maxHp+=20;
+      this.player.hp=Math.min(this.player.maxHp,this.player.hp+20);
+    }
+    this.mission=null;
+    this.missionOffers=[];
+    this.phase="playing";
     return true;
   }
   get requiredXp() {
@@ -139,9 +187,10 @@ export class RunModel {
     this.shopPurchases[id]++;
     if (id === "whip") this.whipRank++;
     else if (id === "haste") this.attackRate += 0.06;
-    else if (id === "spur") this.moveSpeed += CONFIG.playerSpeed * 0.05;
+    else if (id === "spur") this.moveSpeed += this.hero.speed * 0.05;
     else {
       this.abilities[id]++;
+      if(id==="ironWill")this.playerArmor+=3;
       if (id === "heart") {
         this.player.maxHp += 20;
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + 20);

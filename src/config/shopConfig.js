@@ -41,6 +41,14 @@ export const PERMANENT_UPGRADES = {
     base: 38,
     description: "+0,7 unidade ao raio de atração de XP e moedas por compra.",
   },
+  fortune: {
+    name: "Sorte de Garimpeiro", icon: "✣", field: "crateLuckRank", base: 55,
+    description: "+4 pontos percentuais na chance de bandagem das caixas por compra.",
+  },
+  learning: {
+    name: "Lenda Aprendiz", icon: "★", field: "xpRank", base: 50,
+    description: "+5% de experiência coletada por compra.",
+  },
 };
 export const permanentPrice = (id, rank) =>
   Math.ceil((PERMANENT_UPGRADES[id]?.base ?? Infinity) * 1.55 ** rank);

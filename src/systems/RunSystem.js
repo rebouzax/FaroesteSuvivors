@@ -3,6 +3,9 @@ import { EnemySystem } from "./EnemySystem.js";
 import { CombatSystem } from "./CombatSystem.js";
 import { MerchantSystem } from "./MerchantSystem.js";
 import { BossSystem } from "./BossSystem.js";
+import { CrateSystem } from "./CrateSystem.js";
+import { WeatherSystem } from "./WeatherSystem.js";
+import { MissionSystem } from "./MissionSystem.js";
 import { abilityStats } from "../config/abilityConfig.js";
 const clamp = (value) =>
   Math.max(-CONFIG.mapHalf + 1, Math.min(CONFIG.mapHalf - 1, value));
@@ -12,6 +15,9 @@ export class RunSystem {
     this.combat = new CombatSystem();
     this.merchant = new MerchantSystem();
     this.boss = new BossSystem();
+    this.crates = new CrateSystem();
+    this.weather = new WeatherSystem();
+    this.missions = new MissionSystem();
   }
   update(run, dt, input) {
     run.events.length = 0;
@@ -33,22 +39,27 @@ export class RunSystem {
     p.invulnerable = Math.max(0, p.invulnerable - dt);
     run.levelFlash = Math.max(0, run.levelFlash - dt);
     this.move(run, dt, input);
+    this.weather.update(run, dt);
+    if(run.phase==="defeat")return;
+    this.crates.update(run,dt);
     if (!run.bossEncounter.active) this.merchant.update(run);
     if (run.phase === "merchant") return;
-    if (run.time >= 360 && !run.bossEncounter.completed && !run.bossEncounter.active) this.boss.start(run);
+    if (!run.bossEncounter.active) this.boss.start(run);
     this.boss.updateArena(run, dt);
     if (run.phase === "defeat") return;
     this.enemies.update(run, dt);
     if (run.phase === "defeat") return;
     this.combat.update(run, dt);
+    const killed=[];
     run.enemies = run.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;
       run.kills++;
+      killed.push(enemy.type);
       this.drop(run, enemy.x, enemy.z, "xp", enemy.xp);
       if (run.abilities.soulHarvest)
         p.hp = Math.min(p.maxHp, p.hp + abilityStats("soulHarvest", run.abilities.soulHarvest).heal);
-      if (enemy.type === "boss") {
-        this.drop(run, enemy.x + 0.4, enemy.z, "coin", 80);
+      if (enemy.type === "boss" || enemy.type === "marshal") {
+        this.drop(run, enemy.x + 0.4, enemy.z, "coin", enemy.type==="marshal"?120:80);
         this.boss.defeated(run);
       }
       if (enemy.type === "dog")
@@ -57,11 +68,12 @@ export class RunSystem {
         this.drop(run, enemy.x + 0.3, enemy.z, "coin", 1);
       return false;
     });
+    this.crates.collectBroken(run,(x,z,type,value)=>this.drop(run,x,z,type,value));
     for (const enemy of run.enemies) {
       if (enemy.warning > 0) continue;
       if (
         Math.hypot(enemy.x - p.x, enemy.z - p.z) <
-          (enemy.type === "boss" ? 1.25 : enemy.type === "dog" ? 1 : 0.85) &&
+          (["boss","marshal"].includes(enemy.type) ? 1.25 : enemy.type === "dog" ? 1 : 0.85) &&
         p.invulnerable <= 0
       ) {
         p.hp = Math.max(0, p.hp - enemy.damage * 20 / (20 + run.playerArmor));
@@ -74,6 +86,7 @@ export class RunSystem {
       }
     }
     this.collect(run, dt);
+    this.missions.update(run,killed);
   }
   move(run, dt, input) {
     const p = run.player,
@@ -117,7 +130,8 @@ export class RunSystem {
         distance = Math.hypot(dx, dz);
       if (distance < run.magnetRadius) item.attracted = true;
       if (distance < 0.6 || (item.attracted && distance < 15 * dt)) {
-        if (item.type === "xp") run.addXp(item.value);
+        if (item.type === "xp") run.addXp(Math.ceil(item.value*run.xpMultiplier));
+        else if(item.type==="bandage") p.hp=Math.min(p.maxHp,p.hp+item.value);
         else run.coins += item.value;
         return false;
       }

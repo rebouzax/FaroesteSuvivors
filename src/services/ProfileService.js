@@ -8,12 +8,15 @@ export class ProfileService {
       sound: true,
       music: true,
       wind: true,
+      language: "en",
       healthRank: 0,
       attackRank: 0,
       movementRank: 0,
       primaryRank: 0,
       armorRank: 0,
       magnetRank: 0,
+      crateLuckRank: 0,
+      xpRank: 0,
     };
     this.available = true;
     try {
@@ -28,11 +31,14 @@ export class ProfileService {
           "primaryRank",
           "armorRank",
           "magnetRank",
+          "crateLuckRank",
+          "xpRank",
         ])
           if (Number.isSafeInteger(saved[key]) && saved[key] >= 0)
             this.data[key] = saved[key];
         for (const key of ["wind", "sound", "music"])
           if (typeof saved[key] === "boolean") this.data[key] = saved[key];
+        if (["en","es","pt"].includes(saved.language))this.data.language=saved.language;
       } else {
         const old = JSON.parse(
           this.storage?.getItem("faroeste-survivors:menu:v1") || "null",

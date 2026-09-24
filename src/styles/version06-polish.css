@@ -1,0 +1,878 @@
+/* A página do jogo ocupa uma única tela. Coleções extensas rolam apenas dentro
+   de sua área; no telefone a loja vira uma sequência horizontal de produtos. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+#app {
+  height: 100dvh;
+  min-height: 0;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+button {
+  touch-action: manipulation;
+}
+.game-icon {
+  display: block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  overflow: visible;
+}
+.card-icon .game-icon {
+  width: min(74px, 100%);
+  height: min(74px, 100%);
+  filter: drop-shadow(2px 3px 0 #38261c29);
+}
+.product-symbol {
+  display: grid;
+  place-items: center;
+  width: 51px;
+  height: 51px;
+  border-radius: 50%;
+  background: #81512b20;
+  border: 1px solid #976e45;
+  color: #714322;
+  font-size: 34px;
+}
+.product-symbol .game-icon {
+  width: 32px;
+  height: 32px;
+}
+.choice-icon .game-icon {
+  width: 33px;
+  height: 33px;
+}
+.market-icon .game-icon {
+  width: 32px;
+  height: 32px;
+  color: #ffd89b;
+}
+.shop-products {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  overflow: hidden;
+}
+.shop-products > .eyebrow {
+  flex: none;
+}
+.permanent-products {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 3px 7px 8px 3px;
+  align-content: start;
+  scrollbar-color: #9c754c transparent;
+}
+.shop-foot {
+  flex: none;
+  margin: 5px 0 0;
+  font-size: 11px;
+}
+.shop-pages {
+  display: none;
+}
+#app.shop-screen {
+  height: 100dvh;
+  min-height: 0;
+  gap: 12px;
+}
+.merchant-layout {
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+}
+.merchant-side {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#merchant-preview {
+  height: min(53vh, 520px);
+}
+.merchant-caption {
+  margin-top: -20px;
+}
+.preparation-panel .focused-card.character-focus {
+  min-height: 265px;
+}
+.preparation-panel .focused-card.character-focus #character-preview {
+  height: 245px;
+}
+.hero-facts {
+  font:
+    11px/1.3 ui-monospace,
+    monospace !important;
+  letter-spacing: 0.5px;
+  color: #593a25;
+}
+.merchant-compass {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  width: 66px;
+  height: 66px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #e6b45f;
+  background: radial-gradient(circle at 40% 30%, #84613e, #37261d);
+  color: #ffe1a3;
+  box-shadow:
+    0 5px 12px #231514bb,
+    0 0 0 4px #43281888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    left 0.09s linear,
+    top 0.09s linear;
+}
+.merchant-compass .game-icon {
+  width: 33px;
+  height: 33px;
+}
+.merchant-compass-arrow {
+  position: absolute;
+  top: -21px;
+  left: 24px;
+  font: 20px sans-serif;
+  color: #ffd073;
+  transform: rotate(var(--bearing));
+  transform-origin: center 52px;
+  text-shadow: 0 2px #412718;
+}
+.merchant-compass.on-screen .merchant-compass-arrow {
+  display: none;
+}
+.merchant-compass-distance {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: #36231ce8;
+  border: 1px solid #cb9d61;
+  color: #fff0cc;
+  padding: 2px 5px;
+  font: 10px monospace;
+}
+.ability-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 9px;
+  align-items: center;
+  justify-content: center;
+  max-height: 110px;
+  overflow: hidden;
+}
+.ability-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.ability-item .game-icon {
+  width: 18px;
+  height: 18px;
+  color: #ffd18d;
+}
+.ability-item b {
+  font-size: 10px;
+  color: #ffeab5;
+}
+.upgrade-dialog .card-icon {
+  background: radial-gradient(circle, #f5d29a, #dcc08e55 70%);
+  border: 1px solid #a67c4a80;
+  border-radius: 9px;
+  height: 88px;
+}
+.upgrade-card.heart .card-icon {
+  color: #a7423d;
+}
+.upgrade-card.steel .card-icon {
+  color: #536b72;
+}
+.upgrade-card.fire .card-icon {
+  color: #b45627;
+}
+.upgrade-dialog {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 950px) {
+  #app {
+    padding: clamp(9px, 2vh, 18px) clamp(14px, 3vw, 26px);
+  }
+  .merchant-layout {
+    gap: 15px;
+    grid-template-columns: 42% 1fr;
+  }
+  #merchant-preview {
+    height: min(49vh, 410px);
+  }
+  .merchant-side {
+    min-height: 0;
+  }
+  .merchant-caption h2 {
+    font-size: clamp(20px, 3vw, 29px);
+  }
+  .preparation-panel {
+    margin: auto;
+    max-height: 100%;
+    min-height: 0;
+  }
+}
+@media (max-width: 700px) {
+  #app {
+    padding: max(8px, env(safe-area-inset-top)) 12px
+      max(8px, env(safe-area-inset-bottom));
+  }
+  .topline {
+    min-height: 36px;
+    padding-bottom: 5px;
+    gap: 6px;
+    align-items: center;
+  }
+  .topline span {
+    letter-spacing: 0;
+  }
+  .menu-panel {
+    width: min(440px, 100%);
+    padding: 10px 13px 10px 12px;
+    margin: auto 0;
+  }
+  .game-logo {
+    margin: 5px 0;
+  }
+  .game-logo img {
+    max-width: min(80vw, 330px);
+    max-height: 22svh;
+    object-fit: contain;
+    object-position: left center;
+  }
+  .tagline {
+    font-size: clamp(12px, 3.5vw, 16px);
+    line-height: 1.3;
+    margin: 6px 0;
+  }
+  .ornament {
+    margin: 7px 0;
+  }
+  .menu-panel nav {
+    gap: 5px;
+  }
+  .menu-panel nav > button {
+    min-height: 43px;
+    padding: 6px 11px;
+    font-size: clamp(12px, 3.5vw, 16px);
+  }
+  .menu-panel nav > .market-callout {
+    min-height: 48px;
+    gap: 8px;
+  }
+  .menu-panel nav > .market-callout small {
+    font-size: 9px;
+    margin: 0;
+  }
+  .menu-panel nav > .market-callout .market-icon {
+    float: none;
+  }
+  .menu-panel nav > .market-callout .market-icon .game-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .menu-note {
+    margin: 7px 0;
+    font-size: 9px;
+    letter-spacing: 0;
+    line-height: 1.25;
+  }
+  footer {
+    font-size: 9px;
+  }
+  .settings-panel {
+    padding: 4px 0;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+  .settings-panel h2 {
+    font-size: clamp(23px, 5vw, 32px);
+    margin: 5px 0;
+  }
+  .settings-panel p {
+    line-height: 1.25;
+    margin: 6px 0;
+  }
+  .setting {
+    padding: 8px 0;
+  }
+  .settings-panel button {
+    padding: 9px 13px;
+    min-height: 39px;
+  }
+  #app.preparation-screen {
+    display: flex;
+    align-items: stretch;
+  }
+  .preparation-panel {
+    display: grid;
+    grid-template-rows: repeat(7, auto);
+    gap: 3px;
+    height: 100%;
+    max-height: 100%;
+    margin: 0 auto;
+    align-content: center;
+  }
+  .preparation-panel > button.text-button {
+    justify-self: start;
+    min-height: 26px;
+    padding: 0;
+  }
+  .preparation-panel > .eyebrow {
+    margin: 0;
+    font-size: 9px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+  }
+  .preparation-panel h2 {
+    font-size: clamp(22px, 5.3vw, 29px);
+    margin: 0;
+    line-height: 1;
+  }
+  .selection-steps {
+    margin: 2px 0;
+    padding: 0;
+    gap: 14px;
+    font-size: 10px;
+  }
+  .selection-steps [aria-current="step"] {
+    padding-bottom: 2px;
+  }
+  .choice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 2px 0;
+    gap: 5px;
+  }
+  .choice-card,
+  .choice-card.map-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 3px;
+    min-height: 0;
+    height: clamp(62px, 10svh, 90px);
+    padding: 5px;
+    overflow: hidden;
+  }
+  .choice-card .choice-icon,
+  .choice-card .map-swatch {
+    display: block;
+    flex: none;
+    font-size: 20px;
+  }
+  .choice-icon .game-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .choice-card strong {
+    font-size: clamp(10px, 2.7vw, 13px);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+  .map-choice strong {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .choice-card small {
+    display: none;
+  }
+  .choice-card > span:last-child {
+    font-size: 9px;
+    letter-spacing: 0;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .choice-card .map-swatch {
+    width: 100%;
+    height: 17px;
+  }
+  .preparation-panel .focused-card,
+  .preparation-panel .focused-card.character-focus {
+    min-height: 0;
+    height: clamp(135px, 29svh, 250px);
+    margin: 3px 0;
+    padding: 7px 10px;
+    overflow: hidden;
+    gap: 8px;
+  }
+  .preparation-panel .focused-card #character-preview {
+    height: 100%;
+    min-height: 0;
+    flex: 0 0 40%;
+  }
+  .focus-copy h3,
+  .focused-card h3 {
+    font-size: clamp(15px, 3.7vw, 20px);
+    margin: 0 0 3px;
+  }
+  .focus-copy p,
+  .focused-card p {
+    font-size: clamp(10px, 2.6vw, 12px);
+    line-height: 1.15;
+    margin: 0 0 6px;
+  }
+  .focus-copy .hero-facts {
+    font-size: 9px !important;
+    margin: 0 0 5px;
+  }
+  .focused-card button {
+    padding: 7px 9px;
+    min-height: 40px;
+    font-size: 12px;
+  }
+  .preparation-panel .focused-card:not(.character-focus) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1px;
+  }
+  .preparation-panel .focused-card .stats {
+    margin: 0 0 4px;
+    gap: 14px;
+    font-size: 9px;
+  }
+  .preparation-panel .focused-card .stats b {
+    font-size: 12px;
+    margin: 0;
+  }
+  .preparation-panel .market-callout {
+    min-height: 48px;
+    height: 48px;
+    padding: 4px 9px;
+    gap: 9px;
+  }
+  .market-callout strong {
+    font-size: clamp(12px, 3.6vw, 15px);
+  }
+  .market-callout small {
+    font-size: 9px;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .market-icon .game-icon {
+    width: 27px;
+    height: 27px;
+  }
+  .preparation-help {
+    display: none;
+  }
+  #app.shop-screen {
+    grid-template-rows: auto minmax(0, 1fr);
+    display: grid;
+    gap: 5px;
+  }
+  .merchant-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: clamp(100px, 21svh, 160px) minmax(0, 1fr);
+    gap: 5px;
+    height: 100%;
+  }
+  .merchant-side {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 0;
+    gap: 10px;
+  }
+  .shop-screen #merchant-preview {
+    height: 100%;
+    width: clamp(81px, 25vw, 120px);
+    flex: none;
+  }
+  .merchant-caption {
+    margin: 0;
+    text-align: left;
+    min-width: 0;
+  }
+  .merchant-caption .eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .merchant-caption h2 {
+    font-size: clamp(16px, 4.5vw, 23px);
+    line-height: 1.05;
+    margin: 3px 0;
+  }
+  .merchant-caption > p:last-child {
+    font-size: 10px;
+    line-height: 1.2;
+    min-height: 0;
+    margin: 0;
+  }
+  .shop-products {
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  .shop-products > .eyebrow {
+    font-size: 10px;
+    line-height: 1.3;
+    margin: 0 0 4px;
+  }
+  .permanent-products {
+    display: flex;
+    flex: 0 1 clamp(215px, 44svh, 360px);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    align-items: stretch;
+    gap: 0;
+    padding: 1px;
+    touch-action: pan-x;
+  }
+  .permanent-products::-webkit-scrollbar {
+    display: none;
+  }
+  .permanent-products .market-product {
+    height: 100%;
+    width: 100%;
+    min-width: 100%;
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    padding: clamp(11px, 2.3svh, 17px);
+    gap: clamp(4px, 1svh, 9px);
+  }
+  .market-product .product-symbol {
+    height: 42px;
+    width: 42px;
+  }
+  .product-symbol .game-icon {
+    height: 27px;
+    width: 27px;
+  }
+  .market-product h3 {
+    font-size: clamp(18px, 5vw, 25px);
+  }
+  .market-product p {
+    font-size: clamp(11px, 2.8vw, 15px);
+    line-height: 1.25;
+    margin: 0;
+  }
+  .market-product button {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .shop-pages {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 42px;
+    flex: none;
+  }
+  .shop-pages button {
+    padding: 5px 15px;
+    min-height: 38px;
+  }
+  .shop-pages span {
+    font:
+      12px ui-monospace,
+      monospace;
+  }
+  .shop-foot {
+    display: none;
+  }
+  .ability-bar {
+    bottom: max(11px, env(safe-area-inset-bottom));
+    right: 9px;
+    left: auto;
+    transform: none;
+    max-width: calc(100vw - 148px);
+    max-height: 80px;
+    padding: 5px 7px;
+    gap: 3px 7px;
+    justify-content: flex-end;
+    font-size: 9px;
+  }
+  .ability-name {
+    display: none;
+  }
+  .ability-item {
+    gap: 2px;
+  }
+  .ability-item .game-icon {
+    height: 17px;
+    width: 17px;
+  }
+  .merchant-compass {
+    width: 51px;
+    height: 51px;
+  }
+  .merchant-compass .game-icon {
+    width: 25px;
+    height: 25px;
+  }
+  .merchant-compass-arrow {
+    top: -17px;
+    left: 18px;
+    font-size: 17px;
+    transform-origin: center 42px;
+  }
+  .merchant-compass-distance {
+    font-size: 9px;
+  }
+  .hud {
+    padding: 8px 8px 0;
+  }
+  .hud-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: start;
+    min-height: 55px;
+    gap: 4px;
+  }
+  .hud-hero,
+  .clock {
+    padding: 5px 6px;
+  }
+  .hud-hero strong {
+    font-size: 9px;
+  }
+  .clock {
+    position: static;
+    left: auto;
+    transform: none;
+    min-width: 76px;
+  }
+  .clock strong {
+    font-size: 18px;
+  }
+  .hp-track {
+    width: min(105px, 100%);
+  }
+  .hud-stats {
+    margin-top: 1px;
+    padding: 3px 5px;
+    gap: 3px 9px;
+    max-width: 100%;
+    font-size: 9px;
+    line-height: 1.1;
+  }
+  .pause-button {
+    padding: 7px 10px;
+  }
+  .mission-hud,
+  .boss-hud {
+    top: 105px;
+    padding: 4px 7px;
+    font-size: 9px;
+  }
+  .weather-hud {
+    top: 146px;
+    padding: 4px 7px;
+    font-size: 9px;
+  }
+  .mission-hud:not([hidden]) ~ .boss-hud {
+    top: 147px;
+  }
+  dialog.upgrade-dialog,
+  dialog.merchant-dialog {
+    width: calc(100vw - 14px);
+    max-height: calc(100dvh - 20px);
+    padding: 9px 10px;
+    overflow-y: auto;
+  }
+  .upgrade-dialog > p,
+  .upgrade-dialog .cards-intro,
+  .upgrade-dialog .deck-rule {
+    margin: 3px 0;
+    font-size: 10px;
+    line-height: 1.1;
+  }
+  .upgrade-dialog h2,
+  .merchant-dialog h2 {
+    font-size: 21px;
+    margin: 3px 0;
+  }
+  .upgrade-dialog .upgrade-cards,
+  .upgrade-dialog .reward-grid {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin: 6px 0;
+  }
+  .upgrade-dialog .upgrade-card {
+    display: grid;
+    grid-template-columns: 39px minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto);
+    align-items: center;
+    gap: 1px 7px;
+    min-height: 0;
+    padding: 6px 8px;
+    text-align: left;
+  }
+  .upgrade-dialog .card-icon {
+    grid-row: 1 / span 4;
+    grid-column: 1;
+    height: 39px;
+    width: 39px;
+    border: 0;
+  }
+  .upgrade-dialog .card-icon .game-icon {
+    width: 33px;
+    height: 33px;
+  }
+  .upgrade-dialog .upgrade-card strong {
+    font-size: 14px;
+  }
+  .upgrade-dialog .card-description {
+    font-size: 11px;
+    line-height: 1.15;
+  }
+  .upgrade-dialog .card-combo {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 9px;
+    line-height: 1.1;
+  }
+  .upgrade-dialog .card-corner,
+  .upgrade-dialog .card-rank {
+    font-size: 9px;
+    line-height: 1;
+  }
+  .merchant-dialog .run-shop-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .merchant-dialog .market-product {
+    padding: 8px;
+    gap: 3px;
+  }
+  .merchant-dialog .market-product h3 {
+    font-size: 15px;
+  }
+  .merchant-dialog .market-product p {
+    font-size: 10px;
+  }
+  .merchant-dialog .market-product button {
+    font-size: 10px;
+    min-height: 35px;
+    padding: 6px;
+  }
+  .merchant-dialog > p {
+    margin: 5px 0;
+    font-size: 11px;
+  }
+  .merchant-dialog > .primary {
+    min-height: 41px;
+    margin-top: 5px;
+    padding: 8px;
+  }
+}
+@media (max-height: 600px) and (max-width: 700px) {
+  .game-logo img {
+    max-height: 17svh;
+  }
+  .menu-panel {
+    padding: 5px 9px;
+  }
+  .menu-panel nav > button {
+    min-height: 39px;
+    padding: 4px 8px;
+  }
+  .menu-panel nav > .market-callout {
+    min-height: 42px;
+  }
+  .preparation-panel .focused-card,
+  .preparation-panel .focused-card.character-focus {
+    margin: 0;
+    padding: 4px 7px;
+  }
+  .choice-card,
+  .choice-card.map-choice {
+    height: 56px;
+    padding: 4px;
+  }
+  .choice-card .choice-icon .game-icon {
+    width: 17px;
+    height: 17px;
+  }
+  .preparation-panel > .eyebrow {
+    display: none;
+  }
+  .merchant-layout {
+    grid-template-rows: 70px minmax(0, 1fr);
+  }
+  .merchant-caption > p:last-child {
+    display: none;
+  }
+  .shop-pages {
+    min-height: 35px;
+  }
+  .shop-pages button {
+    min-height: 31px;
+  }
+  .upgrade-dialog .upgrade-card {
+    padding: 4px 6px;
+  }
+  .upgrade-dialog .card-combo {
+    display: none;
+  }
+}
+@media (max-width: 380px) {
+  .choice-card > span:last-child {
+    display: none;
+  }
+}
+@media (min-width: 701px) and (max-height: 800px) {
+  .preparation-panel .focused-card.character-focus {
+    min-height: 185px;
+  }
+  .preparation-panel .focused-card.character-focus #character-preview {
+    height: 170px;
+  }
+  .choice-card {
+    min-height: 105px;
+  }
+  .choice-grid {
+    margin: 8px 0;
+  }
+}
+@media (max-width: 700px) and (orientation: landscape) {
+  .merchant-layout {
+    grid-template-columns: 26% minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .merchant-side {
+    flex-direction: column;
+    justify-content: center;
+  }
+  .shop-screen #merchant-preview {
+    height: 55%;
+    width: 100%;
+  }
+  .preparation-panel .focused-card.character-focus #character-preview {
+    flex-basis: 30%;
+  }
+  .menu-panel {
+    max-width: 60vw;
+  }
+}

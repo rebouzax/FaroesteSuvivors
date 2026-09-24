@@ -1,18 +1,35 @@
-export function preparationMarkup(profile, step) {
-  const character = step === "character";
+import { CHARACTERS, CHARACTER_IDS } from "../config/characterConfig.js";
+import { MAPS, MAP_IDS } from "../config/mapConfig.js";
+import { t } from "../services/I18n.js";
+import { gameIcon } from "./GameIcons.js";
+export function preparationMarkup(
+  profile,
+  step,
+  selectedCharacter = "joao",
+  selectedMap = "desert",
+) {
+  const character = step === "character",
+    lang = profile.data.language;
   return `<section class="preparation-panel">
-    <button class="text-button" data-action="${character ? "menu" : "select"}">← ${character ? "Menu" : "Personagem"}</button>
-    <p class="eyebrow">PREPARE SUA JORNADA · ${character ? "1 / 2" : "2 / 2"}</p>
-    <h2>${character ? "Escolha seu personagem" : "Escolha sua fase"}</h2>
-    <ol class="selection-steps" aria-label="Etapas"><li aria-current="${character ? "step" : "false"}">1. Personagem</li><li aria-current="${character ? "false" : "step"}">2. Fase</li></ol>
-    <article class="selection-card focused-card">
-      ${
-        character
-          ? `<div id="character-preview" aria-label="João Vaqueiro em 3D"></div><h3>João Vaqueiro</h3><p>Couro gasto, coragem de sobra.<br>Seu chicote abre caminho no deserto.</p><div class="stats"><span>VIDA <b>${profile.startingHealth}</b></span><span>CHICOTE <b>${10 + profile.data.primaryRank * 2} dano</b></span></div><button class="primary" data-action="character">Escolher João e continuar →</button>`
-          : `<div class="map-art" aria-hidden="true"><i class="map-sun"></i><i class="map-mesa one"></i><i class="map-mesa two"></i><i class="map-dune"></i></div><h3>Deserto dos Esquecidos</h3><p>Morcegos, chupacabras e bandos de urubus.<br>Encontre Bento entre as dunas.</p><div class="stats"><span>PERSONAGEM <b>João Vaqueiro</b></span><span>DURAÇÃO <b>15 minutos</b></span></div><button class="primary" data-action="play">Escolher deserto e jogar →</button>`
-      }
+    <button class="text-button" data-action="${character ? "menu" : "select"}">← ${t(lang, character ? "menu" : "character")}</button>
+    <p class="eyebrow">${t(lang, "prepare")} · ${character ? "1" : "2"} / 2</p>
+    <h2>${t(lang, character ? "chooseCharacter" : "chooseMap")}</h2>
+    <ol class="selection-steps" aria-label="${t(lang, "steps")}"><li aria-current="${character ? "step" : "false"}">1. ${t(lang, "character")}</li><li aria-current="${character ? "false" : "step"}">2. ${t(lang, "stage")}</li></ol>
+    <div class="choice-grid">${
+      character
+        ? CHARACTER_IDS.map((id) => {
+            const hero = CHARACTERS[id];
+            return `<button class="choice-card ${selectedCharacter === id ? "active" : ""}" data-action="choose-character:${id}" aria-pressed="${selectedCharacter === id}"><span class="choice-icon">${gameIcon(hero.primary === "whip" ? "whip" : hero.primary === "bow" ? "bow" : "pistol")}</span><strong>${hero.name}</strong><small>${t(lang, "hero." + id)}</small><span>${t(lang, "life")} ${hero.hp + profile.data.healthRank * 20} · ${t(lang, "damage")} ${hero.damage + profile.data.primaryRank * 2}</span></button>`;
+          }).join("")
+        : MAP_IDS.map(
+            (id) =>
+              `<button class="choice-card map-choice ${selectedMap === id ? "active" : ""}" data-action="choose-map:${id}" aria-pressed="${selectedMap === id}"><span class="map-swatch map-${id}"></span><strong>${t(lang, "map." + id)}</strong><small>${t(lang, "mapDesc." + id)}</small></button>`,
+          ).join("")
+    }</div>
+    <article class="selection-card focused-card ${character ? "character-focus" : ""}">
+      ${character ? `<div id="character-preview" aria-label="${CHARACTERS[selectedCharacter].name} 3D"></div><div class="focus-copy"><h3>${CHARACTERS[selectedCharacter].name}</h3><p>${t(lang, "hero." + selectedCharacter)}</p><p class="hero-facts">${t(lang, "life")} ${CHARACTERS[selectedCharacter].hp + profile.data.healthRank * 20} · ${t(lang, "damage")} ${CHARACTERS[selectedCharacter].damage + profile.data.primaryRank * 2}</p><button class="primary" data-action="character">${t(lang, "continue")} →</button></div>` : `<h3>${t(lang, "map." + selectedMap)}</h3><p>${t(lang, "mapDesc." + selectedMap)}</p><div class="stats"><span>${t(lang, "character")} <b>${CHARACTERS[selectedCharacter].name}</b></span><span>${t(lang, "duration")} <b>15 ${t(lang, "minutes")}</b></span></div><button class="primary" data-action="play">${t(lang, "play")} →</button>`}
     </article>
-    <button class="market-callout" data-action="shop"><span class="market-icon" aria-hidden="true">◈</span><span><strong>Mercado do Bento</strong><small>Melhorias permanentes · ${profile.data.coins} moedas guardadas</small></span><span aria-hidden="true">→</span></button>
-    <p class="preparation-help">${character ? "As melhorias do mercado acompanham você em todas as partidas." : "WASD / setas ou controle por toque. Ataques automáticos."}</p>
+    <button class="market-callout" data-action="shop"><span class="market-icon" aria-hidden="true">${gameIcon("merchant")}</span><span><strong>${t(lang, "market")}</strong><small>${t(lang, "permanentUpgrades")} · ${profile.data.coins} ${t(lang, "coins")}</small></span><span aria-hidden="true">→</span></button>
+    <p class="preparation-help">${t(lang, character ? "permanentHelp" : "controlsHelp")}</p>
   </section>`;
 }

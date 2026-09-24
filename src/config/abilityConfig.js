@@ -1,4 +1,4 @@
-export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest"];
+export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand"];
 export const ABILITIES = {
   pistol: {
     name: "Pistola do Sertão",
@@ -19,6 +19,9 @@ export const ABILITIES = {
   silverRain: { name: "Chuva de Prata", icon: "✺", suit: "PRATA", color: "steel" },
   lantern: { name: "Lampião Maldito", icon: "♨", suit: "MALDIÇÃO", color: "fire" },
   soulHarvest: { name: "Colheita de Almas", icon: "☥", suit: "ALMA", color: "heart" },
+  boneStorm: { name: "Estilhaços de Ossos", icon: "✷", suit: "OSSO", color: "steel" },
+  ironWill: { name: "Vontade de Ferro", icon: "⬟", suit: "DEFESA", color: "heart" },
+  lastStand: { name: "Último Disparo", icon: "♠", suit: "CORAGEM", color: "fire" },
 };
 export function abilityStats(id, level) {
   const extra = Math.max(0, level - 1);
@@ -42,6 +45,9 @@ export function abilityStats(id, level) {
   if (id === "silverRain") return { damage: 9 + extra * 3, count: Math.min(14, 6 + extra * 2), cooldown: Math.max(2.2, 4 - extra * 0.18) };
   if (id === "lantern") return { damage: 4 + extra * 2, radius: Math.min(6, 3.2 + extra * 0.3) };
   if (id === "soulHarvest") return { heal: 2 + extra };
+  if (id === "boneStorm") return { damage: 12 + 4*extra, count: Math.min(14,6+extra*2), cooldown: Math.max(2,5-extra*0.2) };
+  if (id === "ironWill") return { armor: 3*level };
+  if (id === "lastStand") return { attack: 0.2*level };
   return { health: 20 };
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
@@ -56,6 +62,9 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
   if (id === "silverRain") return `${stats.count} balas em círculo · ${stats.damage} de dano por projétil · a cada ${(stats.cooldown / attackRate).toFixed(2)} s.`;
   if (id === "lantern") return `A luz profana queima inimigos próximos: ${stats.damage} de dano/s até ${stats.radius.toFixed(1)} m.`;
   if (id === "soulHarvest") return `Recupera ${stats.heal} de vida ao abater um inimigo (até a vida máxima).`;
+  if (id === "boneStorm") return `${stats.count} estilhaços em círculo · ${stats.damage} de dano · a cada ${(stats.cooldown/attackRate).toFixed(2)} s.`;
+  if (id === "ironWill") return `+3 de armadura permanente nesta partida · total da carta: ${stats.armor}.`;
+  if (id === "lastStand") return `Abaixo de 35% de vida: +${Math.round(stats.attack*100)}% de velocidade de ataque.`;
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);

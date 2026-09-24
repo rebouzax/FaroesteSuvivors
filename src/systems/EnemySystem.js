@@ -29,7 +29,7 @@ export class EnemySystem {
   }
   update(run, dt) {
     if (run.bossEncounter.active) {
-      const boss = run.enemies.find(e => e.type === "boss");
+      const boss = run.enemies.find(e => e.type === "boss" || e.type === "marshal");
       if (boss?.hp > 0) {
         const dx = run.player.x - boss.x, dz = run.player.z - boss.z;
         const distance = Math.hypot(dx,dz);
@@ -51,7 +51,7 @@ export class EnemySystem {
     if (minute !== run.difficulty) {
       run.difficulty = minute;
       for (const enemy of run.enemies) {
-        if (enemy.type === "vulture" || enemy.type === "boss") continue;
+        if (enemy.type === "vulture" || enemy.type === "boss" || enemy.type === "marshal") continue;
         const stats = enemyStats(enemy.type, minute),
           fraction = enemy.hp / enemy.maxHp;
         Object.assign(enemy, stats, {

@@ -1,6 +1,12 @@
 import { CONFIG } from "../config/gameConfig.js";
 import { abilityStats } from "../config/abilityConfig.js";
 export class CombatSystem {
+  rate(run){return run.attackRate*(run.abilities.lastStand&&run.player.hp/run.player.maxHp<0.35?1+run.abilities.lastStand*0.2:1);}
+  crateHit(run,x,z,radius,damage){
+    for(const crate of run.crates){
+      if(crate.hp>0&&Math.hypot(crate.x-x,crate.z-z)<radius+0.8){crate.hp-=damage;crate.hitFlash=0.16;}
+    }
+  }
   damage(enemy, amount) {
     enemy.hp -= (amount * 20) / (20 + enemy.armor);
     enemy.hitFlash = 0.12;
@@ -19,6 +25,14 @@ export class CombatSystem {
     }
     return target;
   }
+  closestCrate(run,range){
+    let target=null;
+    for(const crate of run.crates){
+      const distance=Math.hypot(crate.x-run.player.x,crate.z-run.player.z);
+      if(crate.hp>0&&distance<range){target=crate;range=distance;}
+    }
+    return target;
+  }
   multiplier(run, id) {
     return run.empowered.id === id && run.empowered.remaining > 0
       ? run.empowered.multiplier
@@ -28,20 +42,27 @@ export class CombatSystem {
     run.empowered.remaining = Math.max(0, run.empowered.remaining - dt);
     run.shotFlash = Math.max(0, run.shotFlash - dt);
     run.throwFlash = Math.max(0, run.throwFlash - dt);
+    run.primaryFlash=Math.max(0,run.primaryFlash-dt);
     this.whip(run, dt);
+    this.primaryProjectiles(run,dt);
     this.pistol(run, dt);
     this.molotov(run, dt);
     this.horseshoes(run, dt);
     this.ghostShot(run, dt);
     this.requiem(run, dt);
     this.silverRain(run, dt);
+    this.boneStorm(run,dt);
     this.lantern(run, dt);
     run.impacts = run.impacts.filter((impact) => (impact.age += dt) < 0.3);
   }
   whip(run, dt) {
+    if(run.characterId!=="joao"){
+      this.rangedPrimary(run,dt);
+      return;
+    }
     run.cooldown -= dt;
     if (!run.attack && run.cooldown <= 0) {
-      const target = this.closest(run, CONFIG.whipRange + 2),
+      const target = this.closest(run, CONFIG.whipRange + 2)||this.closestCrate(run,CONFIG.whipRange+2),
         p = run.player;
       run.attack = {
         age: 0,
@@ -52,7 +73,7 @@ export class CombatSystem {
       };
       run.cooldown = Math.max(
         CONFIG.whipDuration + 0.02,
-        CONFIG.whipCooldown / run.attackRate,
+        CONFIG.whipCooldown / this.rate(run),
       );
     }
     const attack = run.attack;
@@ -74,8 +95,68 @@ export class CombatSystem {
         )
           this.damage(enemy, run.primaryDamage + run.whipRank * 3);
       }
+      for(const crate of run.crates){
+        const dx=crate.x-p.x,dz=crate.z-p.z,d=Math.hypot(dx,dz);
+        if(d<CONFIG.whipRange && (dx*Math.cos(attack.angle)+dz*Math.sin(attack.angle))/Math.max(0.001,d)>-0.1)
+          {crate.hp-=run.primaryDamage+run.whipRank*3;crate.hitFlash=0.16;}
+      }
     }
     if (attack.age >= CONFIG.whipDuration) run.attack = null;
+  }
+  rangedPrimary(run,dt){
+    run.cooldown-=dt;
+    const hero=run.hero;
+    if(!run.attack&&run.cooldown<=0){
+      const target=this.closest(run,hero.range)||this.closestCrate(run,hero.range);
+      const p=run.player;
+      run.attack={age:0,angle:target?Math.atan2(target.z-p.z,target.x-p.x):Math.atan2(p.dz,p.dx),hit:false};
+      run.cooldown=Math.max(0.32,hero.cooldown/this.rate(run));
+    }
+    const attack=run.attack;
+    if(!attack)return;
+    attack.age+=dt;
+    if(!attack.hit&&attack.age>=0.16){
+      attack.hit=true;
+      const p=run.player;
+      const count=run.characterId==="maria"&&run.abilities.boneStorm>2?2:1;
+      for(let i=0;i<count;i++){
+        const angle=attack.angle+(i-(count-1)/2)*0.11;
+        const speed=run.characterId==="maria"?25:17;
+        run.primaryShots.push({x:p.x,z:p.z,vx:Math.cos(angle)*speed,vz:Math.sin(angle)*speed,age:0,
+          damage:run.primaryDamage+run.whipRank*3,pierce:run.characterId==="indigo"?2:1,hit:new Set()});
+      }
+      run.primaryFlash=0.2;
+      run.events.push(run.characterId==="maria"?"shot":"arrow");
+    }
+    if(attack.age>=0.4)run.attack=null;
+  }
+  primaryProjectiles(run,dt){
+    run.primaryShots=run.primaryShots.filter(shot=>{
+      const x=shot.x,z=shot.z;
+      shot.x+=shot.vx*dt;shot.z+=shot.vz*dt;shot.age+=dt;
+      const sx=shot.x-x,sz=shot.z-z;
+      let hit=false;
+      for(const enemy of run.enemies){
+        if(enemy.hp<=0||shot.hit.has(enemy.id))continue;
+        const t=Math.max(0,Math.min(1,((enemy.x-x)*sx+(enemy.z-z)*sz)/(sx*sx+sz*sz||1)));
+        if(Math.hypot(enemy.x-x-t*sx,enemy.z-z-t*sz)<(["boss","marshal"].includes(enemy.type)?1.35:0.6)){
+          this.damage(enemy,shot.damage);
+          shot.hit.add(enemy.id);
+          run.impacts.push({x:enemy.x,z:enemy.z,age:0});
+          hit=true;
+          if(--shot.pierce<=0)break;
+        }
+      }
+      if(shot.pierce>0)for(const crate of run.crates){
+        const t=Math.max(0,Math.min(1,((crate.x-x)*sx+(crate.z-z)*sz)/(sx*sx+sz*sz||1)));
+        if(crate.hp>0&&Math.hypot(crate.x-x-t*sx,crate.z-z-t*sz)<0.7){
+          this.crateHit(run,crate.x,crate.z,0.01,shot.damage);
+          shot.pierce=0;break;
+        }
+      }
+      return shot.age<1.15&&shot.pierce>0;
+    });
+    if(run.primaryShots.length>64)run.primaryShots.splice(0,run.primaryShots.length-64);
   }
   pistol(run, dt) {
     if (run.abilities.pistol) {
@@ -97,7 +178,7 @@ export class CombatSystem {
             age: 0,
             damage: stats.damage * this.multiplier(run, "pistol"),
           });
-          run.pistolTimer = Math.max(0.15, stats.cooldown / run.attackRate);
+          run.pistolTimer = Math.max(0.15, stats.cooldown / this.rate(run));
           run.shotFlash = 0.2;
           run.shotAngle = angle;
           run.events.push("shot");
@@ -126,7 +207,7 @@ export class CombatSystem {
         );
         if (
           Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) <
-            (enemy.type === "boss" ? 1.35 : enemy.type === "dog" ? 0.65 : 0.5) &&
+            (["boss","marshal"].includes(enemy.type) ? 1.35 : enemy.type === "dog" ? 0.65 : 0.5) &&
           t < nearest
         ) {
           nearest = t;
@@ -137,6 +218,12 @@ export class CombatSystem {
         this.damage(target, bullet.damage);
         run.impacts.push({ x: target.x, z: target.z, age: 0 });
         return false;
+      }
+      for(const crate of run.crates){
+        const t=Math.max(0,Math.min(1,((crate.x-oldX)*sx+(crate.z-oldZ)*sz)/(sx*sx+sz*sz||1)));
+        if(crate.hp>0&&Math.hypot(crate.x-oldX-t*sx,crate.z-oldZ-t*sz)<0.7){
+          this.crateHit(run,crate.x,crate.z,0.01,bullet.damage);return false;
+        }
       }
       return bullet.age < 1.2;
     });
@@ -166,6 +253,7 @@ export class CombatSystem {
     run.fires = run.fires.filter((fire) => {
       fire.age += dt;
       while (fire.nextTick <= Math.min(fire.age, fire.duration) + 1e-8) {
+        this.crateHit(run,fire.x,fire.z,fire.radius,fire.damage);
         for (const enemy of run.enemies)
           if (Math.hypot(enemy.x - fire.x, enemy.z - fire.z) <= fire.radius)
             this.damage(enemy, fire.damage);
@@ -240,7 +328,7 @@ export class CombatSystem {
       for (const enemy of run.enemies) {
         if (enemy.hp <= 0 || shot.hit.has(enemy.id)) continue;
         const t = Math.max(0, Math.min(1, ((enemy.x - oldX) * sx + (enemy.z - oldZ) * sz) / (sx * sx + sz * sz || 1)));
-        if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (enemy.type === "boss" ? 1.35 : enemy.type === "dog" ? 0.7 : 0.5)) {
+        if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (["boss","marshal"].includes(enemy.type) ? 1.35 : enemy.type === "dog" ? 0.7 : 0.5)) {
           this.damage(enemy, shot.damage);
           shot.hit.add(enemy.id);
           shot.pierce--;
@@ -268,6 +356,7 @@ export class CombatSystem {
             enemy.z = Math.max(-119, Math.min(119, enemy.z + dz / distance * stats.push));
           }
         }
+        this.crateHit(run,p.x,p.z,stats.radius,stats.damage);
         run.requiemTimer = stats.cooldown / run.attackRate;
       }
     }
@@ -297,14 +386,34 @@ export class CombatSystem {
         if (enemy.hp <= 0) continue;
         const sx=shot.x-oldX, sz=shot.z-oldZ;
         const t=Math.max(0,Math.min(1,((enemy.x-oldX)*sx+(enemy.z-oldZ)*sz)/(sx*sx+sz*sz||1)));
-        if (Math.hypot(enemy.x-oldX-t*sx,enemy.z-oldZ-t*sz)<(enemy.type==="boss"?1.35:0.52)) {
+        if (Math.hypot(enemy.x-oldX-t*sx,enemy.z-oldZ-t*sz)<(["boss","marshal"].includes(enemy.type)?1.35:0.52)) {
           this.damage(enemy,shot.damage);
           run.impacts.push({x:enemy.x,z:enemy.z,age:0});
           return false;
         }
       }
+      for(const crate of run.crates){
+        const t=Math.max(0,Math.min(1,((crate.x-oldX)*sx+(crate.z-oldZ)*sz)/(sx*sx+sz*sz||1)));
+        if(crate.hp>0&&Math.hypot(crate.x-oldX-t*sx,crate.z-oldZ-t*sz)<0.7){
+          this.crateHit(run,crate.x,crate.z,0.01,shot.damage);return false;
+        }
+      }
       return shot.age<1.25;
     });
+  }
+  boneStorm(run,dt){
+    const rank=run.abilities.boneStorm;
+    if(!rank)return;
+    run.boneTimer-=dt;
+    if(run.boneTimer>0)return;
+    const stats=abilityStats("boneStorm",rank),p=run.player;
+    for(let i=0;i<stats.count;i++){
+      const a=i*Math.PI*2/stats.count+run.time*0.3;
+      run.silverShots.push({x:p.x,z:p.z,vx:Math.cos(a)*15,vz:Math.sin(a)*15,
+        damage:stats.damage*this.multiplier(run,"boneStorm"),age:0});
+    }
+    if(run.silverShots.length>80)run.silverShots.splice(0,run.silverShots.length-80);
+    run.boneTimer=stats.cooldown/this.rate(run);
   }
   lantern(run, dt) {
     if (!run.abilities.lantern) return;

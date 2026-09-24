@@ -1,8 +1,10 @@
+import {t} from "./I18n.js";
 const FILES = {
   dog: new URL("../assets/audio/chupacabra.wav", import.meta.url),
   vulture: new URL("../assets/audio/vulture.wav", import.meta.url),
   whip: new URL("../assets/audio/whip.wav", import.meta.url),
   shot: new URL("../assets/audio/shot.wav", import.meta.url),
+  arrow: new URL("../assets/audio/arrow.wav", import.meta.url),
   glass: new URL("../assets/audio/glass.wav", import.meta.url),
   fire: new URL("../assets/audio/fire.wav", import.meta.url),
   level: new URL("../assets/audio/level.wav", import.meta.url),
@@ -10,10 +12,10 @@ const FILES = {
   hurt: new URL("../assets/audio/hurt.wav", import.meta.url),
 };
 const MUSIC = {
-  menu: new URL("../assets/audio/one-bullet-left.mp3", import.meta.url),
-  game: new URL("../assets/audio/the-outlaws-last-prayer.mp3", import.meta.url),
+  menu: new URL("../assets/audio/vultures-circle-the-bone.mp3", import.meta.url),
+  game: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
 };
-export const GAME_MUSIC_LOOP = Object.freeze({ start: 16, end: 143 });
+export const GAME_MUSIC_LOOP = Object.freeze({ start: 5, end: 169 });
 export class AudioService {
   constructor() {
     this.enabled = true;
@@ -104,16 +106,16 @@ export class AudioService {
       }),
     );
   }
-  async test() {
+  async test(lang='en') {
     const running = await this.unlock({ retry: true });
-    if (!running) return "Áudio bloqueado. Toque novamente em Testar áudio.";
-    if (!this.enabled) return "Ative Sons do jogo para ouvir o teste.";
+    if (!running) return t(lang,'audioBlocked');
+    if (!this.enabled) return t(lang,'audioDisabled');
     if (!this.buffers.shot)
-      return "Não foi possível carregar o disparo. Verifique a conexão e tente novamente.";
+      return t(lang,'audioUnavailable');
     this.play("shot");
     return this.failures.size
-      ? `Disparo reproduzido, mas ${this.failures.size} áudio(s) falharam. Toque para tentar novamente.`
-      : "Disparo reproduzido. Se não ouvir, verifique o volume do dispositivo e se esta aba está silenciada.";
+      ? t(lang,'audioPartial',{count:this.failures.size})
+      : t(lang,'audioSuccess');
   }
   source(key, bus, loop = false) {
     if (

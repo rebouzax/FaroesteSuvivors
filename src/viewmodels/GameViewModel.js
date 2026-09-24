@@ -2,11 +2,12 @@ import { RunModel } from "../models/RunModel.js";
 import { RunSystem } from "../systems/RunSystem.js";
 
 export class GameViewModel {
-  constructor(profile, audio) {
+  constructor(profile, audio, options = {}) {
     this.model = new RunModel(
       Math.random,
       profile.data.healthRank * 20,
       profile.data,
+      options,
     );
     this.system = new RunSystem();
     this.profile = profile;

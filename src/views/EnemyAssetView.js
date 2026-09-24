@@ -5,8 +5,9 @@ import vultureUrl from "../assets/models/vulture.glb?url";
 import skeletonUrl from "../assets/models/skeleton.glb?url";
 import minerUrl from "../assets/models/miner.glb?url";
 import bossUrl from "../assets/models/boss.glb?url";
+import marshalUrl from "../assets/models/marshal.glb?url";
 
-const URLS={bat:batUrl,dog:dogUrl,vulture:vultureUrl,skeleton:skeletonUrl,miner:minerUrl,boss:bossUrl};
+const URLS={bat:batUrl,dog:dogUrl,vulture:vultureUrl,skeleton:skeletonUrl,miner:minerUrl,boss:bossUrl,marshal:marshalUrl};
 let loaderPromise;
 const cached=new Map();
 function asset(type){
