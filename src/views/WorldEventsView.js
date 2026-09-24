@@ -3,12 +3,14 @@ export class WorldEventsView {
   constructor(scene) {
     this.dummy=new THREE.Object3D();
     this.crates=new THREE.InstancedMesh(new THREE.BoxGeometry(1.1,1.05,1.1),
-      new THREE.MeshStandardMaterial({color:0x795039,roughness:1,flatShading:true}),36);
+      new THREE.MeshStandardMaterial({color:0x795039,roughness:1,flatShading:true}),2);
     this.crates.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.crates.frustumCulled=false;
     scene.add(this.crates);
     this.bands=new THREE.InstancedMesh(new THREE.BoxGeometry(1.14,0.13,1.14),
-      new THREE.MeshStandardMaterial({color:0xb59660,roughness:1}),36);
+      new THREE.MeshStandardMaterial({color:0xb59660,roughness:1}),2);
     this.bands.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.bands.frustumCulled=false;
     scene.add(this.bands);
     this.wind=new THREE.InstancedMesh(new THREE.ConeGeometry(1.55,3.1,7,1,true),
       new THREE.MeshBasicMaterial({color:0xc4ad9b,transparent:true,opacity:0.36,side:THREE.DoubleSide,depthWrite:false}),12);
@@ -19,10 +21,10 @@ export class WorldEventsView {
   render(run) {
     let count=0;
     for(const crate of run.crates){
-      if(count>=35)break;
+      if(count>=2)break;
       this.dummy.position.set(crate.x,0.54,crate.z);
       this.dummy.rotation.set(0,crate.id*0.71,0);
-      this.dummy.scale.setScalar(crate.hitFlash>0?1.08:1);
+      this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
       this.crates.setMatrixAt(count,this.dummy.matrix);
       this.dummy.position.y=0.57;

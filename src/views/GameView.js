@@ -25,9 +25,10 @@ export class GameView {
     this.coarsePointer = matchMedia("(pointer: coarse)").matches;
     this.maxPixelRatio = Math.min(
       devicePixelRatio || 1,
-      this.coarsePointer ? 1.1 : innerWidth < 960 ? 1.25 : 1.45,
+      this.coarsePointer ? 1 : innerWidth < 960 ? 1.15 : 1.3,
     );
     this.pixelRatio = this.maxPixelRatio;
+    run.maxEnemies = this.coarsePointer ? 110 : CONFIG.maxBats;
     this.sampleFrames = 0;
     this.sampleDuration = 0;
     this.renderer = new THREE.WebGLRenderer({
@@ -197,13 +198,21 @@ export class GameView {
       new THREE.MeshBasicMaterial({ color: 0xb74f43 }),
       CONFIG.maxLoot + 1,
     );
-    this.primaryShotsMesh = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(0.13, 0.8, 5),
-      new THREE.MeshBasicMaterial({
-        color: run.characterId === "indigo" ? 0xdfd4b0 : 0xffe27d,
-      }),
-      64,
+    this.projectileAxis = new THREE.Vector3(0, 1, 0);
+    this.projectileHeading = new THREE.Vector3();
+    const arrow = run.characterId === "indigo";
+    this.primaryBody = new THREE.InstancedMesh(
+      arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
+      new THREE.MeshStandardMaterial({color: arrow ? 0x805034 : 0xe6ad49, metalness: arrow ? 0 : 0.72, roughness: 0.36}), 64,
     );
+    this.primaryTip = new THREE.InstancedMesh(
+      arrow ? new THREE.ConeGeometry(0.115, 0.23, 5) : new THREE.SphereGeometry(0.1, 8, 5),
+      new THREE.MeshStandardMaterial({color: arrow ? 0xc4d1ce : 0xffe6a2, metalness: 0.7, roughness: 0.24, emissive: arrow ? 0x163331 : 0x754614}), 64,
+    );
+    this.primaryFletch = arrow ? new THREE.InstancedMesh(
+      new THREE.ConeGeometry(0.16, 0.27, 4),
+      new THREE.MeshStandardMaterial({color: 0x58a8a4, side: THREE.DoubleSide, flatShading: true}), 64,
+    ) : null;
     for (const mesh of [
       this.bullets,
       this.tips,
@@ -211,7 +220,9 @@ export class GameView {
       this.bandages,
       this.bandageMarkA,
       this.bandageMarkB,
-      this.primaryShotsMesh,
+      this.primaryBody,
+      this.primaryTip,
+      ...(this.primaryFletch ? [this.primaryFletch] : []),
     ]) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.frustumCulled = false;
@@ -226,7 +237,7 @@ export class GameView {
   }
   buildWorld() {
     if (this.run.mapId === "desert")
-      buildDesertWorld(this.scene, this.run.props);
+      buildDesertWorld(this.scene, this.run.props, !this.coarsePointer);
     else buildOtherWorld(this.scene, this.run.props, this.run.mapId);
   }
   resize() {
@@ -247,16 +258,16 @@ export class GameView {
       time = run.time + run.introTime;
     const delta = Math.max(0, Math.min(0.1, time - this.renderTime));
     this.renderTime = time;
-    if (this.coarsePointer && run.phase === "playing" && delta > 0) {
+    if (run.phase === "playing" && delta > 0) {
       this.sampleFrames++;
       this.sampleDuration += delta;
-      if (this.sampleFrames >= 150) {
+      if (this.sampleFrames >= 36) {
         const average = this.sampleDuration / this.sampleFrames;
         const next =
-          average > 0.026
-            ? Math.max(0.78, this.pixelRatio - 0.15)
-            : average < 0.018
-              ? Math.min(this.maxPixelRatio, this.pixelRatio + 0.1)
+          average > 0.036
+            ? Math.max(0.68, this.pixelRatio - 0.14)
+            : average < 0.020
+              ? Math.min(this.maxPixelRatio, this.pixelRatio + 0.06)
               : this.pixelRatio;
         if (Math.abs(next - this.pixelRatio) > 0.02) {
           this.pixelRatio = next;
@@ -318,7 +329,7 @@ export class GameView {
         view.userData.attackAction.reset().play();
         view.userData.attacking = true;
       } else if (enemy.attackFlash <= 0.45) view.userData.attacking = false;
-      if (Math.hypot(enemy.x - p.x, enemy.z - p.z) < 44)
+      if (Math.hypot(enemy.x - p.x, enemy.z - p.z) < (this.coarsePointer ? 27 : 34))
         view.userData.mixer?.update(delta);
     }
     this.drawBossArena(run, time);
@@ -431,16 +442,30 @@ export class GameView {
   }
   drawPrimary(run) {
     let count = 0;
+    const arrow = Boolean(this.primaryFletch);
     for (const shot of run.primaryShots) {
       if (count >= 64) break;
+      this.projectileHeading.set(shot.vx, 0, shot.vz).normalize();
+      this.dummy.quaternion.setFromUnitVectors(this.projectileAxis, this.projectileHeading);
       this.dummy.position.set(shot.x, 0.96, shot.z);
-      this.dummy.rotation.set(Math.PI / 2, 0, Math.atan2(shot.vz, shot.vx));
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
-      this.primaryShotsMesh.setMatrixAt(count++, this.dummy.matrix);
+      this.primaryBody.setMatrixAt(count, this.dummy.matrix);
+      this.dummy.position.addScaledVector(this.projectileHeading, arrow ? 0.59 : 0.22);
+      this.dummy.updateMatrix();
+      this.primaryTip.setMatrixAt(count, this.dummy.matrix);
+      if (arrow) {
+        this.dummy.position.addScaledVector(this.projectileHeading, -1.04);
+        this.dummy.updateMatrix();
+        this.primaryFletch.setMatrixAt(count, this.dummy.matrix);
+      }
+      count++;
     }
-    this.primaryShotsMesh.count = count;
-    this.primaryShotsMesh.instanceMatrix.needsUpdate = true;
+    for (const mesh of [this.primaryBody, this.primaryTip, this.primaryFletch]) {
+      if (!mesh) continue;
+      mesh.count = count;
+      mesh.instanceMatrix.needsUpdate = true;
+    }
   }
   drawLoot(run, time) {
     let bullets = 0,

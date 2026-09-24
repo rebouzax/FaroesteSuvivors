@@ -40,19 +40,19 @@ export class ScreenView {
   }
   menu(lang = "en") {
     this.root.className = "";
-    this.root.innerHTML = `<header class="topline"><span>${t(lang, "est")}</span>${this.languageSelect(lang)}<span>${t(lang, "chapter")}</span></header><section class="menu-panel"><p class="eyebrow">${t(lang, "tag")}</p><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><p class="tagline">${t(lang, "tagline")}</p><div class="ornament" aria-hidden="true">────── ✦ ──────</div><nav aria-label="${t(lang, "menu")}"><button class="primary" data-action="select">${t(lang, "newGame")} <span>↗</span></button><button data-action="settings">${t(lang, "settings")} <span>⚙</span></button><button data-action="exit">${t(lang, "exit")} <span>→</span></button></nav><p class="menu-note">${t(lang, "survive")}</p></section><footer><span>${t(lang, "footer")}</span><span>${t(lang, "version")}</span></footer>`;
+    this.root.innerHTML = `<header class="topline menu-topline">${this.languageSelect(lang)}</header><section class="menu-panel"><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><nav aria-label="${t(lang, "menu")}"><button class="primary" data-action="select">${t(lang, "newGame")} <span>↗</span></button><button data-action="settings">${t(lang, "settings")} <span>⚙</span></button><button data-action="exit">${t(lang, "exit")} <span>→</span></button></nav></section>`;
   }
   settings(profile) {
     const lang = profile.data.language;
     this.root.className = "selection-screen";
-    this.root.innerHTML = `<section class="settings-panel"><p class="eyebrow">${t(lang, "settingsIntro")}</p><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><p>${t(lang, "motion")}</p><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
+    this.root.innerHTML = `<section class="settings-panel"><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><section class="tutorial-settings"><h3>${t(lang, "tutorialTitle")}</h3><ul><li>${t(lang, "tutorialMove")}</li><li>${t(lang, "tutorialAttack")}</li><li>${t(lang, "tutorialLoot")}</li><li>${t(lang, "tutorialShop")}</li><li>${t(lang, "tutorialCards")}</li></ul></section><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
   }
   audioSettings(lang = "en") {
     this.root
       .querySelector("#save-status")
       .insertAdjacentHTML(
         "afterend",
-        `<p>${t(lang, "audioHelp")}</p><button data-action="test-audio">${t(lang, "testAudio")}</button><p id="audio-status" role="status" aria-live="polite"></p>`,
+        `<button data-action="test-audio">${t(lang, "testAudio")}</button><p id="audio-status" role="status" aria-live="polite"></p>`,
       );
   }
   exit(lang = "en") {
@@ -61,7 +61,8 @@ export class ScreenView {
   }
   game(run, lang = "en") {
     this.root.className = "playing-screen";
-    this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small>${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" role="group" aria-label="Touch controls"><i></i></div><div class="controls-hint">WASD / ↑↓←→ · ${t(lang, "controlsHelp")}<br>ESC · ${t(lang, "pause")}</div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
+    this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small>${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar" aria-label="${t(lang, "abilitiesTitle")}"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" role="group" aria-label="Touch controls"><i></i></div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
+    this.abilityKey = "";
     this.hud = {};
     for (const id of [
       "xp-fill",
@@ -150,17 +151,17 @@ export class ScreenView {
     this.hud.level.textContent = `${t(lang, "level")} ${p.level}`;
     this.hud["xp-label"].textContent = `${p.xp} / ${run.requiredXp} XP`;
     this.hud.kills.textContent = `☠ ${run.kills}`;
-    this.hud.coins.textContent = `◈ ${t(lang, "runCoins")}: ${run.coins}`;
-    this.root.querySelector("#ability-bar").innerHTML =
-      ABILITY_IDS.filter((id) => run.abilities[id])
-        .map(
-          (id) =>
-            `<span class="ability-item" title="${t(lang, "ability." + id)}">${gameIcon(id)} <span class="ability-name">${t(lang, "ability." + id)}</span><b>${run.abilities[id]}</b></span>`,
-        )
-        .join("") +
-      (run.empowered.remaining > 0
-        ? `<span>${t(lang, "combo")} ${run.chain} · ${Math.ceil(run.empowered.remaining)}s</span>`
-        : "");
+    this.hud.coins.textContent = `◈ ${run.coins}`;
+    // Ícones só mudam quando uma carta é adquirida; evita reconstruir vários
+    // SVGs a cada atualização da HUD durante o combate.
+    const abilityKey = `${lang}:${ABILITY_IDS.map((id) => run.abilities[id]).join(",")}`;
+    if (abilityKey !== this.abilityKey) {
+      this.abilityKey = abilityKey;
+      this.root.querySelector("#ability-bar").innerHTML = ABILITY_IDS
+        .filter((id) => run.abilities[id])
+        .map((id) => `<span class="ability-item" title="${t(lang, "ability." + id)}" aria-label="${t(lang, "ability." + id)} ${run.abilities[id]}">${gameIcon(id)}</span>`)
+        .join("");
+    }
     this.hud["intro-caption"].textContent =
       run.phase === "intro"
         ? `${CHARACTERS[run.characterId].name.toUpperCase()} · ${Math.max(1, Math.ceil(6 - run.introTime))}`

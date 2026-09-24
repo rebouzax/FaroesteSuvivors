@@ -4,7 +4,7 @@ const clamp = (value) =>
   Math.max(-CONFIG.mapHalf + 1, Math.min(CONFIG.mapHalf - 1, value));
 export class EnemySystem {
   spawn(run, type = "bat") {
-    if (run.enemies.length >= CONFIG.maxBats) return;
+    if (run.enemies.length >= (run.maxEnemies || CONFIG.maxBats)) return;
     const stats = enemyStats(type, Math.floor(run.time / 60));
     const enemy = {
       id: ++run.nextId,
@@ -76,7 +76,7 @@ export class EnemySystem {
       run.dogTimer -= dt;
       if (run.dogTimer <= 0) {
         run.dogTimer = Math.max(2, 7 - (run.time - 60) / 140);
-        if (run.enemies.length >= CONFIG.maxBats) {
+        if (run.enemies.length >= (run.maxEnemies || CONFIG.maxBats)) {
           const index = run.enemies.findIndex(
             (e) =>
               e.type === "bat" &&

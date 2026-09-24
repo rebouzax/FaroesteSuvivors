@@ -1,6 +1,6 @@
 const MISSIONS=[
   {at:45,kind:"bat",target:7,duration:65},
-  {at:240,kind:"crate",target:3,duration:100},
+  {at:240,kind:"crate",target:2,duration:130},
   {at:495,kind:"skeleton",target:6,duration:105},
 ];
 export class MissionSystem {

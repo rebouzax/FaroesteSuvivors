@@ -1,108 +1,53 @@
-# Faroeste Survivors — versão 0.6 (ajustes de interface e personagens)
+# Faroeste Survivors — versão 0.6 (refino dos menus e da partida)
 
-Jogo web de sobrevivência por 15 minutos, com cenário 2.5D, personagens e criaturas em GLB animado. Feito em HTML, CSS e JavaScript com Vite e Three.js. A lógica vive em `models/` e `systems/`; as telas e o 3D ficam em `views/`; `GameApplication` coordena a interface, o áudio e o modelo da partida (MVVM adaptado).
+Jogo web de sobrevivência por 15 minutos, em HTML, CSS e JavaScript com Vite e Three.js. A estrutura mantém modelos de estado em `src/models/`, regras em `src/systems/`, apresentação em `src/views/` e coordenação em `src/app/` e `src/viewmodels/` (MVVM adaptado a um jogo).
 
-## Como instalar esta atualização
+## Instalação
 
-1. Antes de substituir, faça uma cópia das suas alterações locais.
-2. No projeto `C:\projetos\webjogos\FaroesteSuvivors`, **substitua a pasta `src` inteira** pela deste ZIP e copie `index.html` e `README.md` para a raiz. Substituir a pasta elimina músicas e assets removidos.
-3. Conserve seus arquivos `package.json`, `package-lock.json`, `vite.config.js` e `.github/`; não há dependências novas. Seu `package.json` pode continuar exibindo `0.0.3`: a versão do conteúdo é **0.6**.
-4. Execute `npm ci` se as dependências ainda não estiverem instaladas; use `npm run dev` para testar e `npm run build` para compilar. No PowerShell que bloqueia `npm.ps1`, use `npm.cmd run dev`.
-5. Para GitHub Pages, mantenha `base: "/FaroesteSuvivors/"` no Vite; publique após o build pelo fluxo já configurado.
+1. Faça uma cópia do seu projeto se houver alterações locais que deseja preservar.
+2. Em `C:\projetos\webjogos\FaroesteSuvivors`, substitua **a pasta `src` inteira** pela do ZIP. Copie `index.html` e `README.md` para a raiz.
+3. Mantenha `package.json`, `package-lock.json`, `vite.config.js` e `.github/` do seu repositório. Esta atualização não precisa de novas bibliotecas.
+4. Execute `npm ci` (caso faltem dependências), `npm run dev` para jogar localmente e `npm run build` antes de publicar. Se PowerShell bloquear `npm.ps1`, use `npm.cmd run dev` ou `npm.cmd run build`.
+5. Para GitHub Pages do repositório, mantenha `base: "/FaroesteSuvivors/"` em `vite.config.js` e use seu fluxo de deploy já configurado.
 
-O ZIP contém apenas `src/`, `index.html` e `README.md`. Os MP3, WAV e GLB prontos estão em `src/assets/`.
+O ZIP contém apenas `src/`, `index.html` e `README.md`. Os modelos, músicas, efeitos e retratos estão em `src/assets/`.
 
-## Escolha de personagem e fase
+## Menu e controles
 
-**Novo jogo → personagem → fase → jogar.** No menu superior, o idioma inicial é **inglês (EUA)**; você também pode escolher espanhol e português brasileiro. O idioma e as compras permanentes ficam salvos no `localStorage` existente (`faroeste:profile:v2`). O idioma pode ser alterado também em Configurações.
+O fluxo é **Novo jogo → personagem → fase → jogar**. A seleção de personagem e a loja usam retratos PNG com movimentos leves em CSS: João Vaqueiro, Maria Bonita, Indigo e Bento. O personagem e Bento continuam com seus modelos GLB animados **dentro da partida**. A animação dos retratos respeita a preferência do sistema por movimento reduzido. Estes retratos são ilustrações para a interface, não novos modelos 3D jogáveis.
 
-| Personagem | Vida inicial | Arma principal | Ataque automático |
-| --- | ---: | --- | --- |
-| João Vaqueiro | 100 | Chicote | 10 de dano em arco, a cada 1,05 s |
-| Maria Bonita | 90 | Revólver | 14 de dano, tiro direcionado, a cada 1,25 s |
-| Indigo | 105 | Arco | 17 de dano, flecha que pode atravessar dois inimigos, a cada 1,55 s |
+A barra de habilidades fica no canto superior direito da partida e mostra somente ícones. O contador de moedas usa o símbolo `◈` sem o rótulo redundante “Partida”; o cronômetro de 15 minutos permanece no centro. As instruções de movimento saíram da tela do jogo: em **Configurações → Como jogar** há o tutorial de WASD, setas, toque, ataques automáticos, caixas, XP, Bento e sequência de cartas. Menu e seleção receberam menos frases. O menu usa apenas logo, escolha de idioma e botões; não mostra “Capítulo Um”, “EST. 1887” nem a antiga frase sobre o deserto.
 
-Cada personagem usa um GLB próprio, com **Idle, Walk, animação da arma principal, Shot, Throw e Hurt**. As armas miram automaticamente no inimigo mais próximo; na ausência de inimigos também miram em caixas próximas. As melhorias permanentes de dano da arma principal se aplicam ao personagem escolhido. Maria e Indigo têm identidade visual e animações próprias; seus arquivos ficam em `src/assets/models/`.
+O idioma padrão continua inglês, com opções de português brasileiro e espanhol. O perfil, idioma e as compras permanentes continuam no armazenamento local do navegador.
 
-Nesta revisão, João recebeu torso, mangas e chapéu mais arredondados e casaco curvo; Maria ganhou silhueta, traços de rosto, cabelos longos, trança, jaqueta curta, abas de roupa e dois coldres próprios; Indigo ganhou túnica, faixa, cabelo preso, aljava, arco e braços expostos. Cada um tem cadência, postura e ataque próprios: revólver de Maria e arco de Indigo agora acionam a animação principal durante o disparo. Os GLBs foram regenerados localmente com Three.js, usando a imagem de conceito como direção artística. **Não há integração disponível neste projeto que produza personagens 3D automaticamente a partir de imagem**; os modelos continuam estilizados e não são reconstruções fiéis de escultura profissional. Podem ser substituídos no futuro por GLBs criados num editor 3D mantendo os nomes das animações.
+## Personagens, armas e fases
 
-| Fase | Ambiente |
-| --- | --- |
-| Deserto dos Esquecidos | Dunas, rochas, cactos e cercas sob o sol |
-| Mina da Noite | Galerias escuras, postes iluminados, trilhos, minério e vagonetes |
-| Cidade Fantasma | Rua central, fachadas, marquises, postes, barris e cemitério |
+| Personagem | Vida inicial | Arma principal |
+| --- | ---: | --- |
+| João Vaqueiro | 100 | Chicote automático em arco, dano inicial 10 |
+| Maria Bonita | 90 | Revólver com tiro automático, dano inicial 14 |
+| Indigo | 105 | Arco com flecha perfurante, dano inicial 17 |
 
-Os mapas mantêm o limite de 240 × 240 unidades e a câmera acompanha o personagem. O mesmo conjunto de inimigos, chefes, mercador, vento, missões e duração está disponível nos três. Personagem caminha automaticamente após a introdução de seis segundos; WASD, setas ou toque mudam a direção. Escape ou o botão de pausa suspende a partida.
+Maria agora dispara um projétil de metal dourado com ponta luminosa; as flechas de Indigo têm haste de madeira, ponta metálica e penas turquesas. Os projéteis usam malhas instanciadas, mantendo o custo limitado durante a partida.
 
-## Inimigos e chefes
+As fases continuam Deserto dos Esquecidos, Mina da Noite e Cidade Fantasma, com limites de 240 × 240 unidades. O deserto ganhou sombras leves sob rochas e cactos. Mina e cidade ganharam halos suaves nas lâmpadas feitos por uma única malha instanciada e uma textura produzida por código, sem acrescentar luzes dinâmicas. No celular, o terreno usa menos subdivisões e menos detalhes de areia.
 
-Continuam os morcegos, chupacabras (1:00), urubus em bandos de seis (2:00), esqueletos pistoleiros (3:00) e espectros mineiros (4:30). Morcegos seguem sem som próprio. Todos os sete tipos de inimigo, contando os chefes, usam GLBs separados com clips de voo, corrida, caminhada ou golpe.
+Continuam os morcegos, chupacabras (a partir de 1:00), urubus em bandos (2:00), esqueletos pistoleiros (3:00), espectros mineiros (4:30), Coveiro Maldito (6:00) e Xerife das Sombras (11:00). O chefe interrompe as ondas normais e ativa a arena de fogo; as ondas voltam após sua derrota. Bento continua aparecendo em suas janelas de tempo dentro do mapa, com bússola que acompanha sua posição.
 
-- **Coveiro Maldito**, às **6:00**: 300 de vida, 20 de dano, 200 XP e 80 moedas deixadas no chão quando derrotado.
-- **Xerife das Sombras**, às **11:00**: 520 de vida, 26 de dano, 320 XP e 120 moedas deixadas no chão.
+## Caixas e progressão
 
-Ao começar cada encontro, os inimigos comuns desaparecem sem recompensa, e suas ondas param. Uma roda de fogo encolhe de raio 12 para 6, empurra o personagem para dentro e causa 8 de dano por segundo na borda. Quando o chefe morre, o círculo some e as ondas voltam; o próximo chefe aparece no seu horário ou após o encontro anterior terminar. Cada chefe ocorre uma vez por partida.
+Existem no máximo **duas caixas** por vez. Elas surgem entre aproximadamente 31 e 42 unidades da posição do personagem, em locais livres e distantes da câmera, e voltam a aparecer durante a exploração. Uma caixa desaparece quando o personagem passa por cima dela; as armas automáticas e habilidades deixam de escolher caixas como alvo. Ao coletar, ela dá uma bandagem (+25 de vida, com chance inicial de 38%) ou 4–10 moedas. A melhoria permanente Sorte de Garimpeiro continua aumentando a chance de bandagem.
 
-## Eventos, caixas e missões
+A missão de caixas, iniciada aos 4:00, pede encontrar **duas caixas em 130 segundos**. As outras missões continuam eliminar morcegos e esqueletos. As recompensas continuam evoluir uma carta, ganhar moedas da partida ou obter vida máxima e cura.
 
-A partir de **2:30**, tempestades acontecem aproximadamente a cada **2:25**: três pequenos tornados atravessam a região por 21 segundos, com rajadas que deslocam João, Maria ou Indigo. Tocar um tornado causa 8 de dano antes da redução por armadura e usa a mesma imunidade breve dos demais golpes. Os tornados cessam durante o combate com chefes.
+Ao evoluir, o jogador escolhe uma das três cartas. Permanecem pistola, molotov, coração, ferraduras, bala fantasma, réquiem, chuva de prata, lampião, colheita de almas, estilhaços de ossos, vontade de ferro e último disparo. A compra de melhorias na loja do menu é permanente; as cartas compradas de Bento durante a partida duram apenas aquela partida. Os preços sobem conforme a quantidade de compras.
 
-Caixas surgem em posições livres próximas ao personagem e são renovadas quando ele avança pelo mapa. Cada caixa tem **18 de vida**. Ao quebrá-la, há **38% de chance** de cair uma bandagem (+25 de vida até o máximo); caso contrário, caem **4 a 10 moedas**. É preciso chegar perto para coletar o item. Comprar **Sorte de Garimpeiro** aumenta a chance de bandagem até 75%.
+## Música e desempenho
 
-Missões secundárias aparecem durante a partida: eliminar sete morcegos em 65 s (início 0:45), quebrar três caixas em 100 s (4:00) e eliminar seis esqueletos em 105 s (8:15). Cumprir a meta pausa o jogo e permite escolher **uma** recompensa: evoluir uma carta disponível, +25 moedas dessa partida ou +20 de vida máxima e cura de 40. Missões falhadas expiram; o cronômetro para quando aparece uma escolha de carta, o mercador ou a pausa.
+- Menu, seleção e loja: `vultures-circle-the-bone.mp3`.
+- Partida: `seven-black-graves.mp3`, toca de 0:00 a 2:49 e depois repete 0:05–2:49 até a partida terminar.
+- Áudio começa após a primeira interação, conforme as regras dos navegadores. Há um botão de teste de som em Configurações.
 
-## Cartas e mercador
+Os menus não instanciam mais renderizadores WebGL para prévias individuais. O descarte incorreto da geometria móvel das caixas foi desativado para evitar que pisquem conforme a câmera se desloca. A HUD só reconstrói seus SVGs quando uma habilidade muda. Há no máximo 110 inimigos simultâneos em aparelhos com controle de toque, contra 160 no computador; o 3D reduz a resolução gradualmente quando os quadros ficam lentos, e os aparelhos de toque têm meta de até 30 quadros por segundo. Isso reduz o custo, mas o desempenho final ainda depende do aparelho e do navegador.
 
-Além das nove cartas anteriores, três novas surgem entre as opções de nível e no mercado durante a partida depois de adquiridas:
-
-| Carta | Efeito |
-| --- | --- |
-| Estilhaços de Ossos | Seis projéteis em círculo, 12 de dano, a cada 5 segundos no nível 1; cresce em quantidade, dano e frequência |
-| Vontade de Ferro | +3 de armadura por nível da carta na partida |
-| Último Disparo | Abaixo de 35% de vida, +20% de velocidade de ataque por nível da carta |
-
-O conjunto completo de cartas continua em `src/config/abilityConfig.js`: pistola, molotov, coração, ferraduras, bala fantasma, réquiem, chuva de prata, lampião, colheita de almas e as três acima. Ao subir de nível, três opções aleatórias são oferecidas; o jogador escolhe uma. Alternar cartas pode formar uma sequência temporária de dano. A progressão de XP começa em **100, 300, 600 e 1000** para os níveis seguintes.
-
-O mercador Bento usa um GLB animado próprio, com animações **Idle** e **Thanks** após comprar. A loja do menu cobra moedas guardadas e vende melhorias permanentes; dentro do mapa, Bento aparece entre **1:40–3:00** e **7:00–10:00**, cobra moedas coletadas nessa partida, oferece as cartas já desbloqueadas e melhorias temporárias da arma, ataque e movimento. Cada compra aumenta o preço do mesmo produto. As compras temporárias somem ao voltar ao menu.
-
-No mapa, Bento fica de pé em escala maior e aparece com um **ícone de bússola que acompanha sua posição na câmera**, preso à borda da tela quando está fora dela. A distância aparece abaixo do ícone; ao chegar perto, a partida pausa e abre a loja. A frase fixa de orientação sobre o centro do jogo foi removida. Cartas, mercador, recompensas, melhorias e a barra de habilidades usam ícones SVG locais em `src/views/GameIcons.js`.
-
-Novas melhorias permanentes: **Sorte de Garimpeiro** (+4 pontos percentuais na chance de bandagem por compra, preço inicial 55 moedas) e **Lenda Aprendiz** (+5% no XP recebido por compra, preço inicial 50 moedas). Continuam à venda vida, velocidade de ataque, movimento, dano base, armadura e atração de itens. O preço permanente cresce por `ceil(preço inicial × 1,55 ^ compras anteriores)`; o temporário cresce por `ceil(8 × 1,6 ^ compras anteriores)`.
-
-## Música e otimização
-
-- **Menu, seleção e mercado permanente:** `vultures-circle-the-bone.mp3`, em loop.
-- **Partida:** `seven-black-graves.mp3` toca de **0:00 até 2:49 (169 segundos)** na primeira reprodução. Depois repete apenas **0:05–2:49** até terminar a partida. Uma nova partida recomeça em 0:00; a música para após vitória ou derrota.
-- Os efeitos de chicote, revólver, flecha, coquetel, fogo, ferimento, compra, evolução, chupacabra e urubu são WAV. O áudio depende de um clique ou toque prévio por regra dos navegadores; pode ser ativado ou desativado em Configurações.
-
-Modelos, cenário e efeitos usam instâncias de geometria quando possível; GLBs são compartilhados e carregados de forma assíncrona, mixers de inimigos distantes não avançam a animação, a proporção de pixels é limitada no celular, e o número de caixas, efeitos, inimigos e itens é limitado. O logo agora usa WebP. **O build de produção pesa cerca de 12 MB**, bem abaixo do limite de 75 MB. O aviso do Vite de chunk JavaScript acima de 500 kB pode aparecer por causa do Three.js; ele não impede o build.
-
-No celular, as telas ocupam uma viewport (`100dvh`) sem rolagem da página; a seleção apresenta escolhas compactas e a loja mostra um produto por vez com botões e gesto horizontal. As três cartas de nível cabem juntas no diálogo de telas pequenas. Tablets preservam grade de escolhas e produtos. Menu e prévias 3D usam limite de pixels e até 30 quadros por segundo em telas de toque; a partida reduz gradualmente a resolução se a taxa de atualização cair. O 3D da partida continua a evoluir em tempo real, e os efeitos de áudio permanecem iguais.
-
-### Medição dos modelos
-
-O valor abaixo conta **triângulos exportados** (polígonos triangulados) por GLB. A arte mantém silhuetas e materiais low poly com detalhes inspirados na era PS2:
-
-| Modelo | Triângulos |
-| --- | ---: |
-| João Vaqueiro | 7.636 |
-| Maria Bonita | 9.868 |
-| Indigo | 10.082 |
-| Mercador Bento | 600 |
-| Morcego / chupacabra / urubu | 206 / 574 / 656 |
-| Esqueleto / espectro mineiro | 1.000 / 1.142 |
-| Coveiro / xerife | 1.020 / 1.166 |
-| Cada urubu decorativo do menu | 160 |
-
-O cenário do menu completo tem 4.722 triângulos, incluindo as rochas, dunas, cerca, crânio e os dois urubus decorativos. Os modelos são regeneráveis com `node src/tools/generateJoaoModel.mjs joao` (ou `maria` e `indigo`) e `node src/tools/generateWorldModels.mjs`, com a dependência `three` já instalada. Esses scripts executam no Node durante a criação dos assets; o navegador usa apenas os GLBs prontos.
-
-## Organização e verificação
-
-- `config/`: valores de personagens, mapas, habilidades, compras e duração.
-- `models/`: estado da partida, terreno e perfil.
-- `systems/`: combate, ondas, chefes, clima, caixas, missões e mercador.
-- `services/`: música/efeitos, armazenamento, controles e tradução.
-- `views/`: telas, HUD, modelos 3D e geometria das fases.
-- `app/GameApplication.js` e `viewmodels/GameViewModel.js`: coordenação da interface com as regras.
-
-A compilação Vite passou. Em navegador de computador e celular foram percorridos idioma, seleção dos três personagens e mapas, troca de faixa e loop, missão e recompensa, mercado, ambos os chefes, retorno à seleção e conclusão da partida. A lógica conferiu chance de caixa, coleta de bandagem, tempestade, recompensas, modelos e preços das novas melhorias. Nesta revisão também foram verificados tamanhos 320 × 568, 390 × 844 e tablet 768 × 1024, seleção, mercado, opções de cartas, indicador do Bento e rolagem da página.
+O build compilou com Vite. A versão foi conferida em navegador de computador e em telas de 390 × 844 e 320 × 568: retratos, menu, loja, HUD, caixas e as doze escolhas de habilidade. Os testes automatizados de desenvolvimento **não fazem parte do ZIP**. O Vite pode avisar que um chunk excede 500 kB por incluir o Three.js; o aviso não impede a compilação. O conteúdo compilado com retratos permanece abaixo do limite de 75 MB.

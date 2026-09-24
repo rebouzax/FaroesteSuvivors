@@ -41,7 +41,7 @@ export class RunSystem {
     this.move(run, dt, input);
     this.weather.update(run, dt);
     if(run.phase==="defeat")return;
-    this.crates.update(run,dt);
+    this.crates.update(run, dt, (x, z, type, value) => this.drop(run, x, z, type, value));
     if (!run.bossEncounter.active) this.merchant.update(run);
     if (run.phase === "merchant") return;
     if (!run.bossEncounter.active) this.boss.start(run);
@@ -68,7 +68,6 @@ export class RunSystem {
         this.drop(run, enemy.x + 0.3, enemy.z, "coin", 1);
       return false;
     });
-    this.crates.collectBroken(run,(x,z,type,value)=>this.drop(run,x,z,type,value));
     for (const enemy of run.enemies) {
       if (enemy.warning > 0) continue;
       if (

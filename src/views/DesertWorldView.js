@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 // Geometria compartilhada e instâncias mantêm o deserto amplo com poucas chamadas de desenho.
-export function buildDesertWorld(scene, props) {
-  const sand = new THREE.PlaneGeometry(240, 240, 90, 90);
+export function buildDesertWorld(scene, props, detailed = true) {
+  const sand = new THREE.PlaneGeometry(240, 240, detailed ? 90 : 55, detailed ? 90 : 55);
   const colors = [];
   const base = new THREE.Color(0xe3b374);
   const sun = new THREE.Color(0xffdd9a);
@@ -59,14 +59,23 @@ export function buildDesertWorld(scene, props) {
     dummy.updateMatrix();
     return dummy.matrix.clone();
   }
-  const rocks=[], stems=[], arms=[], cactusTips=[], walls=[], dunes=[], scrub=[], bones=[], fences=[];
+  function groundShadow(x,z,sx,sz) {
+    dummy.position.set(x,0.021,z);
+    dummy.rotation.set(-Math.PI/2,0,0);
+    dummy.scale.set(sx,sz,1);
+    dummy.updateMatrix();
+    return dummy.matrix.clone();
+  }
+  const rocks=[], stems=[], arms=[], cactusTips=[], walls=[], dunes=[], scrub=[], bones=[], fences=[], shadows=[];
   for (const prop of props) {
     const { x,z,size } = prop;
     if (prop.type === "rock") {
       rocks.push(transform(x,0.65*size,z,size,size*1.25,size*0.86,x));
+      shadows.push(groundShadow(x+size*0.42,z+size*0.22,size*1.1,size*0.65));
       if (size > 0.8) rocks.push(transform(x+size*0.5,0.18*size,z+size*0.4,size*0.4,size*0.38,size*0.32,x+2));
     } else {
       stems.push(transform(x,1.2*size,z,0.26*size,1.2*size,0.26*size,x));
+      shadows.push(groundShadow(x+size*0.35,z+size*0.16,size*0.62,size*0.35));
       for (const sign of [-1,1]) {
         arms.push(transform(x+sign*0.39*size,(1.1+sign*0.18)*size,z,0.16*size,0.39*size,0.16*size,0,sign*Math.PI/2));
         cactusTips.push(transform(x+sign*0.73*size,(1.4+sign*0.18)*size,z,0.16*size,0.38*size,0.16*size));
@@ -105,9 +114,10 @@ export function buildDesertWorld(scene, props) {
   instanced(new THREE.ConeGeometry(1,2,5),woodMat,scrub);
   instanced(new THREE.CylinderGeometry(1,1,2,5),paleMat,bones);
   instanced(new THREE.BoxGeometry(2,2,2),woodMat,fences);
+  instanced(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0x74482f,transparent:true,opacity:0.17,depthWrite:false,side:THREE.DoubleSide}),shadows);
 
   const ripplePositions=[];
-  for(let i=0;i<1300;i++) {
+  for(let i=0;i<(detailed?1300:700);i++) {
     const x=Math.sin(i*12.73)*117,z=Math.cos(i*8.31)*117;
     const length=0.5+(i%5)*0.3;
     ripplePositions.push(x,0.024,z,x+length,0.024,z+0.07);

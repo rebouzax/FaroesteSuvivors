@@ -1,6 +1,7 @@
 import { PERMANENT_UPGRADES, temporaryPrice } from "../config/shopConfig.js";
 import { t, localizedCardDescription } from "../services/I18n.js";
 import { gameIcon } from "./GameIcons.js";
+import { BENTO_PORTRAIT } from "../config/portraitConfig.js";
 export function permanentProducts(profile) {
   const lang = profile.data.language;
   return Object.entries(PERMANENT_UPGRADES)
@@ -14,10 +15,10 @@ export function permanentProducts(profile) {
 export function permanentShopMarkup(profile, back) {
   const lang = profile.data.language;
   return `<header class="topline"><button class="text-button" data-action="${back}">← ${t(lang, "back")}</button><span>${t(lang, "shopTitle")}</span><span id="shop-wallet">${t(lang, "savedCoins", { coins: profile.data.coins })}</span></header>
-    <section class="merchant-layout"><div class="merchant-side"><div id="merchant-preview" aria-label="Bento 3D"></div><div class="merchant-caption"><p class="eyebrow">${t(lang, "merchantName")}</p><h2>${t(lang, "merchantTitle")}</h2><p id="merchant-speech" role="status">${t(lang, "merchantSays")}</p></div></div><div class="shop-products"><p class="eyebrow">${t(lang, "shopPermanent")}</p><div id="permanent-products" class="permanent-products">${permanentProducts(profile)}</div><div class="shop-pages"><button type="button" data-action="product-prev" aria-label="${t(lang, "back")}">←</button><span id="shop-page-count" aria-live="polite">1 / 8</span><button type="button" data-action="product-next" aria-label="${t(lang, "continue")}">→</button></div><p class="shop-foot">${t(lang, "shopFoot")}</p></div></section>`;
+    <section class="merchant-layout"><div class="merchant-side"><div id="merchant-preview" class="portrait-stage merchant-portrait" aria-label="${t(lang, "merchantName")}"><img src="${BENTO_PORTRAIT}" alt="${t(lang, "merchantName")}" fetchpriority="high"></div><div class="merchant-caption"><h2>${t(lang, "merchantName")}</h2><p id="merchant-speech" role="status"></p></div></div><div class="shop-products"><p class="eyebrow">${t(lang, "shopPermanent")}</p><div id="permanent-products" class="permanent-products">${permanentProducts(profile)}</div><div class="shop-pages"><button type="button" data-action="product-prev" aria-label="${t(lang, "back")}">←</button><span id="shop-page-count" aria-live="polite">1 / 8</span><button type="button" data-action="product-next" aria-label="${t(lang, "continue")}">→</button></div></div></section>`;
 }
 export function runShopMarkup(run, lang = "en") {
-  return `<p class="eyebrow">${t(lang, "runShopIntro")}</p><h2 id="run-dialog-title">${t(lang, "runShopTitle")}</h2><p>${t(lang, "runMoney", { coins: run.coins })}</p><p>${t(lang, "runShopHelp")}</p><div class="run-shop-products">${run.merchantCards
+  return `<h2 id="run-dialog-title">${t(lang, "runShopTitle")}</h2><p>${t(lang, "runMoney", { coins: run.coins })}</p><div class="run-shop-products">${run.merchantCards
     .map((id) => {
       const price = temporaryPrice(run.shopPurchases[id]);
       const name =

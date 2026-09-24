@@ -17,7 +17,7 @@ export function buildOtherWorld(scene, props, mapId) {
   ground.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
   ground.rotateX(-Math.PI/2);
   scene.add(new THREE.Mesh(ground,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1})));
-  const dummy=new THREE.Object3D(), groups=new Map();
+  const dummy=new THREE.Object3D(), groups=new Map(), glows=[];
   function collect(key, geometry, material, x,y,z,sx,sy,sz,rotation=0) {
     if(!groups.has(key))groups.set(key,{geometry,material,transforms:[]});
     dummy.position.set(x,y,z);dummy.scale.set(sx,sy,sz);dummy.rotation.set(0,rotation,0);dummy.updateMatrix();
@@ -51,6 +51,7 @@ export function buildOtherWorld(scene, props, mapId) {
     for(let i=-10;i<=10;i++)for(const side of [-1,1]){
       collect('lampPost',box,wood,side*5.8,1.6,i*11,0.19,3.2,0.19);
       collect('light',box,lamp,side*5.8,3.25,i*11,0.36,0.36,0.36);
+      glows.push([side*5.8,i*11,3.8]);
     }
   }else{
     // Rua central transitável ladeada por fachadas, marquises e placas.
@@ -69,11 +70,13 @@ export function buildOtherWorld(scene, props, mapId) {
           collect('frame',box,wood,side*5.53,2.85,z+end*2.7,0.22,0.12,1.2);
         }
         collect('light',box,lamp,side*5.1,3.18,z,0.27,0.4,0.27);
+        glows.push([side*5.1,z,3.2]);
       }
     }
     for(let i=-12;i<=12;i++)for(const side of [-1,1]){
       collect('streetPost',box,wood,side*5.4,1.35,i*9,0.18,2.7,0.18);
       collect('light',box,lamp,side*5.4,2.75,i*9,0.33,0.4,0.33);
+      glows.push([side*5.4,i*9,2.8]);
       if(i%3===0)collect('barrel',rock,rust,side*4.4,0.55,i*9+2,0.51,0.75,0.51);
     }
     for(let i=0;i<34;i++){
@@ -88,5 +91,27 @@ export function buildOtherWorld(scene, props, mapId) {
     mesh.instanceMatrix.needsUpdate=true;
     scene.add(mesh);
   }
+  // Um único decalque instanciado dá calor às lâmpadas sem adicionar luzes
+  // dinâmicas e sem aumentar o custo conforme o jogador atravessa o cenário.
+  const textureCanvas=document.createElement('canvas');
+  textureCanvas.width=textureCanvas.height=64;
+  const ctx=textureCanvas.getContext('2d');
+  const gradient=ctx.createRadialGradient(32,32,1,32,32,31);
+  gradient.addColorStop(0,'rgba(255,201,112,.42)');
+  gradient.addColorStop(.36,'rgba(255,174,67,.17)');
+  gradient.addColorStop(1,'rgba(255,159,56,0)');
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,64,64);
+  const glowTexture=new THREE.CanvasTexture(textureCanvas);
+  const halos=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:glowTexture,transparent:true,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1}),glows.length);
+  glows.forEach(([x,z,size],i)=>{
+    dummy.position.set(x,.055,z);
+    dummy.rotation.set(-Math.PI/2,0,0);
+    dummy.scale.set(size*2,size*2,1);
+    dummy.updateMatrix();
+    halos.setMatrixAt(i,dummy.matrix);
+  });
+  halos.instanceMatrix.needsUpdate=true;
+  scene.add(halos);
 }
 function sideFor(index){return index%4<2?-1:1;}

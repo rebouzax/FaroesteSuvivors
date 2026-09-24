@@ -5,8 +5,6 @@ import { GameViewModel } from "../viewmodels/GameViewModel.js";
 import { ScreenView } from "../views/ScreenView.js";
 import { DesertBackgroundView } from "../views/DesertBackgroundView.js";
 import { GameView } from "../views/GameView.js";
-import { CharacterPreview } from "../views/CharacterPreview.js";
-import { MerchantView } from "../views/MerchantView.js";
 import {
   upgradeCardsMarkup,
   missionRewardMarkup,
@@ -89,10 +87,6 @@ export class GameApplication {
       this.shopReturn = ["select", "map-select"].includes(this.current)
         ? this.current
         : "menu";
-    this.merchant?.dispose();
-    this.merchant = null;
-    this.preview?.dispose();
-    this.preview = null;
     this.current = name;
     this.ensureBackground();
     this.audio.setPaused(false);
@@ -113,14 +107,6 @@ export class GameApplication {
         this.characterId,
         this.mapId,
       );
-      const host = this.root.querySelector("#character-preview");
-      if (host) {
-        try {
-          this.preview = new CharacterPreview(host, this.characterId);
-        } catch {
-          host.textContent = CHARACTERS[this.characterId].name;
-        }
-      }
     } else if (name === "shop") {
       this.root.className = "shop-screen";
       this.root.innerHTML = permanentShopMarkup(this.profile, this.shopReturn);
@@ -132,12 +118,6 @@ export class GameApplication {
           `${Math.max(1, Math.min(8, page))} / 8`;
       };
       deck.addEventListener("scroll", updatePage, { passive: true });
-      const host = this.root.querySelector("#merchant-preview");
-      try {
-        this.merchant = new MerchantView(host);
-      } catch {
-        host.textContent = t(lang, "merchantName");
-      }
     } else if (name === "settings") {
       this.screen.settings(this.profile);
       this.screen.audioSettings(lang);
@@ -243,7 +223,12 @@ export class GameApplication {
           .available
           ? t(lang, "merchantThanksForever")
           : t(lang, "saveFailed");
-        this.merchant?.thank();
+        const portrait = this.root.querySelector("#merchant-preview");
+        portrait?.classList.remove("merchant-thanks");
+        if (portrait) {
+          void portrait.offsetWidth;
+          portrait.classList.add("merchant-thanks");
+        }
         this.audio.play("purchase");
       }
       return;
@@ -310,10 +295,6 @@ export class GameApplication {
   }
   startRun() {
     if (this.vm) return;
-    this.preview?.dispose();
-    this.preview = null;
-    this.merchant?.dispose();
-    this.merchant = null;
     this.background?.dispose();
     this.background = null;
     this.canvas.hidden = true;
@@ -383,7 +364,8 @@ export class GameApplication {
         }
       }
     } else this.accumulator = 0;
-    if (!this.vm.paused || this.lastDraw == null || now - this.lastDraw > 85) {
+    const drawInterval = this.gameView.coarsePointer ? 1000 / 30 : 1000 / 60;
+    if (this.lastDraw == null || now - this.lastDraw >= (this.vm.paused ? 85 : drawInterval)) {
       this.gameView.render(this.vm.model);
       this.lastDraw = now;
     }
@@ -463,8 +445,6 @@ export class GameApplication {
   }
   dispose() {
     this.endRun();
-    this.preview?.dispose();
-    this.merchant?.dispose();
     this.background?.dispose();
     this.audio.dispose();
     this.screen.dispose();

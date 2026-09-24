@@ -4,7 +4,6 @@ import { gameIcon } from "./GameIcons.js";
 export function upgradeCardsMarkup(run, lang = "en") {
   return `<p class="eyebrow">${t(lang, "cardPending", { level: run.player.level, choices: run.pendingChoices })}</p>
     <h2 id="run-dialog-title">${t(lang, "cardHeading")}</h2>
-    <p class="cards-intro">${t(lang, "cardPrompt")}</p>
     <div class="upgrade-cards">${run.cardOffers
       .map((id) => {
         const card = ABILITIES[id],
@@ -21,7 +20,7 @@ export function upgradeCardsMarkup(run, lang = "en") {
             : t(lang, "comboStart");
         return `<button class="upgrade-card ${card.color}" data-action="card:${id}:${run.pendingChoices}" aria-label="${t(lang, "ability." + id)}"><span class="card-corner">${t(lang, "suit." + card.suit)} / ${level + 1}</span><span class="card-icon" aria-hidden="true">${gameIcon(id)}</span><strong>${t(lang, "ability." + id)}</strong><span class="card-rank">${t(lang, level ? "evolve" : "unlock")} · ${t(lang, "grade")} ${level + 1}</span><span class="card-description">${localizedCardDescription(lang, id, level + 1, run.attackRate)}</span><span class="card-combo">${t(lang, "combo")} ${chain} · ${bonus}</span></button>`;
       })
-      .join("")}</div><p class="deck-rule">${t(lang, "deckRule")}</p>`;
+      .join("")}</div>`;
 }
 export function missionRewardMarkup(run, lang = "en") {
   return `<p class="eyebrow">${t(lang, "missionSuccess")}</p><h2 id="run-dialog-title">${t(lang, "chooseReward")}</h2>
