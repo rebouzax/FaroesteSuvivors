@@ -102,6 +102,34 @@
 .ability-item .game-icon { width:20px; height:20px; }
 .controls-hint,.preparation-help,.menu-note,.shop-foot { display: none !important; }
 @media(max-width:700px){
+  .upgrade-dialog,
+  .merchant-dialog,
+  .upgrade-dialog .upgrade-cards,
+  .upgrade-dialog .reward-grid,
+  .merchant-dialog .run-shop-products,
+  .upgrade-dialog .upgrade-card,
+  .merchant-dialog .market-product {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .upgrade-dialog .upgrade-card > :not(.card-icon),
+  .merchant-dialog .market-product :is(h3, p, button),
+  .shop-screen .market-product :is(h3, p, button),
+  .preparation-panel :is(h2, h3, p, strong, small),
+  .settings-panel :is(h2, h3, li, label, button),
+  .merchant-caption :is(h2, p),
+  .market-callout > span,
+  .hud-stats > span,
+  .mission-hud,
+  .weather-hud,
+  .boss-hud {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .shop-screen .topline > * { min-width: 0; overflow-wrap: anywhere; }
+  .settings-panel { overflow-x: hidden; }
   .choice-card,.choice-card.map-choice { min-height:0; }
   .choice-card .choice-thumb { height:clamp(32px,5svh,48px); }
   .choice-card strong { font-size:clamp(10px,2.8vw,14px); }
@@ -122,6 +150,49 @@
   .weather-hud { top: 211px; }
   .mission-hud:not([hidden]) ~ .boss-hud { top: 214px; }
   .tutorial-settings li { font-size: 12px; line-height:1.2; }
+}
+@media(max-width:560px){
+  dialog.upgrade-dialog,
+  dialog.merchant-dialog {
+    width: calc(100vw - 14px);
+    max-height: calc(100dvh - 16px);
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .upgrade-dialog .upgrade-cards,
+  .upgrade-dialog .reward-grid,
+  .merchant-dialog .run-shop-products {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+  .upgrade-dialog .upgrade-card {
+    display: grid;
+    grid-template-columns: 39px minmax(0, 1fr);
+    column-gap: 8px;
+    width: 100%;
+  }
+  .upgrade-dialog .upgrade-card :is(strong, .card-description) {
+    line-height: 1.2;
+  }
+  .merchant-dialog .market-product {
+    width: 100%;
+  }
+  .merchant-dialog > .primary {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin-top: 8px;
+    box-shadow: 0 -6px 12px #f6dfb5;
+  }
+}
+@media(max-width:320px){
+  .upgrade-dialog .upgrade-card { grid-template-columns: 34px minmax(0, 1fr); column-gap: 6px; }
+  .upgrade-dialog .card-icon { width: 34px; height: 34px; }
+  .upgrade-dialog .card-icon .game-icon { width: 29px; height: 29px; }
+  .merchant-dialog .market-product { padding: 9px; }
 }
 @media(max-width:700px) and (max-height:600px){
   .choice-card .choice-thumb { height:25px; }

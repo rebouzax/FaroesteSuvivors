@@ -18,6 +18,10 @@ O fluxo é **Novo jogo → personagem → fase → jogar**. A seleção de perso
 
 A barra de habilidades fica no canto superior direito da partida e mostra somente ícones. O contador de moedas usa o símbolo `◈` sem o rótulo redundante “Partida”; o cronômetro de 15 minutos permanece no centro. As instruções de movimento saíram da tela do jogo: em **Configurações → Como jogar** há o tutorial de WASD, setas, toque, ataques automáticos, caixas, XP, Bento e sequência de cartas. Menu e seleção receberam menos frases. O menu usa apenas logo, escolha de idioma e botões; não mostra “Capítulo Um”, “EST. 1887” nem a antiga frase sobre o deserto.
 
+**Controle por toque:** durante a partida, encoste em qualquer ponto livre da tela e arraste para dirigir. O joystick surge no local do toque e desaparece quando o dedo é retirado. Sem arrastar, o personagem mantém o avanço automático. Botões, cartas e o menu de pausa continuam recebendo toques normalmente. WASD e setas continuam disponíveis no computador; durante a introdução e os menus o toque não move o personagem.
+
+**Ajuste de responsividade:** nos celulares, as cartas de evolução e os produtos do Bento quebram títulos e descrições longos dentro de suas bordas. A loja aberta durante a partida usa uma coluna em telas de até 560 px; seu modal permite rolagem interna e mantém o botão de retorno acessível. Textos de Configurações, seleção, loja permanente e HUD também respeitam a largura disponível, nos três idiomas.
+
 O idioma padrão continua inglês, com opções de português brasileiro e espanhol. O perfil, idioma e as compras permanentes continuam no armazenamento local do navegador.
 
 ## Personagens, armas e fases
@@ -50,4 +54,4 @@ Ao evoluir, o jogador escolhe uma das três cartas. Permanecem pistola, molotov,
 
 Os menus não instanciam mais renderizadores WebGL para prévias individuais. O descarte incorreto da geometria móvel das caixas foi desativado para evitar que pisquem conforme a câmera se desloca. A HUD só reconstrói seus SVGs quando uma habilidade muda. Há no máximo 110 inimigos simultâneos em aparelhos com controle de toque, contra 160 no computador; o 3D reduz a resolução gradualmente quando os quadros ficam lentos, e os aparelhos de toque têm meta de até 30 quadros por segundo. Isso reduz o custo, mas o desempenho final ainda depende do aparelho e do navegador.
 
-O build compilou com Vite. A versão foi conferida em navegador de computador e em telas de 390 × 844 e 320 × 568: retratos, menu, loja, HUD, caixas e as doze escolhas de habilidade. Os testes automatizados de desenvolvimento **não fazem parte do ZIP**. O Vite pode avisar que um chunk excede 500 kB por incluir o Three.js; o aviso não impede a compilação. O conteúdo compilado com retratos permanece abaixo do limite de 75 MB.
+O build compila com Vite. O controle móvel foi verificado em navegador com toque para garantir movimento com arrasto, desaparecimento do joystick e acesso ao botão de pausa. Os testes automatizados de desenvolvimento **não fazem parte do ZIP**. O Vite pode avisar que um chunk excede 500 kB por incluir o Three.js; o aviso não impede a compilação. O conteúdo compilado com retratos permanece abaixo do limite de 75 MB.

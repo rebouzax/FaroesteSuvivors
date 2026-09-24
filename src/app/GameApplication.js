@@ -323,11 +323,16 @@ export class GameApplication {
       console.error(error);
       return;
     }
-    this.input = new InputService(elements.pad, () => {
-      this.vm.togglePause();
-      this.input.clear();
-      this.showRunDialog();
-    });
+    this.input = new InputService(
+      elements.host,
+      elements.pad,
+      () => {
+        this.vm.togglePause();
+        this.input.clear();
+        this.showRunDialog();
+      },
+      () => this.vm?.model.phase === "playing" && !this.vm.paused,
+    );
     this.runDialog = elements.dialog;
     this.runController = new AbortController();
     this.runDialog.addEventListener(

@@ -166,6 +166,7 @@ button:disabled {
 #game-host {
   position: absolute;
   inset: 0;
+  touch-action: none;
 }
 .game-canvas {
   display: block;
@@ -276,8 +277,9 @@ button:disabled {
   position: absolute;
   width: 120px;
   height: 120px;
-  bottom: max(25px, env(safe-area-inset-bottom));
-  left: 25px;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
   border: 1px solid #fff0c285;
   background: #5c412229;
   border-radius: 50%;
@@ -286,6 +288,15 @@ button:disabled {
   justify-content: center;
   touch-action: none;
   user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 5;
+  transition: opacity 120ms ease;
+}
+#joystick.is-active {
+  opacity: 1;
+  visibility: visible;
 }
 #joystick i {
   pointer-events: none;
@@ -358,8 +369,10 @@ button:disabled {
 }
 @media (pointer: fine) {
   #joystick {
-    opacity: 0.45;
     width: 95px;
     height: 95px;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  #joystick { transition: none; }
 }
