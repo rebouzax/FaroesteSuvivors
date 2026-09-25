@@ -1,5 +1,5 @@
 export const MAPS = Object.freeze({
-  desert: { name: "Deserto dos Esquecidos", ground: 0xe3b374, sky: 0xeac48e, fog: 0xeac48e, warm: 0xffd59b, ambient: 0xffeac3 },
+  desert: { name: "Deserto dos Esquecidos", ground: 0x77798b, sky: 0x1b2a45, fog: 0x293750, warm: 0xd9e7ff, ambient: 0xc5d4f0 },
   mine: { name: "Mina da Noite", ground: 0x82766c, sky: 0x49424b, fog: 0x49424b, warm: 0xe6b771, ambient: 0xc5bad1 },
   town: { name: "Cidade Fantasma", ground: 0xad865d, sky: 0x9c7169, fog: 0x9c7169, warm: 0xffbd88, ambient: 0xfad0ab },
   canyon: { name: "Desfiladeiro das Cinzas", ground: 0xaa6c54, sky: 0x915d70, fog: 0x915d70, warm: 0xffba78, ambient: 0xf3c0ab },

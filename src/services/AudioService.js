@@ -12,7 +12,7 @@ const FILES = {
   hurt: new URL("../assets/audio/hurt.wav", import.meta.url),
 };
 const MUSIC = {
-  menu: new URL("../assets/audio/vultures-circle-the-bone.mp3", import.meta.url),
+  menu: new URL("../assets/audio/the-unmarked-cabin.mp3", import.meta.url),
   desert: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
   mine: new URL("../assets/audio/under-the-silver-vein.mp3", import.meta.url),
   town: new URL("../assets/audio/the-devil-at-noon.mp3", import.meta.url),

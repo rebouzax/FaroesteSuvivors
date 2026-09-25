@@ -3,7 +3,6 @@ import { AudioService } from "../services/AudioService.js";
 import { InputService } from "../services/InputService.js";
 import { GameViewModel } from "../viewmodels/GameViewModel.js";
 import { ScreenView } from "../views/ScreenView.js";
-import { DesertBackgroundView } from "../views/DesertBackgroundView.js";
 import { GameView } from "../views/GameView.js";
 import {
   upgradeCardsMarkup,
@@ -12,10 +11,10 @@ import {
 } from "../views/UpgradeCardsView.js";
 import { preparationMarkup, modeMarkup } from "../views/PreparationView.js";
 import { t } from "../services/I18n.js";
-import { CHARACTERS } from "../config/characterConfig.js";
-import { MAPS } from "../config/mapConfig.js";
+import { CHARACTERS, CHARACTER_IDS } from "../config/characterConfig.js";
+import { MAPS, MAP_IDS } from "../config/mapConfig.js";
 import { stageUnlocked, heroUnlocked, CAMPAIGN } from "../config/campaignConfig.js";
-import { arsenalMarkup, bestiaryMarkup } from "../views/ProgressionView.js";
+import { arsenalMarkup, bestiaryMarkup, creatureDetailMarkup } from "../views/ProgressionView.js";
 import { gameIcon } from "../views/GameIcons.js";
 import {
   permanentShopMarkup,
@@ -75,13 +74,29 @@ export class GameApplication {
       },
       { signal: this.controller.signal },
     );
+    document.addEventListener("keydown", (event) => {
+      if (!["select", "map-select"].includes(this.current) || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      if (event.target?.matches("input, textarea, select") || event.altKey || event.ctrlKey || event.metaKey) return;
+      event.preventDefault();
+      this.cycle(event.key === "ArrowLeft" ? -1 : 1);
+    }, {signal:this.controller.signal});
     this.show("menu");
   }
   ensureBackground() {
-    this.canvas.hidden = false;
-    if (!this.background)
-      this.background = new DesertBackgroundView(this.canvas);
-    this.background.setWind(this.profile.data.wind);
+    this.canvas.hidden = true;
+    document.body.classList.remove("in-game");
+    document.body.classList.toggle("wind-disabled", !this.profile.data.wind);
+  }
+  cycle(direction) {
+    const character=this.current==="select";
+    if(!character && this.current!=="map-select")return;
+    const ids=character?CHARACTER_IDS:MAP_IDS;
+    const selected=character?this.characterId:this.mapId;
+    const next=ids[(ids.indexOf(selected)+direction+ids.length)%ids.length];
+    if(character)this.characterId=next;
+    else this.mapId=next;
+    this.show(this.current);
+    this.root.querySelector(`[data-action="cycle:${direction}"]`)?.focus({preventScroll:true});
   }
   show(name) {
     const lang = this.profile.data.language;
@@ -125,6 +140,16 @@ export class GameApplication {
   }
   action(action) {
     const lang = this.profile.data.language;
+    if(action.startsWith("creature:") && this.current==="bestiary") {
+      const modal=this.root.querySelector("#bestiary-detail");
+      const markup=creatureDetailMarkup(this.profile,action.slice(9));
+      if(markup && modal){modal.innerHTML=markup;modal.showModal();}
+      return;
+    }
+    if(action==="close-creature") {
+      this.root.querySelector("#bestiary-detail")?.close();
+      return;
+    }
     if (action === "story") {
       if (this.vm) this.endRun();
       this.mode = "story";
@@ -136,6 +161,10 @@ export class GameApplication {
       if(!this.profile.data.storyClears.desert)return;
       if(this.vm)this.endRun();
       this.mode="free";this.mapId="desert";this.show("select");return;
+    }
+    if (action==="cycle:-1" || action==="cycle:1") {
+      this.cycle(Number(action.slice(6)));
+      return;
     }
     if(action === "arsenal" || action === "bestiary"){
       if(action==="arsenal" && !this.profile.data.completedRuns)return;
@@ -267,9 +296,10 @@ export class GameApplication {
       return;
     }
     if (action === "character") {
+      if(!heroUnlocked(this.profile.data,this.characterId))return;
       this.character = true;
       this.show("map-select");
-      this.root.querySelector('[data-action="play"]').focus();
+      this.root.querySelector('[data-action="play"]')?.focus();
     }
     if (action === "play" && this.character && this.current === "map-select" &&
       heroUnlocked(this.profile.data,this.characterId) &&
@@ -290,7 +320,7 @@ export class GameApplication {
     deck.innerHTML=permanentProducts(this.profile);
     this.applyShopFilter();
     deck.scrollTop=scroll;
-    this.root.querySelector("#shop-wallet").textContent=t(lang,"savedCoins",{coins:this.profile.data.coins});
+    this.root.querySelector("#shop-wallet").innerHTML=gameIcon("coins")+" "+t(lang,"savedCoins",{coins:this.profile.data.coins});
     this.root.querySelector(`[data-action="${action}"]:not(:disabled)`)?.focus({preventScroll:true});
     this.root.querySelector("#merchant-speech").textContent=t(lang,this.profile.available?"merchantThanksForever":"saveFailed");
     const portrait=this.root.querySelector("#merchant-preview");
@@ -320,6 +350,7 @@ export class GameApplication {
     this.profile.save();
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     this.background?.setWind(this.profile.data.wind);
+    document.body.classList.toggle("wind-disabled", !this.profile.data.wind);
     const status = this.root.querySelector("#save-status");
     if (status)
       status.textContent = this.profile.available
@@ -331,6 +362,7 @@ export class GameApplication {
     this.background?.dispose();
     this.background = null;
     this.canvas.hidden = true;
+    document.body.classList.add("in-game");
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     this.audio.unlock();
     this.audio.setPaused(false);

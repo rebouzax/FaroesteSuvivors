@@ -46,7 +46,8 @@ export class ScreenView {
   settings(profile) {
     const lang = profile.data.language;
     this.root.className = "selection-screen";
-    this.root.innerHTML = `<section class="settings-panel"><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><section class="tutorial-settings"><h3>${t(lang, "tutorialTitle")}</h3><ul><li>${t(lang, "tutorialMove")}</li><li>${t(lang, "tutorialAttack")}</li><li>${t(lang, "tutorialLoot")}</li><li>${t(lang, "tutorialShop")}</li><li>${t(lang, "tutorialCards")}</li></ul></section><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
+    const expandTutorial = matchMedia("(min-width: 651px) and (min-height: 650px)").matches;
+    this.root.innerHTML = `<section class="settings-panel"><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><details class="tutorial-settings" ${expandTutorial ? "open" : ""}><summary>${t(lang, "tutorialTitle")}</summary><ul><li>${t(lang, "tutorialMove")}</li><li>${t(lang, "tutorialAttack")}</li><li>${t(lang, "tutorialLoot")}</li><li>${t(lang, "tutorialShop")}</li><li>${t(lang, "tutorialCards")}</li></ul></details><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
   }
   audioSettings(lang = "en") {
     this.root
@@ -152,7 +153,8 @@ export class ScreenView {
     this.hud.level.textContent = `${t(lang, "level")} ${p.level}`;
     this.hud["xp-label"].textContent = `${p.xp} / ${run.requiredXp} XP`;
     this.hud.kills.textContent = `☠ ${run.kills}`;
-    this.hud.coins.textContent = `◈ ${run.coins}`;
+    this.hud.coins.innerHTML = `${gameIcon("coins")}<strong>${run.coins}</strong>`;
+    this.hud.coins.setAttribute("aria-label",t(lang,"runMoney",{coins:run.coins}));
     if (run.mode === "story")
       this.root.querySelector("#story-progress").textContent = t(lang,"storyProgress",{
         missions:run.missionsCompleted,total:CAMPAIGN[run.mapId].missions.length,bosses:run.bossEncounter.nextBoss,all:CAMPAIGN[run.mapId].bosses.length,

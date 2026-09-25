@@ -4,9 +4,9 @@ import * as THREE from "three";
 export function buildDesertWorld(scene, props, detailed = true) {
   const sand = new THREE.PlaneGeometry(240, 240, detailed ? 90 : 55, detailed ? 90 : 55);
   const colors = [];
-  const base = new THREE.Color(0xe3b374);
-  const sun = new THREE.Color(0xffdd9a);
-  const shade = new THREE.Color(0xa96940);
+  const base = new THREE.Color(0x74788b);
+  const moon = new THREE.Color(0xaab8d1);
+  const shade = new THREE.Color(0x454d65);
   const pos = sand.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), z = pos.getY(i);
@@ -14,7 +14,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
     const trace = Math.sin(x * 0.034 + z * 0.019);
     const value = ridges * 0.72 + trace * 0.3;
     pos.setZ(i, Math.min(0, value * 0.08)); // terreno transitável plano, ondulações abaixo dos pés
-    const tint = base.clone().lerp(value >= 0 ? sun : shade, Math.min(0.78, Math.abs(value) * 1.15));
+    const tint = base.clone().lerp(value >= 0 ? moon : shade, Math.min(0.78, Math.abs(value) * 1.15));
     colors.push(tint.r, tint.g, tint.b);
   }
   sand.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
@@ -34,17 +34,17 @@ export function buildDesertWorld(scene, props, detailed = true) {
     patchDummy.updateMatrix();
     patches.push(patchDummy.matrix.clone());
   }
-  const streaks=new THREE.InstancedMesh(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0xaa6c42,transparent:true,opacity:0.13,depthWrite:false}),patches.length);
+  const streaks=new THREE.InstancedMesh(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0x444c65,transparent:true,opacity:0.18,depthWrite:false}),patches.length);
   patches.forEach((matrix,i)=>streaks.setMatrixAt(i,matrix));
   streaks.instanceMatrix.needsUpdate=true;
   scene.add(streaks);
 
   const dummy = new THREE.Object3D();
-  const rockMat = new THREE.MeshStandardMaterial({ color: 0xba7950, flatShading: true, roughness: 1 });
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x986047, flatShading: true, roughness: 1 });
-  const cactusMat = new THREE.MeshStandardMaterial({ color: 0x697747, flatShading: true, roughness: 1 });
-  const paleMat = new THREE.MeshStandardMaterial({ color: 0xd8c49b, roughness: 1 });
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x75543d, roughness: 1 });
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x777180, flatShading: true, roughness: 1 });
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x6a6a7a, flatShading: true, roughness: 1 });
+  const cactusMat = new THREE.MeshStandardMaterial({ color: 0x405e55, flatShading: true, roughness: 1 });
+  const paleMat = new THREE.MeshStandardMaterial({ color: 0xc0b9b5, roughness: 1 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x5f5057, roughness: 1 });
   function instanced(geometry, material, matrices) {
     if (!matrices.length) return;
     const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
@@ -66,7 +66,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
     dummy.updateMatrix();
     return dummy.matrix.clone();
   }
-  const rocks=[], stems=[], arms=[], cactusTips=[], walls=[], dunes=[], scrub=[], bones=[], fences=[], shadows=[];
+  const rocks=[], stems=[], arms=[], cactusTips=[], walls=[], dunes=[], scrub=[], bones=[], fences=[], shadows=[], lanterns=[], lanternHalos=[];
   for (const prop of props) {
     const { x,z,size } = prop;
     if (prop.type === "rock") {
@@ -101,20 +101,34 @@ export function buildDesertWorld(scene, props, detailed = true) {
       bones.push(transform(x+1.3,0.07,z+0.23,0.16,0.1,0.12,i));
     }
   }
-  for (const [x,z] of [[15,-6],[-20,18],[38,24],[-45,-34]]) for (let i=0;i<4;i++) {
-    fences.push(transform(x+i*1.5,0.58,z,0.1,0.6,0.1));
-    if(i<3) fences.push(transform(x+i*1.5+0.75,0.85,z,0.76,0.07,0.07));
+  for (const [x,z] of [[15,-6],[-20,18],[38,24],[-45,-34]]) {
+    for (let i=0;i<4;i++) {
+      fences.push(transform(x+i*1.5,0.58,z,0.1,0.6,0.1));
+      if(i<3) fences.push(transform(x+i*1.5+0.75,0.85,z,0.76,0.07,0.07));
+    }
+    lanterns.push(transform(x,1.35,z,0.18,0.24,0.18));
+    lanternHalos.push(groundShadow(x,z,3.1,3.1));
   }
   instanced(new THREE.DodecahedronGeometry(1,0),rockMat,rocks);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,stems);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,arms);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,cactusTips);
   instanced(new THREE.DodecahedronGeometry(1,0),stoneMat,walls);
-  instanced(new THREE.SphereGeometry(1,10,5),new THREE.MeshStandardMaterial({color:0xe9bc7e,roughness:1}),dunes);
+  instanced(new THREE.SphereGeometry(1,10,5),new THREE.MeshStandardMaterial({color:0x888497,roughness:1}),dunes);
   instanced(new THREE.ConeGeometry(1,2,5),woodMat,scrub);
   instanced(new THREE.CylinderGeometry(1,1,2,5),paleMat,bones);
   instanced(new THREE.BoxGeometry(2,2,2),woodMat,fences);
-  instanced(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0x74482f,transparent:true,opacity:0.17,depthWrite:false,side:THREE.DoubleSide}),shadows);
+  instanced(new THREE.SphereGeometry(1,8,5),new THREE.MeshBasicMaterial({color:0xffd99a}),lanterns);
+  const haloCanvas=document.createElement("canvas");
+  haloCanvas.width=haloCanvas.height=64;
+  const haloContext=haloCanvas.getContext("2d");
+  const haloGradient=haloContext.createRadialGradient(32,32,1,32,32,31);
+  haloGradient.addColorStop(0,"rgba(255,212,141,.3)");
+  haloGradient.addColorStop(1,"rgba(255,212,141,0)");
+  haloContext.fillStyle=haloGradient;
+  haloContext.fillRect(0,0,64,64);
+  instanced(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(haloCanvas),transparent:true,depthWrite:false,side:THREE.DoubleSide}),lanternHalos);
+  instanced(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0x262d40,transparent:true,opacity:0.24,depthWrite:false,side:THREE.DoubleSide}),shadows);
 
   const ripplePositions=[];
   for(let i=0;i<(detailed?1300:700);i++) {
@@ -124,5 +138,5 @@ export function buildDesertWorld(scene, props, detailed = true) {
   }
   const ripples=new THREE.BufferGeometry();
   ripples.setAttribute("position",new THREE.Float32BufferAttribute(ripplePositions,3));
-  scene.add(new THREE.LineSegments(ripples,new THREE.LineBasicMaterial({color:0xffe5a9,transparent:true,opacity:0.26})));
+  scene.add(new THREE.LineSegments(ripples,new THREE.LineBasicMaterial({color:0xd3dcf5,transparent:true,opacity:0.26})));
 }

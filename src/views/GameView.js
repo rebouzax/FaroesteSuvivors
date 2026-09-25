@@ -37,7 +37,7 @@ export class GameView {
     });
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1;
+    this.renderer.toneMappingExposure = run.mapId === "desert" ? 0.84 : 1;
     const palette = MAPS[run.mapId];
     this.renderer.setClearColor(palette.sky);
     host.prepend(this.renderer.domElement);
@@ -52,13 +52,13 @@ export class GameView {
     this.scene.add(
       new THREE.HemisphereLight(
         palette.ambient,
-        0x635347,
-        run.mapId === "mine" ? 1.65 : 2.4,
+        run.mapId === "desert" ? 0x525368 : 0x635347,
+        run.mapId === "mine" ? 1.65 : run.mapId === "desert" ? 1.55 : 2.4,
       ),
     );
     const sun = new THREE.DirectionalLight(
       palette.warm,
-      run.mapId === "mine" ? 1.5 : 3,
+      run.mapId === "mine" ? 1.5 : run.mapId === "desert" ? 1.65 : 3,
     );
     sun.position.set(-15, 30, 10);
     this.scene.add(sun);

@@ -17,11 +17,11 @@ export function permanentProducts(profile) {
 }
 export function permanentShopMarkup(profile, back) {
   const lang = profile.data.language;
-  return `<header class="topline"><button class="text-button" data-action="${back}">← ${t(lang, "back")}</button><span>${t(lang, "shopTitle")}</span><span id="shop-wallet">${t(lang, "savedCoins", { coins: profile.data.coins })}</span></header>
+  return `<header class="topline"><button class="text-button" data-action="${back}">← ${t(lang, "back")}</button><span>${t(lang, "shopTitle")}</span><strong id="shop-wallet" class="coin-wallet">${gameIcon("coins")} ${t(lang, "savedCoins", { coins: profile.data.coins })}</strong></header>
     <section class="merchant-layout"><div class="merchant-side"><div id="merchant-preview" class="portrait-stage merchant-portrait" aria-label="${t(lang, "merchantName")}"><img src="${BENTO_PORTRAIT}" alt="${t(lang, "merchantName")}" fetchpriority="high"></div><div class="merchant-caption"><h2>${t(lang, "merchantName")}</h2><p id="merchant-speech" role="status"></p></div></div><div class="shop-products"><p class="eyebrow">${t(lang, "shopPermanent")} · ${t(lang,"bentoCollection")}</p><div class="shop-filters" role="group" aria-label="${t(lang,"shopFilter")}"><button class="active" aria-pressed="true" data-action="shop-filter:all">${t(lang,"shopAll")}</button><button aria-pressed="false" data-action="shop-filter:upgrades">${t(lang,"shopUpgrades")}</button><button aria-pressed="false" data-action="shop-filter:cards">${t(lang,"shopCards")}</button></div><div id="permanent-products" class="permanent-products">${permanentProducts(profile)}</div></div></section>`;
 }
 export function runShopMarkup(run, lang = "en") {
-  return `<h2 id="run-dialog-title">${t(lang, "runShopTitle")}</h2><p>${t(lang, "runMoney", { coins: run.coins })}</p><div class="run-shop-products">${run.merchantCards
+  return `<h2 id="run-dialog-title">${t(lang, "runShopTitle")}</h2><p class="run-coin-balance">${gameIcon("coins")} ${t(lang, "runMoney", { coins: run.coins })}</p><div class="run-shop-products">${run.merchantCards
     .map((id) => {
       const price = temporaryPrice(run.shopPurchases[id]);
       const name =

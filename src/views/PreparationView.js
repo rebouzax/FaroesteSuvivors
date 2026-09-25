@@ -3,6 +3,8 @@ import { MAP_IDS } from "../config/mapConfig.js";
 import { t } from "../services/I18n.js";
 import { HERO_PORTRAITS } from "../config/portraitConfig.js";
 import { CAMPAIGN, previousStage, HERO_REWARDS, stageUnlocked, heroUnlocked } from "../config/campaignConfig.js";
+import { gameIcon } from "./GameIcons.js";
+import { STAGE_ART } from "../config/stageArtConfig.js";
 
 export function modeMarkup(profile) {
   const lang=profile.data.language,free=Boolean(profile.data.storyClears.desert);
@@ -11,20 +13,29 @@ export function modeMarkup(profile) {
     <button class="mode-card" data-action="free" ${free?"":"disabled"}><span class="mode-symbol">♠</span><strong>${t(lang,"freeMode")}</strong><small>${free?t(lang,"freeIntro"):t(lang,"freeLock")}</small></button>
   </div></section>`;
 }
+
 export function preparationMarkup(profile,step,selectedCharacter="joao",selectedMap="desert",mode="story") {
-  const lang=profile.data.language,character=step==="character",hero=CHARACTERS[selectedCharacter],stats=profile.data;
-  const toolbar=`<nav class="preparation-tools" aria-label="${t(lang,"progressionTools")}"><button data-action="arsenal" ${stats.completedRuns?"":"disabled"}>♠ ${t(lang,"arsenal")}</button><button data-action="bestiary">☠ ${t(lang,"bestiary")}</button><button data-action="shop">◈ ${t(lang,"market")} <small>${stats.coins}</small></button></nav>`;
-  const heroes=CHARACTER_IDS.map(id=>{
-    const unlocked=heroUnlocked(stats,id),h=CHARACTERS[id],stage=HERO_REWARDS[id];
-    const hint=unlocked?t(lang,"weapon."+h.primary):t(lang,"clearStage",{stage:t(lang,"map."+stage)});
-    return `<button class="choice-card ${unlocked&&selectedCharacter===id?"active":""} ${unlocked?"":"locked-choice"}" data-action="choose-character:${id}" aria-label="${unlocked?h.name+" · "+hint:t(lang,"hiddenHero")+" · "+hint}" ${unlocked?"":"disabled"}><span class="choice-thumb">${unlocked?`<img src="${HERO_PORTRAITS[id]}" alt="" loading="lazy">`:`<span class="mystery-thumb" aria-hidden="true">?</span>`}</span><strong>${unlocked?h.name:t(lang,"hiddenHero")}</strong><small>${unlocked?hint:t(lang,"map."+stage)}</small></button>`;
-  }).join("");
-  const maps=MAP_IDS.map(id=>{
-    const unlocked=stageUnlocked(stats,id),previous=previousStage(id);
-    return `<button class="choice-card map-choice ${unlocked&&selectedMap===id?"active":""} ${unlocked?"":"locked-choice"}" data-action="choose-map:${id}" aria-label="${unlocked?t(lang,"map."+id):t(lang,"clearStage",{stage:t(lang,"map."+previous)})}" ${unlocked?"":"disabled"}><span class="map-swatch map-${id}">${unlocked?"":"?"}</span><strong>${unlocked?t(lang,"map."+id):"???"}</strong><small>${unlocked?t(lang,"mapDesc."+id):t(lang,"map."+previous)}</small></button>`;
-  }).join("");
-  return `<section class="preparation-panel compact-preparation">${toolbar}<header class="preparation-heading"><button class="text-button" data-action="${character?"modes":"select"}">← ${t(lang,character?"chooseMode":"character")}</button><h2>${t(lang,character?"chooseCharacter":"chooseMap")} <small class="mode-label">${t(lang,mode==="story"?"storyMode":"freeMode")}</small></h2><ol class="selection-steps"><li aria-current="${character?"step":"false"}">1. ${t(lang,"character")}</li><li aria-current="${character?"false":"step"}">2. ${t(lang,"stage")}</li></ol></header>
-    <div class="preparation-content"><div class="choice-grid" role="group" aria-label="${t(lang,character?"chooseCharacter":"chooseMap")}">${character?heroes:maps}</div>
-      <article class="selection-card focused-card ${character?"character-focus":""}">${character?`<div class="portrait-stage" aria-label="${hero.name}"><img src="${HERO_PORTRAITS[selectedCharacter]}" alt="${hero.name}"></div><div class="focus-copy"><h3>${hero.name}</h3><p>${t(lang,"hero."+selectedCharacter)}</p><p class="hero-facts">${t(lang,"life")} ${hero.hp+stats.healthRank*20} · ${t(lang,"damage")} ${hero.damage+stats.primaryRank*2} · ${t(lang,"speed")} ${hero.speed} · ${t(lang,"armor")} ${hero.armor||0}</p><button class="primary" data-action="character">${t(lang,"continue")} →</button></div>`:`<div class="focus-copy"><h3>${t(lang,"map."+selectedMap)}</h3><p>${t(lang,"mapDesc."+selectedMap)}</p><p>${t(lang,"storyGoals")}: ${CAMPAIGN[selectedMap].missions.length} + ${CAMPAIGN[selectedMap].bosses.length}</p><button class="primary" data-action="play">${t(lang,"play")} →</button></div>`}</article>
-    </div></section>`;
+  const lang=profile.data.language,character=step==="character",stats=profile.data;
+  const ids=character?CHARACTER_IDS:MAP_IDS;
+  const id=character?selectedCharacter:selectedMap;
+  const index=Math.max(0,ids.indexOf(id));
+  const unlocked=character?heroUnlocked(stats,id):stageUnlocked(stats,id);
+  const hero=character?CHARACTERS[id]:null;
+  const name=character?(unlocked?hero.name:t(lang,"hiddenHero")):t(lang,"map."+id);
+  const hint=character?t(lang,"clearStage",{stage:t(lang,"map."+HERO_REWARDS[id])}):t(lang,"clearStage",{stage:t(lang,"map."+previousStage(id))});
+  const artwork=character
+    ? unlocked?`<img src="${HERO_PORTRAITS[id]}" alt="${hero.name}" loading="eager">`:`<span class="carousel-mystery" aria-label="${t(lang,"hiddenHero")}">?</span>`
+    : `<span class="carousel-landscape map-${id}"><img src="${STAGE_ART[id]}" alt="" loading="eager">${unlocked?"":'<span class="stage-lock" aria-hidden="true">?</span>'}</span>`;
+  const details=unlocked
+    ? character?`<p>${t(lang,"hero."+id)}</p><p class="hero-facts">${t(lang,"life")} ${hero.hp+stats.healthRank*20} · ${t(lang,"damage")} ${hero.damage+stats.primaryRank*2} · ${t(lang,"speed")} ${hero.speed} · ${t(lang,"armor")} ${hero.armor||0}</p>`
+      : `<p>${t(lang,"mapDesc."+id)}</p><p>${t(lang,"storyGoals")}: ${CAMPAIGN[id].missions.length} + ${CAMPAIGN[id].bosses.length}</p>`
+    : `<p>${hint}</p>`;
+  const tools=`<nav class="carousel-tools" aria-label="${t(lang,"progressionTools")}"><button data-action="arsenal" ${stats.completedRuns?"":"disabled"}>${gameIcon("learning")}<span>${t(lang,"arsenal")}</span></button><button data-action="bestiary">${gameIcon("boneStorm")}<span>${t(lang,"bestiary")}</span></button><button data-action="shop">${gameIcon("merchant")}<span>${t(lang,"market")}</span></button></nav>`;
+  return `<section class="carousel-preparation"><header class="carousel-heading"><button class="text-button" data-action="${character?"modes":"select"}">← ${t(lang,"back")}</button><small>${t(lang,mode==="story"?"storyMode":"freeMode")} · ${index+1}/${ids.length}</small><h2>${t(lang,character?"chooseCharacter":"chooseMap")}</h2></header>
+    <div class="carousel-selection" role="group" aria-label="${t(lang,character?"chooseCharacter":"chooseMap")}">
+      <button class="carousel-arrow" type="button" data-action="cycle:-1" aria-label="${t(lang,"back")}">‹</button>
+      <article class="carousel-focus ${unlocked?"":"carousel-locked"}" aria-live="polite"><div class="carousel-art">${artwork}</div><div class="carousel-details"><h3>${name}</h3>${details}</div></article>
+      <button class="carousel-arrow" type="button" data-action="cycle:1" aria-label="${t(lang,"continue")}">›</button>
+    </div><div class="carousel-dots" aria-hidden="true">${ids.map((_,i)=>`<span class="${i===index?"active":""}"></span>`).join("")}</div>
+    ${character?"":tools}<button class="primary carousel-continue" data-action="${character?"character":"play"}" ${unlocked?"":"disabled"}>${t(lang,character?"continue":"play")} →</button></section>`;
 }
