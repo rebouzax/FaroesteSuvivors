@@ -4,20 +4,31 @@ import { createWorld } from "./WorldModel.js";
 import { temporaryPrice } from "../config/shopConfig.js";
 import { CHARACTERS } from "../config/characterConfig.js";
 import { MAPS } from "../config/mapConfig.js";
+import { CAMPAIGN } from "../config/campaignConfig.js";
+import { DECK_MIN } from "../config/deckConfig.js";
 export class RunModel {
   constructor(random = Math.random, permanentHealth = 0, bonuses = {}, options = {}) {
     this.random = random;
     this.characterId = CHARACTERS[options.characterId] ? options.characterId : "joao";
     this.mapId = MAPS[options.mapId] ? options.mapId : "desert";
+    this.mode = options.mode === "story" ? "story" : "free";
+    this.deck = [...new Set((options.deck || ABILITY_IDS).filter((id) => ABILITY_IDS.includes(id)))];
+    if (this.deck.length < DECK_MIN) this.deck = ABILITY_IDS.slice(0, DECK_MIN);
+    this.missionsCompleted = 0;
+    this.defeatedTypes = new Set();
+    this.defeatedBosses = new Set();
+    this.encounteredBosses = new Set();
     this.hero = CHARACTERS[this.characterId];
-    this.attackRate = 1 + (bonuses.attackRank || 0) * 0.08;
+    this.attackRate = 1 + (bonuses.attackRank || 0) * 0.08 + (this.hero.attackBonus || 0);
     this.moveSpeed =
       this.hero.speed * (1 + (bonuses.movementRank || 0) * 0.05);
     this.primaryDamage = this.hero.damage + (bonuses.primaryRank || 0) * 2;
-    this.playerArmor = (bonuses.armorRank || 0) * 2;
-    this.magnetRadius = CONFIG.magnetRadius + (bonuses.magnetRank || 0) * 0.7;
+    this.playerArmor = (bonuses.armorRank || 0) * 2 + (this.hero.armor || 0);
+    this.critBonus = Math.min(.2,(bonuses.critRank||0)*.025);
+    this.coinMultiplier = 1 + (bonuses.bountyRank||0)*.08;
+    this.magnetRadius = CONFIG.magnetRadius + (bonuses.magnetRank || 0) * 0.7 + (this.hero.magnet || 0);
     this.crateBandageChance=Math.min(0.75,0.38+(bonuses.crateLuckRank||0)*0.04);
-    this.xpMultiplier=1+(bonuses.xpRank||0)*0.05;
+    this.xpMultiplier=1+(bonuses.xpRank||0)*0.05 + (this.hero.xp || 0);
     this.whipRank = 0;
     this.shopPurchases = Object.fromEntries(["whip", "haste", "spur", ...ABILITY_IDS].map(id => [id, 0]));
     this.merchant = null;
@@ -60,8 +71,11 @@ export class RunModel {
     this.dogTimer = 0;
     this.skeletonTimer = 0;
     this.minerTimer = 0;
+    this.specialSpawnTimer = 0;
     this.bossEncounter = { active: false, completed: false, nextBoss: 0, radius: 12, age: 0, x: 0, z: 0, type: null };
     this.enemyShots = [];
+    this.bossTelegraph = null;
+    this.bossHazards = [];
     this.difficulty = 0;
     this.attack = null;
     this.cooldown = 0.3;
@@ -74,6 +88,7 @@ export class RunModel {
     this.empowered = { id: null, remaining: 0, multiplier: 1 };
     this.pistolTimer = 0;
     this.molotovTimer = 0;
+    this.regenTimer = 0;
     this.ghostTimer = 0;
     this.requiemTimer = 0;
     this.silverTimer = 0;
@@ -97,7 +112,8 @@ export class RunModel {
     while (this.player.xp >= levelCost(this.player.level)) {
       this.player.xp -= levelCost(this.player.level);
       this.player.level++;
-      this.pendingChoices++;
+      if(this.deck.some(id=>this.abilities[id]<4))this.pendingChoices++;
+      else this.coins+=12;
       this.levelFlash = 2;
       this.events.push("level");
     }
@@ -107,7 +123,7 @@ export class RunModel {
     }
   }
   dealCards() {
-    const deck = [...ABILITY_IDS];
+    const deck = this.deck.filter(id=>this.abilities[id]<4);
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.min(i, Math.floor(this.random() * (i + 1)));
       [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -139,8 +155,17 @@ export class RunModel {
       );
     }
     if(id==="ironWill")this.playerArmor+=3;
-    if (!this.pendingChoices) { this.phase = "playing"; this.cardOffers = []; }
-    else this.dealCards();
+    if (id === "bulwark") {
+      this.playerArmor += 2;
+      this.player.maxHp += 10;
+      this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
+    }
+    this.applyBentoCard(id);
+    if (!this.pendingChoices || !this.deck.some(card=>this.abilities[card]<4)) {
+      this.coins+=this.pendingChoices*12;
+      this.pendingChoices=0;
+      this.phase = "playing"; this.cardOffers = [];
+    }else this.dealCards();
     return true;
   }
   chooseMissionReward(reward) {
@@ -150,8 +175,10 @@ export class RunModel {
       this.player.maxHp+=20;
       this.player.hp=Math.min(this.player.maxHp,this.player.hp+40);
     }else if(reward==="card"){
-      const owned=ABILITY_IDS.filter(id=>this.abilities[id]>0);
-      this.missionOffers=(owned.length?owned:ABILITY_IDS).slice(0,3);
+      const available=this.deck.filter(id=>this.abilities[id]<4);
+      if(!available.length){this.coins+=25;this.mission=null;this.phase="playing";return true;}
+      const owned=available.filter(id=>this.abilities[id]>0);
+      this.missionOffers=(owned.length?owned:available).slice(0,3);
       this.phase="mission-card";
       return true;
     }else return false;
@@ -167,6 +194,12 @@ export class RunModel {
       this.player.maxHp+=20;
       this.player.hp=Math.min(this.player.maxHp,this.player.hp+20);
     }
+    if (id === "bulwark") {
+      this.playerArmor += 2;
+      this.player.maxHp += 10;
+      this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
+    }
+    this.applyBentoCard(id);
     this.mission=null;
     this.missionOffers=[];
     this.phase="playing";
@@ -176,7 +209,7 @@ export class RunModel {
     return levelCost(this.player.level);
   }
   get merchantCards() {
-    return ["whip", "haste", "spur", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0)];
+    return ["whip", "haste", "spur", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0 && this.abilities[id]<4)];
   }
   buyRunUpgrade(id) {
     if (this.phase !== "merchant" || !this.merchantCards.includes(id))
@@ -191,10 +224,16 @@ export class RunModel {
     else {
       this.abilities[id]++;
       if(id==="ironWill")this.playerArmor+=3;
+      if (id === "bulwark") {
+        this.playerArmor += 2;
+        this.player.maxHp += 10;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
+      }
       if (id === "heart") {
         this.player.maxHp += 20;
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + 20);
       }
+      this.applyBentoCard(id);
     }
     return true;
   }
@@ -203,5 +242,17 @@ export class RunModel {
     this.phase = "playing";
     this.merchant.reentryLocked = true;
     this.player.invulnerable = Math.max(this.player.invulnerable, 1.5);
+  }
+  campaignComplete() {
+    return this.missionsCompleted >= CAMPAIGN[this.mapId].missions.length &&
+      this.bossEncounter.nextBoss >= CAMPAIGN[this.mapId].bosses.length;
+  }
+  applyBentoCard(id){
+    if(id==="ironCharm")this.playerArmor+=2;
+    if(id==="deadeye")this.primaryDamage+=4;
+    if(id==="bloodOath"){
+      this.player.maxHp+=12;
+      this.player.hp=Math.min(this.player.maxHp,this.player.hp+12);
+    }
   }
 }

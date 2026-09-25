@@ -25,7 +25,7 @@ export const PERMANENT_UPGRADES = {
     icon: "~",
     field: "primaryRank",
     base: 40,
-    description: "+2 de dano base à arma principal por compra. João: chicote.",
+    description: "+2 de dano base à arma principal do campeão por compra.",
   },
   armor: {
     name: "Couro Reforçado",
@@ -49,9 +49,11 @@ export const PERMANENT_UPGRADES = {
     name: "Lenda Aprendiz", icon: "★", field: "xpRank", base: 50,
     description: "+5% de experiência coletada por compra.",
   },
+  sharpshooter: { name:"Mira de Bento",icon:"✦",field:"critRank",base:95,after:"mine",description:"+2,5% de chance crítica por compra." },
+  bounty: { name:"Bolsa do Caçador",icon:"◈",field:"bountyRank",base:110,after:"town",description:"+8% de moedas coletadas por compra." },
 };
 export const permanentPrice = (id, rank) =>
-  Math.ceil((PERMANENT_UPGRADES[id]?.base ?? Infinity) * 1.55 ** rank);
+  rank>=8?Infinity:Math.ceil((PERMANENT_UPGRADES[id]?.base ?? Infinity) * 1.65 ** rank);
 export const temporaryPrice = (purchases) => Math.ceil(8 * 1.6 ** purchases);
 export const MERCHANT_WINDOWS = [
   [100, 180],

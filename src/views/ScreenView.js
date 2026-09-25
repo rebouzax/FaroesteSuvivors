@@ -3,6 +3,7 @@ import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { CHARACTERS } from "../config/characterConfig.js";
 import { t, LANGUAGES } from "../services/I18n.js";
 import { gameIcon } from "./GameIcons.js";
+import { CAMPAIGN } from "../config/campaignConfig.js";
 export class ScreenView {
   constructor(root, onAction, onSetting) {
     this.root = root;
@@ -40,7 +41,7 @@ export class ScreenView {
   }
   menu(lang = "en") {
     this.root.className = "";
-    this.root.innerHTML = `<header class="topline menu-topline">${this.languageSelect(lang)}</header><section class="menu-panel"><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><nav aria-label="${t(lang, "menu")}"><button class="primary" data-action="select">${t(lang, "newGame")} <span>↗</span></button><button data-action="settings">${t(lang, "settings")} <span>⚙</span></button><button data-action="exit">${t(lang, "exit")} <span>→</span></button></nav></section>`;
+    this.root.innerHTML = `<header class="topline menu-topline">${this.languageSelect(lang)}</header><section class="menu-panel"><h1 class="game-logo"><img src="${logoUrl}" alt="Faroeste Survivors"></h1><nav aria-label="${t(lang, "menu")}"><button class="primary" data-action="modes">${t(lang, "newGame")} <span>↗</span></button><button data-action="settings">${t(lang, "settings")} <span>⚙</span></button><button data-action="exit">${t(lang, "exit")} <span>→</span></button></nav></section>`;
   }
   settings(profile) {
     const lang = profile.data.language;
@@ -62,6 +63,8 @@ export class ScreenView {
   game(run, lang = "en") {
     this.root.className = "playing-screen";
     this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small>${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar" aria-label="${t(lang, "abilitiesTitle")}"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" aria-hidden="true"><i></i></div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
+    if (run.mode === "story")
+      this.root.querySelector(".hud-stats").insertAdjacentHTML("beforeend", '<span id="story-progress"></span>');
     this.abilityKey = "";
     this.hud = {};
     for (const id of [
@@ -111,10 +114,8 @@ export class ScreenView {
         `${Math.round(Math.hypot(dx, dz))} m`;
     }
     const warning = this.root.querySelector("#vulture-warning");
-    warning.hidden = !run.enemies.some(
-      (e) => e.type === "vulture" && e.warning > 0,
-    );
-    warning.textContent = t(lang, "warningVultures");
+    warning.hidden = !run.enemies.some((e)=>e.type==="vulture"&&e.warning>0) && !run.bossTelegraph;
+    warning.textContent = run.bossTelegraph ? `${t(lang,"boss."+run.bossEncounter.bossId)} · ${t(lang,"pattern."+run.bossTelegraph.pattern)}`:t(lang,"warningVultures");
     const boss = run.enemies.find(
         (e) => ["boss", "marshal"].includes(e.type) && e.hp > 0,
       ),
@@ -123,7 +124,7 @@ export class ScreenView {
     if (boss) {
       this.root.querySelector("#boss-name").textContent = t(
         lang,
-        boss.type === "marshal" ? "bossMarshal" : "bossFire",
+        boss.bossId ? "boss." + boss.bossId : boss.type === "marshal" ? "bossMarshal" : "bossFire",
       );
       this.root.querySelector("#boss-health-fill").style.width =
         `${Math.max(0, (boss.hp / boss.maxHp) * 100)}%`;
@@ -152,6 +153,10 @@ export class ScreenView {
     this.hud["xp-label"].textContent = `${p.xp} / ${run.requiredXp} XP`;
     this.hud.kills.textContent = `☠ ${run.kills}`;
     this.hud.coins.textContent = `◈ ${run.coins}`;
+    if (run.mode === "story")
+      this.root.querySelector("#story-progress").textContent = t(lang,"storyProgress",{
+        missions:run.missionsCompleted,total:CAMPAIGN[run.mapId].missions.length,bosses:run.bossEncounter.nextBoss,all:CAMPAIGN[run.mapId].bosses.length,
+      });
     // Ícones só mudam quando uma carta é adquirida; evita reconstruir vários
     // SVGs a cada atualização da HUD durante o combate.
     const abilityKey = `${lang}:${ABILITY_IDS.map((id) => run.abilities[id]).join(",")}`;

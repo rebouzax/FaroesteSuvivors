@@ -10,10 +10,12 @@ import {
   missionRewardMarkup,
   missionCardMarkup,
 } from "../views/UpgradeCardsView.js";
-import { preparationMarkup } from "../views/PreparationView.js";
+import { preparationMarkup, modeMarkup } from "../views/PreparationView.js";
 import { t } from "../services/I18n.js";
 import { CHARACTERS } from "../config/characterConfig.js";
 import { MAPS } from "../config/mapConfig.js";
+import { stageUnlocked, heroUnlocked, CAMPAIGN } from "../config/campaignConfig.js";
+import { arsenalMarkup, bestiaryMarkup } from "../views/ProgressionView.js";
 import { gameIcon } from "../views/GameIcons.js";
 import {
   permanentShopMarkup,
@@ -35,8 +37,10 @@ export class GameApplication {
     this.character = false;
     this.characterId = "joao";
     this.mapId = "desert";
+    this.mode = "story";
     this.current = "menu";
     this.shopReturn = "menu";
+    this.progressReturn = "select";
     this.controller = new AbortController();
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     const activateAudio = () => this.audio.unlock();
@@ -84,21 +88,19 @@ export class GameApplication {
     document.documentElement.lang =
       lang === "pt" ? "pt-BR" : lang === "es" ? "es" : "en";
     if (name === "shop" && this.current !== "shop")
-      this.shopReturn = ["select", "map-select"].includes(this.current)
+      this.shopReturn = ["modes", "select", "map-select"].includes(this.current)
         ? this.current
-        : "menu";
+        : "modes";
+    if (name === "shop" && this.current !== "shop") this.shopFilter="all";
     this.current = name;
     this.ensureBackground();
     this.audio.setPaused(false);
     this.audio.setMusic(name === "exit" ? null : "menu");
     if (name === "menu") {
       this.screen.menu(lang);
-      this.root
-        .querySelector('[data-action="select"]')
-        .insertAdjacentHTML(
-          "afterend",
-          `<button class="market-callout" data-action="shop"><span class="market-icon">${gameIcon("merchant")}</span><span><strong>${t(lang, "market")}</strong><small>${t(lang, "permanentUpgrades")} · ${this.profile.data.coins} ${t(lang, "coins")}</small></span><span>→</span></button>`,
-        );
+    } else if (name === "modes") {
+      this.root.className = "selection-screen mode-screen";
+      this.root.innerHTML = modeMarkup(this.profile);
     } else if (name === "select" || name === "map-select") {
       this.root.className = "selection-screen preparation-screen";
       this.root.innerHTML = preparationMarkup(
@@ -106,18 +108,15 @@ export class GameApplication {
         name === "select" ? "character" : "map",
         this.characterId,
         this.mapId,
+        this.mode,
       );
+    } else if (name === "arsenal" || name === "bestiary") {
+      this.root.className = "selection-screen progression-screen";
+      this.root.innerHTML = name === "arsenal" ? arsenalMarkup(this.profile,this.progressReturn) : bestiaryMarkup(this.profile,this.progressReturn);
     } else if (name === "shop") {
       this.root.className = "shop-screen";
       this.root.innerHTML = permanentShopMarkup(this.profile, this.shopReturn);
-      const deck = this.root.querySelector("#permanent-products");
-      const updatePage = () => {
-        const page =
-          Math.round(deck.scrollLeft / Math.max(1, deck.clientWidth)) + 1;
-        this.root.querySelector("#shop-page-count").textContent =
-          `${Math.max(1, Math.min(8, page))} / 8`;
-      };
-      deck.addEventListener("scroll", updatePage, { passive: true });
+      this.applyShopFilter();
     } else if (name === "settings") {
       this.screen.settings(this.profile);
       this.screen.audioSettings(lang);
@@ -126,9 +125,34 @@ export class GameApplication {
   }
   action(action) {
     const lang = this.profile.data.language;
+    if (action === "story") {
+      if (this.vm) this.endRun();
+      this.mode = "story";
+      this.mapId = "desert";
+      this.show("select");
+      return;
+    }
+    if(action === "free"){
+      if(!this.profile.data.storyClears.desert)return;
+      if(this.vm)this.endRun();
+      this.mode="free";this.mapId="desert";this.show("select");return;
+    }
+    if(action === "arsenal" || action === "bestiary"){
+      if(action==="arsenal" && !this.profile.data.completedRuns)return;
+      this.progressReturn=this.current;
+      this.show(action);return;
+    }
+    if (action.startsWith("deck:") || action.startsWith("forge:")) {
+      if (this.current !== "arsenal") return;
+      const ok = action.startsWith("deck:")
+        ? this.profile.toggleDeck(action.slice(5))
+        : this.profile.forgeCard(action.slice(6));
+      if (ok) this.show("arsenal");
+      return;
+    }
     if (action.startsWith("choose-character:")) {
       const id = action.slice(17);
-      if (this.current === "select" && CHARACTERS[id]) {
+      if (this.current === "select" && CHARACTERS[id] && heroUnlocked(this.profile.data,id)) {
         this.characterId = id;
         this.show("select");
         this.root
@@ -139,7 +163,7 @@ export class GameApplication {
     }
     if (action.startsWith("choose-map:")) {
       const id = action.slice(11);
-      if (this.current === "map-select" && MAPS[id]) {
+      if (this.current === "map-select" && MAPS[id] && stageUnlocked(this.profile.data,id)) {
         this.mapId = id;
         this.show("map-select");
         this.root.querySelector(`[data-action="choose-map:${id}"]`)?.focus();
@@ -168,11 +192,18 @@ export class GameApplication {
       });
       return;
     }
-    if (action === "product-next" || action === "product-prev") {
-      const deck = this.root.querySelector("#permanent-products");
-      if (this.current !== "shop" || !deck) return;
-      const step = deck.clientWidth * (action === "product-next" ? 1 : -1);
-      deck.scrollBy({ left: step, behavior: "smooth" });
+    if(action.startsWith("buy-card:")){
+      if(this.current!=="shop")return;
+      if(this.profile.buyBentoCard(action.slice(9)))this.refreshShop(action);
+      return;
+    }
+    if(action.startsWith("shop-filter:")){
+      if(this.current!=="shop")return;
+      const filter=action.slice(12);
+      if(["all","upgrades","cards"].includes(filter)){
+        this.shopFilter=filter;this.applyShopFilter();
+        this.root.querySelector("#permanent-products").scrollTop=0;
+      }
       return;
     }
     if (action.startsWith("run-buy:")) {
@@ -208,29 +239,7 @@ export class GameApplication {
     if (action.startsWith("buy:")) {
       if (this.current !== "shop") return;
       const id = action.slice(4);
-      if (this.profile.buyUpgrade(id)) {
-        this.root.querySelector("#permanent-products").innerHTML =
-          permanentProducts(this.profile);
-        this.root.querySelector("#shop-wallet").textContent = t(
-          lang,
-          "savedCoins",
-          { coins: this.profile.data.coins },
-        );
-        this.root
-          .querySelector(`[data-action="buy:${id}"]:not(:disabled)`)
-          ?.focus();
-        this.root.querySelector("#merchant-speech").textContent = this.profile
-          .available
-          ? t(lang, "merchantThanksForever")
-          : t(lang, "saveFailed");
-        const portrait = this.root.querySelector("#merchant-preview");
-        portrait?.classList.remove("merchant-thanks");
-        if (portrait) {
-          void portrait.offsetWidth;
-          portrait.classList.add("merchant-thanks");
-        }
-        this.audio.play("purchase");
-      }
+      if (this.profile.buyUpgrade(id)) this.refreshShop(action);
       return;
     }
     if (action.startsWith("card:")) {
@@ -249,7 +258,7 @@ export class GameApplication {
       return;
     }
     if (
-      ["menu", "select", "map-select", "shop", "settings", "exit"].includes(
+      ["menu", "modes", "select", "map-select", "shop", "settings", "exit"].includes(
         action,
       )
     ) {
@@ -262,7 +271,9 @@ export class GameApplication {
       this.show("map-select");
       this.root.querySelector('[data-action="play"]').focus();
     }
-    if (action === "play" && this.character && this.current === "map-select")
+    if (action === "play" && this.character && this.current === "map-select" &&
+      heroUnlocked(this.profile.data,this.characterId) &&
+      stageUnlocked(this.profile.data,this.mapId) && (this.mode!=="free"||this.profile.data.storyClears.desert))
       this.startRun();
     if (action === "pause" || action === "resume") {
       this.vm?.togglePause();
@@ -273,6 +284,28 @@ export class GameApplication {
       this.endRun();
       this.startRun();
     }
+  }
+  refreshShop(action){
+    const lang=this.profile.data.language, deck=this.root.querySelector("#permanent-products"), scroll=deck.scrollTop;
+    deck.innerHTML=permanentProducts(this.profile);
+    this.applyShopFilter();
+    deck.scrollTop=scroll;
+    this.root.querySelector("#shop-wallet").textContent=t(lang,"savedCoins",{coins:this.profile.data.coins});
+    this.root.querySelector(`[data-action="${action}"]:not(:disabled)`)?.focus({preventScroll:true});
+    this.root.querySelector("#merchant-speech").textContent=t(lang,this.profile.available?"merchantThanksForever":"saveFailed");
+    const portrait=this.root.querySelector("#merchant-preview");
+    portrait?.classList.remove("merchant-thanks");
+    if(portrait){void portrait.offsetWidth;portrait.classList.add("merchant-thanks");}
+    this.audio.play("purchase",{ui:true});
+  }
+  applyShopFilter(){
+    if(this.current!=="shop")return;
+    for(const button of this.root.querySelectorAll(".shop-filters button")){
+      const active=button.dataset.action===`shop-filter:${this.shopFilter||"all"}`;
+      button.setAttribute("aria-pressed",String(active));button.classList.toggle("active",active);
+    }
+    for(const product of this.root.querySelectorAll("#permanent-products .market-product"))
+      product.hidden=this.shopFilter!=="all"&&product.dataset.kind!==this.shopFilter;
   }
   setting(key, value) {
     if (key === "language") {
@@ -301,11 +334,12 @@ export class GameApplication {
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     this.audio.unlock();
     this.audio.setPaused(false);
-    this.audio.setMusic("game");
+    this.audio.setMusic(this.mapId);
     this.current = "game";
     this.vm = new GameViewModel(this.profile, this.audio, {
       characterId: this.characterId,
       mapId: this.mapId,
+      mode: this.mode,
     });
     const elements = this.screen.game(
       this.vm.model,
@@ -428,7 +462,7 @@ export class GameApplication {
             : state.startsWith("upgrade:")
               ? upgradeCardsMarkup(run, lang)
               : ended
-                ? `<p class="eyebrow">${t(lang, run.phase === "victory" ? "winIntro" : "loseIntro")}</p><h2 id="run-dialog-title">${t(lang, run.phase === "victory" ? "winTitle" : "loseTitle")}</h2><p>${t(lang, "statSummary", { kills: run.kills, level: run.player.level })}<br>${t(lang, "coinsSaved", { coins: run.coins })}</p><p>${this.profile.available ? t(lang, "saved") : t(lang, "coinsSession")}</p><div class="dialog-actions"><button class="primary" data-action="retry">${t(lang, "retry")}</button><button data-action="select">${t(lang, "backSelect")}</button></div>`
+                ? `<p class="eyebrow">${t(lang, run.phase === "victory" ? "winIntro" : "loseIntro")}</p><h2 id="run-dialog-title">${t(lang, run.phase === "victory" ? "winTitle" : "loseTitle")}</h2><p>${t(lang, "statSummary", { kills: run.kills, level: run.player.level })}<br>${t(lang, "coinsSaved", { coins: run.coins })}</p>${run.mode==="story"?`<p class="story-result">${t(lang,run.phase==="victory"&&run.campaignComplete()?"storyClear":"storyIncomplete",{missions:run.missionsCompleted,total:CAMPAIGN[run.mapId].missions.length,bosses:run.bossEncounter.nextBoss,all:CAMPAIGN[run.mapId].bosses.length})}</p>`:""}<p>${this.profile.available ? t(lang, "saved") : t(lang, "coinsSession")}</p><div class="dialog-actions"><button class="primary" data-action="retry">${t(lang, "retry")}</button><button data-action="select">${t(lang, "backSelect")}</button></div>`
                 : `<p class="eyebrow">${t(lang, "paused")}</p><h2 id="run-dialog-title">${t(lang, "pauseTitle")}</h2><div class="dialog-actions"><button class="primary" data-action="resume">${t(lang, "resumeButton")}</button><button data-action="select">${t(lang, "endButton")}</button></div>`;
     if (!this.runDialog.open) this.runDialog.showModal();
   }

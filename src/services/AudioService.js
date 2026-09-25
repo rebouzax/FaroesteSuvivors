@@ -13,9 +13,13 @@ const FILES = {
 };
 const MUSIC = {
   menu: new URL("../assets/audio/vultures-circle-the-bone.mp3", import.meta.url),
-  game: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
+  desert: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
+  mine: new URL("../assets/audio/under-the-silver-vein.mp3", import.meta.url),
+  town: new URL("../assets/audio/the-devil-at-noon.mp3", import.meta.url),
+  canyon: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
+  cemetery: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
 };
-export const GAME_MUSIC_LOOP = Object.freeze({ start: 5, end: 169 });
+export const GAME_MUSIC_LOOPS = Object.freeze({ desert: {start:5,end:169}, mine: {start:4,end:176}, town: {start:0,end:176}, canyon:{start:5,end:169}, cemetery:{start:5,end:169} });
 export class AudioService {
   constructor() {
     this.enabled = true;
@@ -164,13 +168,13 @@ export class AudioService {
     if (!this.musicSource && MUSIC[desired]) {
       if (!this.musicTracks.has(desired)) {
         const audio = new Audio(MUSIC[desired].href);
-        audio.loop = desired !== "game";
+        audio.loop = !GAME_MUSIC_LOOPS[desired];
         audio.preload = "metadata";
-        if (desired === "game") {
+        if (GAME_MUSIC_LOOPS[desired]) {
           audio.addEventListener("timeupdate", () => this.updateMusicLoop());
           audio.addEventListener("ended", () => {
             if (this.musicSource !== audio || this.disposed) return;
-            audio.currentTime = GAME_MUSIC_LOOP.start;
+            audio.currentTime = GAME_MUSIC_LOOPS[desired].start;
             audio.play().catch(() => {});
           });
         }
@@ -187,10 +191,11 @@ export class AudioService {
       });
   }
   updateMusicLoop() {
-    if (this.playingTrack !== "game" || !this.musicSource) return;
+    const loop = GAME_MUSIC_LOOPS[this.playingTrack];
+    if (!loop || !this.musicSource) return;
     const audio = this.musicSource;
-    if (audio.currentTime >= GAME_MUSIC_LOOP.end) {
-      audio.currentTime = GAME_MUSIC_LOOP.start + (audio.currentTime - GAME_MUSIC_LOOP.end) % (GAME_MUSIC_LOOP.end - GAME_MUSIC_LOOP.start);
+    if (audio.currentTime >= loop.end) {
+      audio.currentTime = loop.start + (audio.currentTime - loop.end) % (loop.end - loop.start);
     }
   }
   setFire(active) {

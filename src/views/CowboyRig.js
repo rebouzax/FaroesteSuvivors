@@ -2,7 +2,14 @@ import * as THREE from "three";
 import joaoUrl from "../assets/models/joao-vaqueiro.glb?url";
 import mariaUrl from "../assets/models/maria-bonita.glb?url";
 import indigoUrl from "../assets/models/indigo.glb?url";
-const URLs = { joao: joaoUrl, maria: mariaUrl, indigo: indigoUrl };
+import labutaUrl from "../assets/models/labuta.glb?url";
+import rosaUrl from "../assets/models/rosa.glb?url";
+import eliasUrl from "../assets/models/elias.glb?url";
+import silasUrl from "../assets/models/silas.glb?url";
+import adaUrl from "../assets/models/ada.glb?url";
+import ruthUrl from "../assets/models/ruth.glb?url";
+import teoUrl from "../assets/models/teo.glb?url";
+const URLs = { joao: joaoUrl, maria: mariaUrl, indigo: indigoUrl, labuta: labutaUrl, rosa: rosaUrl, elias: eliasUrl, silas: silasUrl, ada: adaUrl, ruth: ruthUrl, teo: teoUrl };
 const cache = new Map();
 export function preloadCowboyAsset(id = "joao") {
   if (!URLs[id]) throw new Error("Personagem desconhecido: " + id);
@@ -46,7 +53,7 @@ export function createCowboyRig(id = "joao") {
       );
       actions.Idle.play();
       const revolver = avatar.getObjectByName(
-        id === "maria" ? "RevolverR" : "Revolver",
+        ["maria", "rosa"].includes(id) ? "RevolverR" : "Revolver",
       );
       let flash;
       if (revolver) {

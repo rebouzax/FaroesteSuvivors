@@ -8,6 +8,9 @@ import bossUrl from "../assets/models/boss.glb?url";
 import marshalUrl from "../assets/models/marshal.glb?url";
 
 const URLS={bat:batUrl,dog:dogUrl,vulture:vultureUrl,skeleton:skeletonUrl,miner:minerUrl,boss:bossUrl,marshal:marshalUrl};
+const BOSS_SHAPES={giantBat:"bat",fireChupacabra:"dog",shadowMarshal:"marshal",shovelMiner:"miner",giantMoth:"vulture",minerGeneral:"miner",boneHound:"dog",boneSinger:"skeleton",zombieDeputy:"marshal",ashSerpent:"dog",stormVulture:"vulture",railRevenant:"marshal",cryptMother:"miner",deadPreacher:"skeleton",lastConductor:"marshal"};
+export const enemyAppearance=(type,bossId)=>bossId?bossId:type;
+const meshFor=(type,bossId)=>bossId?BOSS_SHAPES[bossId]||type:({wraith:"miner",crow:"vulture"}[type]||type);
 let loaderPromise;
 const cached=new Map();
 function asset(type){
@@ -27,15 +30,20 @@ export class EnemyAssetView {
   constructor(){
     this.ready=Promise.allSettled(Object.keys(URLS).map(asset));
   }
-  create(type){
+  create(type,bossId){
     const view=new THREE.Group();
-    view.userData.species=type;
-    asset(type).then(({scene,animations})=>{
+    view.userData.species=enemyAppearance(type,bossId);
+    const shape=meshFor(type,bossId);
+    asset(shape).then(({scene,animations})=>{
       if (view.userData.disposed) return;
       const model=scene.clone(true);
+      if (bossId || type === "wraith" || type === "crow")
+        model.traverse((part) => {
+          if (part.isMesh) part.material = part.material.clone();
+        });
       view.add(model);
       const mixer=new THREE.AnimationMixer(model);
-      const preferred=type==="bat"||type==="vulture"?"Fly":type==="dog"?"Run":"Walk";
+      const preferred=shape==="bat"||shape==="vulture"?"Fly":shape==="dog"?"Run":"Walk";
       const clip=animations.find(item=>item.name===preferred)||animations[0];
       mixer.clipAction(clip).play();
       mixer.setTime((view.userData.seed||0)*0.17%clip.duration);

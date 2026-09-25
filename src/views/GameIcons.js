@@ -25,6 +25,12 @@ const drawings = {
     '<path d="M32 7 52 15v18c0 14-7 20-20 26C19 53 12 47 12 33V15z"/><path d="m22 32 7 7 14-17"/>',
   lastStand:
     '<path d="M11 49c5-16 15-24 28-24h16v9l-13 3-7-4-12 7-4 13z"/><path d="m21 24 5-15 5 13m-6-6 10-4M43 12h13"/>',
+  bulwark: '<path d="M32 6 54 15v17c0 15-8 23-22 28C18 55 10 47 10 32V15zM17 32h30M32 13v39"/>',
+  inferno: '<path d="M32 7c5 11-5 17 3 25 3-7 8-9 8-15 15 17 16 38-11 42C7 58 9 38 24 25c-1 13 4 10 8-18zm-1 33c-8 8-5 15 2 15s10-8 5-14c-1 7-3 5-7-1z"/>',
+  silverStorm: '<path d="M33 7 9 32h17l-3 25 32-35H37l4-15zM8 47l11-6m27 11 10-6"/>',
+  ironCharm: '<path d="M32 5 53 15v19c0 14-8 22-21 26-13-4-21-12-21-26V15zM19 32h26M32 17v30M22 23l20 19"/>',
+  deadeye: '<circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="9"/><path d="M32 3v16M32 45v16M3 32h16M45 32h16"/>',
+  bloodOath: '<path d="M32 55 10 35C-1 20 17 5 31 20l1 2 1-2C47 5 65 20 54 35zM32 16v22M23 29h18"/>',
   whip: '<path d="M14 47c-6-6-3-14 3-18 6-3 11 0 13 4 2 6-3 11-7 8-3-2-1-5 2-5m5-3c6-5 15-11 21-9 6 2 6 11 0 15-4 3-6 6-5 10"/><path d="m11 52 8-10m25 9 1 5"/>',
   bow: '<path d="M16 7c17 12 17 38 0 50M16 7v50M10 32h42m-9-7 9 7-9 7"/><path d="M16 7c-3 4-3 7-1 10m1 40c-3-4-3-7-1-10"/>',
   haste:
@@ -50,6 +56,8 @@ const shopNames = {
   magnet: "magnet",
   fortune: "fortune",
   learning: "learning",
+  sharpshooter:"deadeye",
+  bounty:"coins",
 };
 export function gameIcon(name, className = "") {
   const paths = drawings[shopNames[name] ?? name] ?? drawings.fortune;

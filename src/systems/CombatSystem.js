@@ -2,8 +2,9 @@ import { CONFIG } from "../config/gameConfig.js";
 import { abilityStats } from "../config/abilityConfig.js";
 export class CombatSystem {
   rate(run){return run.attackRate*(run.abilities.lastStand&&run.player.hp/run.player.maxHp<0.35?1+run.abilities.lastStand*0.2:1);}
-  damage(enemy, amount) {
-    enemy.hp -= (amount * 20) / (20 + enemy.armor);
+  damage(enemy, amount, source = "") {
+    const advantage = (enemy.weakness === source ? 1.8 : 1) * (enemy.counter === source ? 1.5 : 1);
+    enemy.hp -= (amount * advantage * 20) / (20 + enemy.armor);
     enemy.hitFlash = 0.12;
   }
   closest(run, range) {
@@ -80,7 +81,7 @@ export class CombatSystem {
             Math.max(0.001, distance) >
             -0.1
         )
-          this.damage(enemy, run.primaryDamage + run.whipRank * 3);
+          this.damage(enemy, run.primaryDamage + run.whipRank * 3, run.characterId);
       }
     }
     if (attack.age >= CONFIG.whipDuration) run.attack = null;
@@ -100,15 +101,17 @@ export class CombatSystem {
     if(!attack.hit&&attack.age>=0.16){
       attack.hit=true;
       const p=run.player;
-      const count=run.characterId==="maria"&&run.abilities.boneStorm>2?2:1;
+      const count=hero.pellets || (run.characterId === "rosa" || run.characterId === "silas" ? 2 : run.characterId==="maria"&&run.abilities.boneStorm>2?2:1);
       for(let i=0;i<count;i++){
-        const angle=attack.angle+(i-(count-1)/2)*0.11;
-        const speed=run.characterId==="maria"?25:17;
+        const angle=attack.angle+(i-(count-1)/2)*(["labuta","ruth"].includes(run.characterId)?0.28:run.characterId==="silas"?0.25:0.11);
+        const speed=["maria","rosa","teo"].includes(run.characterId)?25:["labuta","ruth"].includes(run.characterId)?21:run.characterId==="silas"?18:17;
         run.primaryShots.push({x:p.x,z:p.z,vx:Math.cos(angle)*speed,vz:Math.sin(angle)*speed,age:0,
-          damage:run.primaryDamage+run.whipRank*3,pierce:run.characterId==="indigo"?2:1,hit:new Set(),kind:run.characterId});
+          damage:(run.primaryDamage+run.whipRank*3)*(run.random()<(hero.crit||0)+run.critBonus?1.7:1),
+          pierce:["indigo","ada"].includes(run.characterId)?2:run.characterId==="elias"?3:run.characterId==="rosa"?2:1,
+          hit:new Set(),kind:run.characterId});
       }
       run.primaryFlash=0.2;
-      run.events.push(run.characterId==="maria"?"shot":"arrow");
+      run.events.push(["indigo","ada","silas"].includes(run.characterId)?"arrow":"shot");
     }
     if(attack.age>=0.4)run.attack=null;
   }
@@ -122,7 +125,7 @@ export class CombatSystem {
         if(enemy.hp<=0||shot.hit.has(enemy.id))continue;
         const t=Math.max(0,Math.min(1,((enemy.x-x)*sx+(enemy.z-z)*sz)/(sx*sx+sz*sz||1)));
         if(Math.hypot(enemy.x-x-t*sx,enemy.z-z-t*sz)<(["boss","marshal"].includes(enemy.type)?1.35:0.6)){
-          this.damage(enemy,shot.damage);
+          this.damage(enemy,shot.damage,shot.kind);
           shot.hit.add(enemy.id);
           run.impacts.push({x:enemy.x,z:enemy.z,age:0});
           hit=true;
@@ -190,7 +193,7 @@ export class CombatSystem {
         }
       }
       if (target) {
-        this.damage(target, bullet.damage);
+        this.damage(target, bullet.damage, "pistol");
         run.impacts.push({ x: target.x, z: target.z, age: 0 });
         return false;
       }
@@ -198,10 +201,10 @@ export class CombatSystem {
     });
   }
   molotov(run, dt) {
-    if (run.abilities.molotov) {
+    if (run.abilities.molotov || run.abilities.inferno) {
       run.molotovTimer -= dt;
       if (run.molotovTimer <= 0) {
-        const stats = abilityStats("molotov", run.abilities.molotov),
+        const stats = abilityStats("molotov", Math.max(1, run.abilities.molotov)),
           target = this.closest(run, stats.range);
         if (target) {
           run.bottles.push({
@@ -212,7 +215,8 @@ export class CombatSystem {
             z: target.z,
             age: 0,
             ...stats,
-            damage: stats.damage * this.multiplier(run, "molotov"),
+            radius: stats.radius + (run.abilities.inferno ? abilityStats("inferno", run.abilities.inferno).radius : 0),
+            damage: (stats.damage + (run.abilities.inferno ? abilityStats("inferno", run.abilities.inferno).damage : 0)) * this.multiplier(run, "molotov"),
           });
           run.molotovTimer = Math.max(0.7, stats.cooldown / run.attackRate);
           run.throwFlash = 0.65;
@@ -224,7 +228,7 @@ export class CombatSystem {
       while (fire.nextTick <= Math.min(fire.age, fire.duration) + 1e-8) {
         for (const enemy of run.enemies)
           if (Math.hypot(enemy.x - fire.x, enemy.z - fire.z) <= fire.radius)
-            this.damage(enemy, fire.damage);
+            this.damage(enemy, fire.damage, run.abilities.inferno?"inferno":"molotov");
         fire.nextTick++;
       }
       if (fire.age >= fire.duration - 1e-8) {
@@ -232,7 +236,7 @@ export class CombatSystem {
         if (fraction > 1e-8)
           for (const enemy of run.enemies) {
             if (Math.hypot(enemy.x - fire.x, enemy.z - fire.z) <= fire.radius)
-              this.damage(enemy, fire.damage * fraction);
+              this.damage(enemy, fire.damage * fraction, run.abilities.inferno?"inferno":"molotov");
           }
         return false;
       }
@@ -266,7 +270,7 @@ export class CombatSystem {
         const x = run.player.x + Math.cos(angle) * stats.radius;
         const z = run.player.z + Math.sin(angle) * stats.radius;
         if (Math.hypot(enemy.x - x, enemy.z - z) < 0.7 && run.time >= (enemy.orbitHitAt || 0)) {
-          this.damage(enemy, stats.damage * this.multiplier(run, "horseshoe"));
+          this.damage(enemy, stats.damage * this.multiplier(run, "horseshoe"), "horseshoe");
           enemy.orbitHitAt = run.time + 0.45;
           run.impacts.push({ x: enemy.x, z: enemy.z, age: 0 });
           break;
@@ -297,7 +301,7 @@ export class CombatSystem {
         if (enemy.hp <= 0 || shot.hit.has(enemy.id)) continue;
         const t = Math.max(0, Math.min(1, ((enemy.x - oldX) * sx + (enemy.z - oldZ) * sz) / (sx * sx + sz * sz || 1)));
         if (Math.hypot(enemy.x - oldX - t * sx, enemy.z - oldZ - t * sz) < (["boss","marshal"].includes(enemy.type) ? 1.35 : enemy.type === "dog" ? 0.7 : 0.5)) {
-          this.damage(enemy, shot.damage);
+          this.damage(enemy, shot.damage, "ghostShot");
           shot.hit.add(enemy.id);
           shot.pierce--;
           run.impacts.push({ x: enemy.x, z: enemy.z, age: 0 });
@@ -318,7 +322,7 @@ export class CombatSystem {
         for (const enemy of run.enemies) {
           const dx = enemy.x - p.x, dz = enemy.z - p.z, distance = Math.hypot(dx, dz);
           if (enemy.hp <= 0 || distance > stats.radius) continue;
-          this.damage(enemy, stats.damage * this.multiplier(run, "requiem"));
+          this.damage(enemy, stats.damage * this.multiplier(run, "requiem"), "requiem");
           if (distance > 0.01) {
             enemy.x = Math.max(-119, Math.min(119, enemy.x + dx / distance * stats.push));
             enemy.z = Math.max(-119, Math.min(119, enemy.z + dz / distance * stats.push));
@@ -330,16 +334,18 @@ export class CombatSystem {
     run.pulses = run.pulses.filter(pulse => (pulse.age += dt) < 0.55);
   }
   silverRain(run, dt) {
-    if (run.abilities.silverRain) {
+    if (run.abilities.silverRain || run.abilities.silverStorm) {
       run.silverTimer -= dt;
       if (run.silverTimer <= 0) {
-        const stats = abilityStats("silverRain", run.abilities.silverRain);
-        for (let i = 0; i < stats.count; i++) {
-          const angle = i * Math.PI * 2 / stats.count;
+        const stats = abilityStats("silverRain", Math.max(1, run.abilities.silverRain));
+        const storm = run.abilities.silverStorm ? abilityStats("silverStorm", run.abilities.silverStorm) : {count:0,damage:0};
+        const count = Math.min(18, stats.count + storm.count);
+        for (let i = 0; i < count; i++) {
+          const angle = i * Math.PI * 2 / count;
           run.silverShots.push({
             x: run.player.x, z: run.player.z,
             vx: Math.cos(angle) * 12, vz: Math.sin(angle) * 12,
-            damage: stats.damage * this.multiplier(run, "silverRain"), age: 0,
+            damage: (stats.damage + storm.damage) * this.multiplier(run, "silverRain"), age: 0, source:run.abilities.silverStorm?"silverStorm":"silverRain",
           });
         }
         run.silverTimer = stats.cooldown / run.attackRate;
@@ -354,7 +360,7 @@ export class CombatSystem {
         const sx=shot.x-oldX, sz=shot.z-oldZ;
         const t=Math.max(0,Math.min(1,((enemy.x-oldX)*sx+(enemy.z-oldZ)*sz)/(sx*sx+sz*sz||1)));
         if (Math.hypot(enemy.x-oldX-t*sx,enemy.z-oldZ-t*sz)<(["boss","marshal"].includes(enemy.type)?1.35:0.52)) {
-          this.damage(enemy,shot.damage);
+          this.damage(enemy,shot.damage, shot.source||"silverRain");
           run.impacts.push({x:enemy.x,z:enemy.z,age:0});
           return false;
         }
@@ -371,19 +377,19 @@ export class CombatSystem {
     for(let i=0;i<stats.count;i++){
       const a=i*Math.PI*2/stats.count+run.time*0.3;
       run.silverShots.push({x:p.x,z:p.z,vx:Math.cos(a)*15,vz:Math.sin(a)*15,
-        damage:stats.damage*this.multiplier(run,"boneStorm"),age:0});
+        damage:stats.damage*this.multiplier(run,"boneStorm"),age:0,source:"boneStorm"});
     }
     if(run.silverShots.length>80)run.silverShots.splice(0,run.silverShots.length-80);
     run.boneTimer=stats.cooldown/this.rate(run);
   }
   lantern(run, dt) {
-    if (!run.abilities.lantern) return;
+    if (!run.abilities.lantern && !run.abilities.inferno) return;
     run.lanternTimer -= dt;
     if (run.lanternTimer > 0) return;
-    const stats=abilityStats("lantern",run.abilities.lantern);
+    const stats=abilityStats("lantern",Math.max(1,run.abilities.lantern));
     for (const enemy of run.enemies) {
       if (enemy.hp > 0 && Math.hypot(enemy.x-run.player.x,enemy.z-run.player.z)<=stats.radius)
-        this.damage(enemy,stats.damage*this.multiplier(run,"lantern"));
+        this.damage(enemy,(stats.damage + (run.abilities.inferno ? abilityStats("inferno",run.abilities.inferno).damage : 0))*this.multiplier(run,"lantern"),run.abilities.inferno?"inferno":"lantern");
     }
     run.lanternTimer += 1;
     if (run.lanternTimer < 0) run.lanternTimer=1;

@@ -1,4 +1,4 @@
-export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand"];
+export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand", "bulwark", "inferno", "silverStorm", "ironCharm", "deadeye", "bloodOath"];
 export const ABILITIES = {
   pistol: {
     name: "Pistola do Sertão",
@@ -22,6 +22,12 @@ export const ABILITIES = {
   boneStorm: { name: "Estilhaços de Ossos", icon: "✷", suit: "OSSO", color: "steel" },
   ironWill: { name: "Vontade de Ferro", icon: "⬟", suit: "DEFESA", color: "heart" },
   lastStand: { name: "Último Disparo", icon: "♠", suit: "CORAGEM", color: "fire" },
+  bulwark: { name: "Bastião de Ferro", icon: "⬟", suit: "DEFESA", color: "heart" },
+  inferno: { name: "Fogo Profano", icon: "♨", suit: "FOGO", color: "fire" },
+  silverStorm: { name: "Tempestade de Prata", icon: "✺", suit: "PRATA", color: "steel" },
+  ironCharm: { name: "Amuleto do Bento", icon: "⬟", suit: "DEFESA", color: "heart" },
+  deadeye: { name: "Olho de Chumbo", icon: "✦", suit: "FERRO", color: "steel" },
+  bloodOath: { name: "Pacto da Fronteira", icon: "♥", suit: "VIDA", color: "heart" },
 };
 export function abilityStats(id, level) {
   const extra = Math.max(0, level - 1);
@@ -44,10 +50,16 @@ export function abilityStats(id, level) {
   if (id === "requiem") return { damage: 12 + extra * 4, cooldown: Math.max(2.5, 6 - extra * 0.3), radius: Math.min(7, 4.3 + extra * 0.35), push: 1.8 };
   if (id === "silverRain") return { damage: 9 + extra * 3, count: Math.min(14, 6 + extra * 2), cooldown: Math.max(2.2, 4 - extra * 0.18) };
   if (id === "lantern") return { damage: 4 + extra * 2, radius: Math.min(6, 3.2 + extra * 0.3) };
-  if (id === "soulHarvest") return { heal: 2 + extra };
+  if (id === "soulHarvest") return { heal: Math.min(4,2 + extra) };
   if (id === "boneStorm") return { damage: 12 + 4*extra, count: Math.min(14,6+extra*2), cooldown: Math.max(2,5-extra*0.2) };
   if (id === "ironWill") return { armor: 3*level };
   if (id === "lastStand") return { attack: 0.2*level };
+  if (id === "bulwark") return { armor: 2 * level, health: 10 * level };
+  if (id === "inferno") return { damage: 4 * level, radius: 0.35 * level };
+  if (id === "silverStorm") return { damage: 4 * level, count: 2 + level * 2 };
+  if (id === "ironCharm") return { armor: 2 * level };
+  if (id === "deadeye") return { damage: 4 * level };
+  if (id === "bloodOath") return { health: 12 * level, heal: level };
   return { health: 20 };
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
@@ -65,6 +77,12 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
   if (id === "boneStorm") return `${stats.count} estilhaços em círculo · ${stats.damage} de dano · a cada ${(stats.cooldown/attackRate).toFixed(2)} s.`;
   if (id === "ironWill") return `+3 de armadura permanente nesta partida · total da carta: ${stats.armor}.`;
   if (id === "lastStand") return `Abaixo de 35% de vida: +${Math.round(stats.attack*100)}% de velocidade de ataque.`;
+  if (id === "bulwark") return `+2 de armadura e +10 de vida máxima por nível.`;
+  if (id === "inferno") return `Fogo e lampião causam +${stats.damage} de dano/s; a área cresce.`;
+  if (id === "silverStorm") return `+${stats.count} balas e +${stats.damage} de dano na chuva de prata.`;
+  if (id === "ironCharm") return `+2 de armadura por nível; o amuleto rebate parte dos ataques.`;
+  if (id === "deadeye") return `+4 de dano da arma principal por nível.`;
+  if (id === "bloodOath") return `+12 de vida máxima e recuperação lenta por nível.`;
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);
@@ -74,6 +92,10 @@ export function enemyStats(type, minute) {
       ? { hp: 35, damage: 14, armor: 2, speed: 3.5, xp: 20 }
       : type === "skeleton"
         ? { hp: 22, damage: 8, armor: 1, speed: 1.7, xp: 15 }
+      : type === "wraith"
+        ? { hp: 54, damage: 17, armor: 5, speed: 2.75, xp: 30 }
+      : type === "crow"
+        ? { hp: 27, damage: 12, armor: 2, speed: 3.7, xp: 16 }
       : type === "miner"
         ? { hp: 42, damage: 12, armor: 1, speed: 2.9, xp: 25 }
       : { hp: 10, damage: 10, armor: 0, speed: 2.5, xp: 10 };

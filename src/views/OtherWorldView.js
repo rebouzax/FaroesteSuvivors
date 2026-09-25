@@ -24,10 +24,10 @@ export function buildOtherWorld(scene, props, mapId) {
     groups.get(key).transforms.push(dummy.matrix.clone());
   }
   const box=new THREE.BoxGeometry(1,1,1),rock=new THREE.DodecahedronGeometry(1,0);
-  const rust=new THREE.MeshStandardMaterial({color:0x4b3933,roughness:1,flatShading:true});
-  const wood=new THREE.MeshStandardMaterial({color:mapId==='mine'?0x493b38:0x784b3e,roughness:1,flatShading:true});
-  const wall=new THREE.MeshStandardMaterial({color:mapId==='mine'?0x77625a:0xae8064,roughness:1,flatShading:true});
-  const lamp=new THREE.MeshBasicMaterial({color:0xffd887});
+  const rust=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x262b31:0x4b3933,roughness:1,flatShading:true});
+  const wood=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x4c534e:mapId==='mine'?0x493b38:0x784b3e,roughness:1,flatShading:true});
+  const wall=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x879086:mapId==='canyon'?0xcc8060:mapId==='mine'?0x77625a:0xae8064,roughness:1,flatShading:true});
+  const lamp=new THREE.MeshBasicMaterial({color:mapId==='cemetery'?0x9bd7ed:0xffd887});
   for(const prop of props) if(prop.type==='rock')
     collect('rock',rock,rust,prop.x,prop.size*0.55,prop.z,prop.size,prop.size*0.75,prop.size,prop.x);
   if(mapId==='mine') {
@@ -52,6 +52,33 @@ export function buildOtherWorld(scene, props, mapId) {
       collect('lampPost',box,wood,side*5.8,1.6,i*11,0.19,3.2,0.19);
       collect('light',box,lamp,side*5.8,3.25,i*11,0.36,0.36,0.36);
       glows.push([side*5.8,i*11,3.8]);
+    }
+  }else if(mapId==='canyon'){
+    for(let i=-12;i<=12;i++){
+      const z=i*9;
+      for(const side of [-1,1]){
+        const x=side*(23+(i*i%5)*2);
+        collect('butte',rock,wall,x,3.8,z,3.5,7.5,3.5,i);
+        collect('pillar',rock,rust,x+side*3,2,z+3,1.2,4,1.2);
+        if(i%3===0){collect('scaffold',box,wood,side*13,1,z,.32,2,.32);collect('beam',box,wood,side*13,2.2,z,3,.22,.22);}
+      }
+    }
+    for(let i=-14;i<=14;i++)for(const side of [-1,1]){
+      collect('fence',box,wood,side*10,.7,i*8,.12,1.4,.13);
+      collect('rail',box,wood,side*10,.85,i*8, .16,.15,7.6);
+    }
+  }else if(mapId==='cemetery'){
+    for(let i=-10;i<=10;i++)for(const side of [-1,1]){
+      const z=i*10,x=side*(13+(i%3)*4);
+      collect('grave',box,wall,x,.58,z,.9,1.16,.3);
+      collect('cross',box,wood,x,1.27,z,1,.17,.25);
+      collect('fence',box,rust,side*7,.82,z,.12,1.64,.12);
+      collect('rail',box,rust,side*7,.8,z,.12,.12,9.7);
+      if(i%4===0){collect('obelisk',rock,wall,x+side*5,2,z,1.25,3.5,1.25);collect('light',box,lamp,side*6,1.9,z,.23,.36,.23);glows.push([side*6,z,3]);}
+    }
+    for(let i=0;i<18;i++){
+      const a=i*Math.PI*2/18;
+      collect('mausoleum',box,wall,Math.cos(a)*72,2.8,Math.sin(a)*72,3.3,5.6,3.3,a);
     }
   }else{
     // Rua central transitável ladeada por fachadas, marquises e placas.

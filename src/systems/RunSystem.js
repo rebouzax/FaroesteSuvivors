@@ -31,6 +31,10 @@ export class RunSystem {
     }
     if (run.phase !== "playing") return;
     run.time = Math.min(CONFIG.duration, run.time + dt);
+    if(run.abilities.bloodOath){
+      run.regenTimer+=dt;
+      if(run.regenTimer>=4){run.player.hp=Math.min(run.player.maxHp,run.player.hp+run.abilities.bloodOath);run.regenTimer=0;}
+    }
     if (run.time >= CONFIG.duration) {
       run.phase = "victory";
       return;
@@ -55,6 +59,8 @@ export class RunSystem {
       if (enemy.hp > 0) return true;
       run.kills++;
       killed.push(enemy.type);
+      if (enemy.bossId) run.defeatedBosses.add(enemy.bossId);
+      else run.defeatedTypes.add(enemy.type);
       this.drop(run, enemy.x, enemy.z, "xp", enemy.xp);
       if (run.abilities.soulHarvest)
         p.hp = Math.min(p.maxHp, p.hp + abilityStats("soulHarvest", run.abilities.soulHarvest).heal);
@@ -68,6 +74,7 @@ export class RunSystem {
         this.drop(run, enemy.x + 0.3, enemy.z, "coin", 1);
       return false;
     });
+    if(run.clearSummons){run.enemies=run.enemies.filter(e=>!e.summoned);run.clearSummons=false;}
     for (const enemy of run.enemies) {
       if (enemy.warning > 0) continue;
       if (
@@ -85,7 +92,7 @@ export class RunSystem {
       }
     }
     this.collect(run, dt);
-    this.missions.update(run,killed);
+    this.missions.update(run,killed,dt);
   }
   move(run, dt, input) {
     const p = run.player,
@@ -131,7 +138,7 @@ export class RunSystem {
       if (distance < 0.6 || (item.attracted && distance < 15 * dt)) {
         if (item.type === "xp") run.addXp(Math.ceil(item.value*run.xpMultiplier));
         else if(item.type==="bandage") p.hp=Math.min(p.maxHp,p.hp+item.value);
-        else run.coins += item.value;
+        else run.coins += Math.max(1,Math.ceil(item.value*run.coinMultiplier));
         return false;
       }
       if (item.attracted) {

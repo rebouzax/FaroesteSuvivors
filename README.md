@@ -1,57 +1,54 @@
-# Faroeste Survivors — versão 0.6 (refino dos menus e da partida)
+# Faroeste Survivors — atualização da versão 0.7
 
-Jogo web de sobrevivência por 15 minutos, em HTML, CSS e JavaScript com Vite e Three.js. A estrutura mantém modelos de estado em `src/models/`, regras em `src/systems/`, apresentação em `src/views/` e coordenação em `src/app/` e `src/viewmodels/` (MVVM adaptado a um jogo).
+Jogo de sobrevivência de 15 minutos por fase, feito com HTML, CSS, JavaScript, Vite e Three.js. A arquitetura mantém regras em `src/models/` e `src/systems/`, interfaces em `src/views/`, estado de interface em `src/viewmodels/` e coordenação em `src/app/`.
 
-## Instalação
+## Atualizar o projeto existente
 
-1. Faça uma cópia do seu projeto se houver alterações locais que deseja preservar.
-2. Em `C:\projetos\webjogos\FaroesteSuvivors`, substitua **a pasta `src` inteira** pela do ZIP. Copie `index.html` e `README.md` para a raiz.
-3. Mantenha `package.json`, `package-lock.json`, `vite.config.js` e `.github/` do seu repositório. Esta atualização não precisa de novas bibliotecas.
-4. Execute `npm ci` (caso faltem dependências), `npm run dev` para jogar localmente e `npm run build` antes de publicar. Se PowerShell bloquear `npm.ps1`, use `npm.cmd run dev` ou `npm.cmd run build`.
-5. Para GitHub Pages do repositório, mantenha `base: "/FaroesteSuvivors/"` em `vite.config.js` e use seu fluxo de deploy já configurado.
+1. Faça uma cópia das suas alterações locais, se houver.
+2. Em `C:\projetos\webjogos\FaroesteSuvivors`, **substitua a pasta `src` inteira** pela pasta `src` deste ZIP. Copie `index.html` e `README.md` para a raiz.
+3. Preserve `package.json`, `package-lock.json`, `vite.config.js` e `.github/`. Não há dependências novas. Rode `npm ci` se ainda não tiver as bibliotecas instaladas, depois `npm run dev` e `npm run build`. Se o PowerShell bloquear `npm.ps1`, use `npm.cmd run dev` ou `npm.cmd run build`.
+4. Para publicar pelo GitHub Pages, mantenha `base: "/FaroesteSuvivors/"` no `vite.config.js`.
 
-O ZIP contém apenas `src/`, `index.html` e `README.md`. Os modelos, músicas, efeitos e retratos estão em `src/assets/`.
+O pacote inclui apenas `src/`, `index.html` e `README.md`. O perfil existente é preservado no armazenamento local do navegador.
 
-## Menu e controles
+## Menus, campanha e jogo livre
 
-O fluxo é **Novo jogo → personagem → fase → jogar**. A seleção de personagem e a loja usam retratos PNG com movimentos leves em CSS: João Vaqueiro, Maria Bonita, Indigo e Bento. O personagem e Bento continuam com seus modelos GLB animados **dentro da partida**. A animação dos retratos respeita a preferência do sistema por movimento reduzido. Estes retratos são ilustrações para a interface, não novos modelos 3D jogáveis.
+O menu principal agora tem apenas **Novo jogo, Configurações e Sair**. Novo jogo abre a escolha entre **Modo história** e **Jogo livre**. Depois, escolha **campeão → fase → jogar**. Deck Arsenal, Bestiário e Mercado do Bento ficam no topo da seleção. A grade de personagens tem rolagem interna, e o botão para avançar permanece visível em desktop e celular. Personagens e fases ainda fechados aparecem em cinza com “?”.
 
-A barra de habilidades fica no canto superior direito da partida e mostra somente ícones. O contador de moedas usa o símbolo `◈` sem o rótulo redundante “Partida”; o cronômetro de 15 minutos permanece no centro. As instruções de movimento saíram da tela do jogo: em **Configurações → Como jogar** há o tutorial de WASD, setas, toque, ataques automáticos, caixas, XP, Bento e sequência de cartas. Menu e seleção receberam menos frases. O menu usa apenas logo, escolha de idioma e botões; não mostra “Capítulo Um”, “EST. 1887” nem a antiga frase sobre o deserto.
+No modo história, sobreviva até 15:00, cumpra **todas as sub missões da fase** e derrote seus **três chefes** para concluir. As missões deixam de perder tempo durante a arena de chefes, quando inimigos comuns estão suspensos. Rejogue a fase se faltar um objetivo. A conclusão libera as fases seguintes, personagens e cartas do mercado conforme o avanço. O **Jogo livre** abre após completar o Deserto e só permite personagens, fases e cartas já desbloqueados na campanha. As melhorias permanentes compradas valem para ambos os modos; compras feitas com Bento *dentro* da partida continuam temporárias.
 
-**Controle por toque:** durante a partida, encoste em qualquer ponto livre da tela e arraste para dirigir. O joystick surge no local do toque e desaparece quando o dedo é retirado. Sem arrastar, o personagem mantém o avanço automático. Botões, cartas e o menu de pausa continuam recebendo toques normalmente. WASD e setas continuam disponíveis no computador; durante a introdução e os menus o toque não move o personagem.
+| Fase | Sub missões | Chefes e estratégias |
+| --- | --- | --- |
+| **1. Deserto dos Esquecidos** | 3: morcegos, caixas, esqueletos. | Patriarca da Noite (3.000 HP; lento, projéteis radiais), Chupacabra de Brasas (5.000 HP; fogo na posição marcada), Xerife das Sombras (6.800 HP; disparos em leque). |
+| **2. Mina da Noite** | 3: chupacabras, caixas, espectros. | Mineiro da Pá (3.500 HP; investida lenta), Mariposa da Prata (5.000 HP; avanço sinalizado), General Mineiro (7.300 HP; invoca mineiros de **100 HP**). |
+| **3. Cidade Fantasma** | 4: chupacabras, morcegos, esqueletos, caixas. | Cão de Ossos (6.000 HP; investida marcada), Cantor Esqueleto (8.000 HP; invoca esqueletos de **150 HP**), Delegado Zumbi (10.000 HP; escopeta tripla na posição marcada). |
+| **4. Desfiladeiro das Cinzas** | 4: urubus, chupacabras, espectros de cinza, caixas. | Serpente das Cinzas (fogo marcado), Urubu da Tempestade (investida), Revenante dos Trilhos (rajada). |
+| **5. Necrópole da Fronteira** | 5: corvos, esqueletos, espectros, caixas, mineiros. | Mãe da Cripta (invocação), Pregador Morto (esqueletos), Último Condutor (escopeta tripla). |
 
-**Ajuste de responsividade:** nos celulares, as cartas de evolução e os produtos do Bento quebram títulos e descrições longos dentro de suas bordas. A loja aberta durante a partida usa uma coluna em telas de até 560 px; seu modal permite rolagem interna e mantém o botão de retorno acessível. Textos de Configurações, seleção, loja permanente e HUD também respeitam a largura disponível, nos três idiomas.
+Os dois mapas novos usam cenários 2.5D com malhas instanciadas, paletas próprias, penhascos e passarelas no Desfiladeiro, sepulturas, cercas e mausoléus na Necrópole. Urubus já existentes continuam atacando em linhas pré marcadas; espectros de cinza e corvos são os dois tipos comuns novos. Os chefes têm identidade, atributos, tamanho, cores, fraquezas, campeões recomendados e padrões de ataque próprios. Eles reutilizam modelos 3D de espécies existentes, com escala e cores diferentes; **não são 15 modelos 3D esculpidos individualmente**.
 
-O idioma padrão continua inglês, com opções de português brasileiro e espanhol. O perfil, idioma e as compras permanentes continuam no armazenamento local do navegador.
+O **Bestiário** guarda a primeira aparição de cada chefe mesmo se você perder: mostra nome, vida e tipo de ataque. Ao derrotá-lo e salvar a partida, revela dano, armadura, velocidade, fraqueza e campeão recomendado. Inimigos comuns revelam suas entradas após a primeira derrota.
 
-## Personagens, armas e fases
+## Campeões, deck e mercado
 
-| Personagem | Vida inicial | Arma principal |
-| --- | ---: | --- |
-| João Vaqueiro | 100 | Chicote automático em arco, dano inicial 10 |
-| Maria Bonita | 90 | Revólver com tiro automático, dano inicial 14 |
-| Indigo | 105 | Arco com flecha perfurante, dano inicial 17 |
+Há dez campeões: João, Maria, Indigo e Labuta no início; Rosa e Ada Morrow ao completar o Deserto; Elias Ferro e Ruth Faísca após a Mina; Silas Corvo e Teo Carril após a Cidade Fantasma. Os três novos possuem retratos próprios e GLB animados para a partida:
 
-Maria agora dispara um projétil de metal dourado com ponta luminosa; as flechas de Indigo têm haste de madeira, ponta metálica e penas turquesas. Os projéteis usam malhas instanciadas, mantendo o custo limitado durante a partida.
+| Novo campeão | Vida inicial | Arma | Perfil |
+| --- | ---: | --- | --- |
+| **Ada Morrow** | 98 | Besta perfurante, 24 de dano. | Armadura 2, +8% de experiência; favorecida contra o Mineiro da Pá e o Cão de Ossos. |
+| **Ruth Faísca** | 112 | Escopeta curta, dois chumbos de 18 de dano cada. | Armadura 2; favorecida contra a Mãe da Cripta. |
+| **Teo Carril** | 84 | Rifle de repetição, 13 de dano por tiro. | Ataque rápido e 14% de chance crítica; favorecido contra o Urubu da Tempestade e o Último Condutor. |
 
-As fases continuam Deserto dos Esquecidos, Mina da Noite e Cidade Fantasma, com limites de 240 × 240 unidades. O deserto ganhou sombras leves sob rochas e cactos. Mina e cidade ganharam halos suaves nas lâmpadas feitos por uma única malha instanciada e uma textura produzida por código, sem acrescentar luzes dinâmicas. No celular, o terreno usa menos subdivisões e menos detalhes de areia.
+O Deck Arsenal surge após a primeira partida. Equipe de 3 a 8 cartas; as escolhas de nível vêm somente das cartas equipadas. Cada carta tem, nesta atualização, limite de quatro níveis por partida. As três combinações da 0.7 anterior continuam: **Coração + Vontade de Ferro → Bastião de Ferro**; **Molotov + Lampião → Fogo Profano** (Mina); **Pistola + Chuva de Prata → Tempestade de Prata** (Cidade Fantasma). Fraquezas de chefes podem receber bônus de dano; escolha um deck adequado a cada confronto.
 
-Continuam os morcegos, chupacabras (a partir de 1:00), urubus em bandos (2:00), esqueletos pistoleiros (3:00), espectros mineiros (4:30), Coveiro Maldito (6:00) e Xerife das Sombras (11:00). O chefe interrompe as ondas normais e ativa a arena de fogo; as ondas voltam após sua derrota. Bento continua aparecendo em suas janelas de tempo dentro do mapa, com bússola que acompanha sua posição.
+O Mercado do Bento fora da fase agora exibe mercadorias em uma grade com rolagem vertical. Além das oito melhorias permanentes anteriores, existem **Mira de Bento** (+2,5% de crítico; desbloqueia na Mina) e **Bolsa do Caçador** (+8% de moedas coletadas; desbloqueia na Cidade). Os preços sobem por compra, até oito níveis por melhoria. O **Deck Adicional do Bento** vende uma vez cada uma das cartas permanentes para o acervo: **Amuleto de Bento** (+2 de armadura por nível, após o Deserto), **Olho de Chumbo** (+4 de dano principal por nível, após a Mina) e **Pacto da Fronteira** (+12 de vida máxima e cura lenta por nível, após a Cidade). Depois de compradas, é possível equipá-las no Deck Arsenal; nenhuma entra automaticamente no deck. O Bento encontrado *durante* uma fase usa moedas da partida e oferece somente melhorias temporárias.
 
-## Caixas e progressão
+## Trilha sonora por fase
 
-Existem no máximo **duas caixas** por vez. Elas surgem entre aproximadamente 31 e 42 unidades da posição do personagem, em locais livres e distantes da câmera, e voltam a aparecer durante a exploração. Uma caixa desaparece quando o personagem passa por cima dela; as armas automáticas e habilidades deixam de escolher caixas como alvo. Ao coletar, ela dá uma bandagem (+25 de vida, com chance inicial de 38%) ou 4–10 moedas. A melhoria permanente Sorte de Garimpeiro continua aumentando a chance de bandagem.
+O menu e as telas de seleção conservam a música existente. A primeira fase usa `seven-black-graves.mp3`, de 0:00 até 2:49, repetindo de 0:05 a 2:49. A Mina usa `under-the-silver-vein.mp3`: primeira execução de 0:00 até 2:56, depois ciclos de **0:04 a 2:56**. A Cidade Fantasma usa `the-devil-at-noon.mp3`: **0:00 a 2:56**, sempre recomeçando em **0:00**. Desfiladeiro e Necrópole usam a música existente da primeira fase enquanto recebem trilhas próprias em versões futuras. Os três loops usam música em streaming HTML Audio; efeitos curtos continuam no Web Audio. O navegador só libera áudio depois da primeira interação.
 
-A missão de caixas, iniciada aos 4:00, pede encontrar **duas caixas em 130 segundos**. As outras missões continuam eliminar morcegos e esqueletos. As recompensas continuam evoluir uma carta, ganhar moedas da partida ou obter vida máxima e cura.
+## Controles, responsividade e limites
 
-Ao evoluir, o jogador escolhe uma das três cartas. Permanecem pistola, molotov, coração, ferraduras, bala fantasma, réquiem, chuva de prata, lampião, colheita de almas, estilhaços de ossos, vontade de ferro e último disparo. A compra de melhorias na loja do menu é permanente; as cartas compradas de Bento durante a partida duram apenas aquela partida. Os preços sobem conforme a quantidade de compras.
+WASD e setas movimentam o personagem; em touchscreen, toque e arraste em qualquer área livre da tela. Ataques são automáticos. A bala grande e amarela de experiência e o joystick sob o dedo continuam da versão anterior. Tutorial completo em **Configurações → Como jogar**. Idioma padrão inglês, com português brasileiro e espanhol.
 
-## Música e desempenho
-
-- Menu, seleção e loja: `vultures-circle-the-bone.mp3`.
-- Partida: `seven-black-graves.mp3`, toca de 0:00 a 2:49 e depois repete 0:05–2:49 até a partida terminar.
-- Áudio começa após a primeira interação, conforme as regras dos navegadores. Há um botão de teste de som em Configurações.
-
-Os menus não instanciam mais renderizadores WebGL para prévias individuais. O descarte incorreto da geometria móvel das caixas foi desativado para evitar que pisquem conforme a câmera se desloca. A HUD só reconstrói seus SVGs quando uma habilidade muda. Há no máximo 110 inimigos simultâneos em aparelhos com controle de toque, contra 160 no computador; o 3D reduz a resolução gradualmente quando os quadros ficam lentos, e os aparelhos de toque têm meta de até 30 quadros por segundo. Isso reduz o custo, mas o desempenho final ainda depende do aparelho e do navegador.
-
-O build compila com Vite. O controle móvel foi verificado em navegador com toque para garantir movimento com arrasto, desaparecimento do joystick e acesso ao botão de pausa. Os testes automatizados de desenvolvimento **não fazem parte do ZIP**. O Vite pode avisar que um chunk excede 500 kB por incluir o Three.js; o aviso não impede a compilação. O conteúdo compilado com retratos permanece abaixo do limite de 75 MB.
+O build usa menos de 75 MB. Malhas de cenário e projéteis são instanciadas ou limitadas; há limite de inimigos, projéteis, ajudantes invocados e resolução dinâmica no 3D. O desempenho final depende do aparelho. A validação incluiu `npm run build`, testes das condições da campanha, padrões de 15 chefes, loja e músicas, e navegação em browser nos tamanhos de 1258×910, 390×844 e 320×568. Esses scripts de desenvolvimento não estão no ZIP.

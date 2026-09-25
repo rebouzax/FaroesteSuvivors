@@ -1,0 +1,58 @@
+.menu-panel { max-height: calc(100dvh - 58px); overflow-y: auto; overscroll-behavior: contain; }
+.menu-panel nav { gap: 8px; }
+.menu-panel nav > button { min-height: 41px; }
+.mode-label { display: inline-block; margin-left: 8px; font: 11px/1.4 ui-monospace,monospace; color: #744a31; vertical-align: middle; }
+.choice-card[disabled] { opacity: .63; filter: grayscale(.65); cursor: not-allowed; }
+.choice-card[disabled] .choice-thumb { filter: grayscale(1); }
+.choice-card[disabled] strong::before { content: '🔒 '; font-size: .8em; }
+.hero-facts { display: flex; flex-wrap: wrap; gap: 3px 10px; }
+.story-result { padding: 9px 11px; background: #ebd8ae; border-left: 3px solid #a36839; }
+#story-progress { color: #ffcb7a; font-weight: 700; }
+#app.progression-screen { display: flex; align-items: center; justify-content: center; padding: clamp(8px,3vw,26px); }
+.progression-panel {
+  width: min(1050px,100%);
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(13px,2.8vw,28px);
+  border: 2px solid #70442e;
+  border-radius: 7px;
+  background: linear-gradient(150deg,#f8e8c8f5,#e5c39cfa);
+  box-shadow: 0 12px 40px #291c1f99;
+}
+.progression-panel h2 { margin: 8px 0; font-size: clamp(25px,4vw,38px); }
+.progression-panel h3 { font-size: 20px; margin: 22px 0 10px; }
+.progression-panel p { line-height: 1.4; margin: 5px 0 14px; }
+.arsenal-grid,.fusion-grid,.bestiary-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 9px; }
+.arsenal-card,.fusion-card { min-width:0; min-height:94px; padding: 10px; display: grid; justify-items: start; align-content: center; gap:3px; text-align:left; color:#543726; background:#f9ecd6; border:1px solid #b99569; border-radius:5px; box-shadow:0 3px 0 #6b462b80; }
+.arsenal-card.selected { border: 2px solid #9e6025; background:#fff7d9; box-shadow:0 3px 0 #72402b; }
+.arsenal-card strong,.fusion-card strong { font-size:14px; overflow-wrap:anywhere; }
+.arsenal-card small,.fusion-card small,.fusion-card span:last-child { font-size:11px; line-height:1.2; overflow-wrap:anywhere; }
+.arsenal-card:disabled,.fusion-card:disabled { opacity:.66; cursor:not-allowed; }
+.arsenal-icon { width:27px; height:27px; color:#894f2a; }
+.arsenal-icon .game-icon { width:100%; height:100%; }
+.fusion-grid { grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); }
+.bestiary-grid { grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
+.bestiary-card { min-width:0; display:flex; align-items:flex-start; gap:10px; padding:11px; border:1px solid #b99569; background:#fbebd4; border-radius:5px; }
+.bestiary-card.is-unknown { opacity:.68; }
+.bestiary-glyph { flex:none; display:grid; place-items:center; border-radius:50%; width:36px; height:36px; background:#4e3230; color:#eac587; }
+.bestiary-card h3 { font-size:15px; margin:0 0 4px; }
+.bestiary-card p,.bestiary-card small { font-size:12px; margin:0 0 5px; overflow-wrap:anywhere; }
+@media(max-width:700px) {
+  .menu-panel nav > button { min-height:38px; }
+  .preparation-panel .choice-card[disabled] small { display:block; font-size:8px; line-height:1.03; overflow:hidden; max-height:1.05em; }
+  .preparation-panel .choice-card .choice-thumb { height: clamp(23px,4svh,38px); }
+  .preparation-panel .choice-grid { max-height: min(31svh,258px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
+  .preparation-panel .focused-card .hero-facts { font-size:10px; }
+  .mode-label { display:block; margin:0; font-size:9px; }
+  #story-progress { flex-basis:100%; font-size:9px; }
+  .arsenal-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .fusion-grid,.bestiary-grid { grid-template-columns:minmax(0,1fr); }
+  .progression-panel { max-height:calc(100dvh - 16px); }
+}
+@media(max-width:360px) and (max-height:600px) {
+  .menu-panel .game-logo { margin-bottom:5px; }
+  .menu-panel nav { gap:4px; }
+  .menu-panel nav > button { min-height:34px; padding:7px 9px; font-size:13px; }
+  .preparation-panel .choice-grid { max-height:29svh; }
+}

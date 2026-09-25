@@ -33,9 +33,10 @@ export class EnemySystem {
       if (boss?.hp > 0) {
         const dx = run.player.x - boss.x, dz = run.player.z - boss.z;
         const distance = Math.hypot(dx,dz);
-        if (distance > 1.1) {
-          boss.x += dx / distance * boss.speed * dt;
-          boss.z += dz / distance * boss.speed * dt;
+        if (distance > 1.1 && !boss.dash) {
+          const enraged = boss.hp < boss.maxHp * 0.35 ? 1.22 : 1;
+          boss.x += dx / distance * boss.speed * enraged * dt;
+          boss.z += dz / distance * boss.speed * enraged * dt;
         }
         boss.hitFlash = Math.max(0,boss.hitFlash-dt);
         boss.attackFlash = Math.max(0,(boss.attackFlash||0)-dt);
@@ -45,6 +46,13 @@ export class EnemySystem {
           boss.swingTimer = 2;
         }
       }
+      for(const minion of run.enemies){
+        if(!minion.summoned||minion.hp<=0)continue;
+        const dx=run.player.x-minion.x,dz=run.player.z-minion.z,d=Math.hypot(dx,dz);
+        if(d>.1){minion.x+=dx/d*minion.speed*dt;minion.z+=dz/d*minion.speed*dt;}
+        minion.hitFlash=Math.max(0,minion.hitFlash-dt);
+      }
+      this.updateShots(run,dt);
       return;
     }
     const minute = Math.floor(run.time / 60);
@@ -101,6 +109,11 @@ export class EnemySystem {
         run.minerTimer = Math.max(5, 15 - minute * 0.5);
         this.spawn(run, "miner");
       }
+    }
+    if((run.mapId==="canyon"&&run.time>=160)||(run.mapId==="cemetery"&&run.time>=35)){
+      run.specialSpawnTimer-=dt;
+      if(run.specialSpawnTimer<=0){run.specialSpawnTimer=run.mapId==="canyon"?6:4;
+        this.spawn(run,run.mapId==="canyon"?"wraith":"crow");}
     }
     for (const enemy of run.enemies) {
       if (enemy.type === "vulture") {
@@ -167,6 +180,9 @@ export class EnemySystem {
         run.enemyVoiceTimers[type] = 7 + run.random() * 4;
       }
     }
+    this.updateShots(run,dt);
+  }
+  updateShots(run,dt){
     run.enemyShots = run.enemyShots.filter(shot => {
       shot.x += shot.vx * dt;
       shot.z += shot.vz * dt;

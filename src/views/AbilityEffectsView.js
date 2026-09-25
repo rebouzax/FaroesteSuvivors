@@ -142,7 +142,9 @@ export class AbilityEffectsView {
     });
     this.bottles.count = this.necks.count = Math.min(8, run.bottles.length);
     let flames = 0;
-    run.fires.slice(0, 8).forEach((fire, i) => {
+    const firePatches = run.fires.slice(0,run.bossHazards.length?7:8);
+    if(run.bossHazards.length)firePatches.push({...run.bossHazards[0],age:0});
+    firePatches.forEach((fire, i) => {
       this.put(
         this.fireGround,
         i,
@@ -175,7 +177,7 @@ export class AbilityEffectsView {
         this.put(this.cores, flames++, x, height * 0.2 + 0.1, z, 1, height, 1);
       }
     });
-    this.fireGround.count = Math.min(8, run.fires.length);
+    this.fireGround.count = firePatches.length;
     this.flames.count = this.cores.count = flames;
     run.impacts
       .slice(0, 64)
@@ -208,9 +210,9 @@ export class AbilityEffectsView {
     this.silver.count=Math.min(80,run.silverShots.length);
     run.enemyShots.slice(0,40).forEach((shot,i)=>this.put(this.enemyBullets,i,shot.x,0.85,shot.z));
     this.enemyBullets.count=Math.min(40,run.enemyShots.length);
-    this.lanternAura.visible=Boolean(run.abilities.lantern);
-    if (run.abilities.lantern) {
-      const radius=abilityStats("lantern",run.abilities.lantern).radius;
+    this.lanternAura.visible=Boolean(run.abilities.lantern || run.abilities.inferno);
+    if (run.abilities.lantern || run.abilities.inferno) {
+      const radius=abilityStats("lantern",Math.max(1,run.abilities.lantern)).radius;
       this.lanternAura.position.set(run.player.x,0.1,run.player.z);
       this.lanternAura.scale.set(radius,radius,1);
       this.lanternAura.material.opacity=0.24+Math.sin(run.time*5)*0.07;

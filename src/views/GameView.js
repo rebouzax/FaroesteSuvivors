@@ -7,7 +7,7 @@ import {
   disposeCowboyRig,
 } from "./CowboyRig.js";
 import { AbilityEffectsView } from "./AbilityEffectsView.js";
-import { EnemyAssetView } from "./EnemyAssetView.js";
+import { EnemyAssetView, enemyAppearance } from "./EnemyAssetView.js";
 import { MapMerchantView } from "./MapMerchantView.js";
 import { buildDesertWorld } from "./DesertWorldView.js";
 import { buildOtherWorld } from "./OtherWorldView.js";
@@ -165,17 +165,23 @@ export class GameView {
     this.trail.rotation.x = -Math.PI / 2;
     this.scene.add(this.trail);
     this.bullets = new THREE.InstancedMesh(
-      new THREE.CylinderGeometry(0.095, 0.095, 0.36, 6),
+      new THREE.CylinderGeometry(0.16, 0.16, 0.48, 7),
       new THREE.MeshStandardMaterial({
-        color: 0xffd440,
-        emissive: 0x73521a,
+        color: 0xffed49,
+        emissive: 0xb4740a,
+        emissiveIntensity: 0.8,
         roughness: 0.65,
       }),
       CONFIG.maxLoot + 1,
     );
     this.tips = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(0.098, 0.15, 6),
-      new THREE.MeshStandardMaterial({ color: 0x919398, roughness: 0.5 }),
+      new THREE.ConeGeometry(0.16, 0.22, 7),
+      new THREE.MeshStandardMaterial({ color: 0x888d91, roughness: 0.5 }),
+      CONFIG.maxLoot + 1,
+    );
+    this.bulletGlows = new THREE.InstancedMesh(
+      new THREE.RingGeometry(0.26, 0.4, 10),
+      new THREE.MeshBasicMaterial({ color: 0x347c80, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false }),
       CONFIG.maxLoot + 1,
     );
     this.coins = new THREE.InstancedMesh(
@@ -200,14 +206,16 @@ export class GameView {
     );
     this.projectileAxis = new THREE.Vector3(0, 1, 0);
     this.projectileHeading = new THREE.Vector3();
-    const arrow = run.characterId === "indigo";
+    const arrow = ["bow","crossbow"].includes(run.hero.primary);
+    const knives = run.hero.primary === "knives";
+    const pellets = ["shotgun","sawedoff"].includes(run.hero.primary);
     this.primaryBody = new THREE.InstancedMesh(
-      arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
-      new THREE.MeshStandardMaterial({color: arrow ? 0x805034 : 0xe6ad49, metalness: arrow ? 0 : 0.72, roughness: 0.36}), 64,
+      arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
+      new THREE.MeshStandardMaterial({color: arrow ? 0x805034 : knives ? 0x8d969a : 0xe6ad49, metalness: arrow ? 0 : 0.72, roughness: 0.36}), 64,
     );
     this.primaryTip = new THREE.InstancedMesh(
-      arrow ? new THREE.ConeGeometry(0.115, 0.23, 5) : new THREE.SphereGeometry(0.1, 8, 5),
-      new THREE.MeshStandardMaterial({color: arrow ? 0xc4d1ce : 0xffe6a2, metalness: 0.7, roughness: 0.24, emissive: arrow ? 0x163331 : 0x754614}), 64,
+      arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
+      new THREE.MeshStandardMaterial({color: arrow || knives ? 0xc4d1ce : 0xffe6a2, metalness: 0.7, roughness: 0.24, emissive: arrow || knives ? 0x163331 : 0x754614}), 64,
     );
     this.primaryFletch = arrow ? new THREE.InstancedMesh(
       new THREE.ConeGeometry(0.16, 0.27, 4),
@@ -215,6 +223,7 @@ export class GameView {
     ) : null;
     for (const mesh of [
       this.bullets,
+      this.bulletGlows,
       this.tips,
       this.coins,
       this.bandages,
@@ -297,16 +306,28 @@ export class GameView {
     for (const enemy of run.enemies) {
       let view = this.enemyViews.get(enemy.id);
       if (!view) {
-        const pool = this.enemyPools.get(enemy.type) || [];
-        view = pool.pop() || this.enemyAssets.create(enemy.type);
+        const species=enemyAppearance(enemy.type,enemy.bossId);
+        const pool = this.enemyPools.get(species) || [];
+        view = pool.pop() || this.enemyAssets.create(enemy.type,enemy.bossId);
         view.userData.seed = enemy.id;
-        view.userData.species = enemy.type;
+        view.userData.species = species;
         this.scene.add(view);
         this.enemyViews.set(enemy.id, view);
       }
       view.visible = true;
-      view.scale.setScalar(enemy.hitFlash > 0 ? 1.12 : 1);
-      const airborne = enemy.type === "bat" || enemy.type === "vulture";
+      if ((enemy.bossId || enemy.type === "crow" || enemy.type === "wraith") && (view.userData.bossId !== (enemy.bossId||enemy.type) ||
+          (view.children.length > 0 && !view.userData.tinted))) {
+        const shade = { giantBat:0xaa8ec9,fireChupacabra:0xff7240,shadowMarshal:0x9fa2d4,shovelMiner:0x9a806a,giantMoth:0x9bbba6,minerGeneral:0xb1a1cb,boneHound:0xb4b5a4,boneSinger:0xa8b8d4,zombieDeputy:0xb6a07b,ashSerpent:0xcf6c55,stormVulture:0x9ea5cf,railRevenant:0xc7a482,cryptMother:0xbba3b4,deadPreacher:0xd0bca1,lastConductor:0xa7c3d6,wraith:0x9ccdd7,crow:0xbbabc5 }[enemy.bossId||enemy.type];
+        if (shade) view.traverse((part) => {
+          if (!part.isMesh || !part.material?.color) return;
+          part.userData.baseColor ??= part.material.color.clone();
+          part.material.color.copy(part.userData.baseColor).multiply(new THREE.Color(shade));
+        });
+        view.userData.bossId = enemy.bossId||enemy.type;
+        view.userData.tinted = view.children.length > 0;
+      }
+      view.scale.setScalar((enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.12 : 1));
+      const airborne = enemy.type === "bat" || enemy.type === "vulture" || enemy.type === "crow" || ["giantBat","giantMoth","stormVulture"].includes(enemy.bossId);
       view.position.set(
         enemy.x,
         airborne
@@ -342,7 +363,7 @@ export class GameView {
     let warningCount = 0;
     const positions = this.chargeWarnings.geometry.attributes.position;
     for (const enemy of run.enemies) {
-      if (enemy.type !== "vulture" || enemy.warning <= 0 || warningCount >= 24)
+      if (enemy.type !== "vulture" || enemy.warning <= 0 || warningCount >= 12)
         continue;
       positions.setXYZ(warningCount * 2, enemy.x, 0.09, enemy.z);
       positions.setXYZ(
@@ -352,6 +373,29 @@ export class GameView {
         enemy.z + enemy.vz * 5.2,
       );
       warningCount++;
+    }
+    const warning=run.bossTelegraph;
+    if(warning){
+      if(["dash","lunge","shotgun","volley"].includes(warning.pattern)){
+        positions.setXYZ(warningCount*2,warning.fromX,0.12,warning.fromZ);
+        positions.setXYZ(warningCount*2+1,warning.x,0.12,warning.z);
+        warningCount++;
+      }else{
+        for(let i=0;i<9&&warningCount<24;i++){
+          const a=i*Math.PI*2/9,b=(i+1)*Math.PI*2/9;
+          positions.setXYZ(warningCount*2,warning.x+Math.cos(a)*warning.radius,.13,warning.z+Math.sin(a)*warning.radius);
+          positions.setXYZ(warningCount*2+1,warning.x+Math.cos(b)*warning.radius,.13,warning.z+Math.sin(b)*warning.radius);
+          warningCount++;
+        }
+      }
+    }
+    for(const hazard of run.bossHazards){
+      for(let i=0;i<8&&warningCount<24;i++){
+        const a=i*Math.PI/4,b=(i+1)*Math.PI/4;
+        positions.setXYZ(warningCount*2,hazard.x+Math.cos(a)*hazard.radius,.13,hazard.z+Math.sin(a)*hazard.radius);
+        positions.setXYZ(warningCount*2+1,hazard.x+Math.cos(b)*hazard.radius,.13,hazard.z+Math.sin(b)*hazard.radius);
+        warningCount++;
+      }
     }
     positions.needsUpdate = true;
     this.chargeWarnings.geometry.setDrawRange(0, warningCount * 2);
@@ -451,7 +495,7 @@ export class GameView {
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
       this.primaryBody.setMatrixAt(count, this.dummy.matrix);
-      this.dummy.position.addScaledVector(this.projectileHeading, arrow ? 0.59 : 0.22);
+      this.dummy.position.addScaledVector(this.projectileHeading, arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
       this.dummy.updateMatrix();
       this.primaryTip.setMatrixAt(count, this.dummy.matrix);
       if (arrow) {
@@ -479,7 +523,7 @@ export class GameView {
         continue;
       this.dummy.position.set(
         item.x,
-        0.34 + Math.sin(time * 3 + item.id) * 0.07,
+        0.46 + Math.sin(time * 3 + item.id) * 0.08,
         item.z,
       );
       this.dummy.rotation.set(0, 0, Math.PI / 5);
@@ -500,18 +544,25 @@ export class GameView {
         continue;
       }
       this.bullets.setMatrixAt(bullets, this.dummy.matrix);
-      this.dummy.position.x -= Math.sin(Math.PI / 5) * 0.25;
-      this.dummy.position.y += Math.cos(Math.PI / 5) * 0.25;
+      this.dummy.position.x -= Math.sin(Math.PI / 5) * 0.34;
+      this.dummy.position.y += Math.cos(Math.PI / 5) * 0.34;
       this.dummy.updateMatrix();
-      this.tips.setMatrixAt(bullets++, this.dummy.matrix);
+      this.tips.setMatrixAt(bullets, this.dummy.matrix);
+      this.dummy.position.set(item.x, 0.09, item.z);
+      this.dummy.rotation.set(-Math.PI / 2, 0, 0);
+      this.dummy.scale.setScalar(1 + 0.12 * Math.sin(time * 5 + item.id));
+      this.dummy.updateMatrix();
+      this.bulletGlows.setMatrixAt(bullets++, this.dummy.matrix);
     }
     this.bullets.count = bullets;
     this.tips.count = bullets;
+    this.bulletGlows.count = bullets;
     this.coins.count = coins;
     this.bandages.count = bandages;
     this.bandageMarkA.count = this.bandageMarkB.count = bandages;
     for (const mesh of [
       this.bullets,
+      this.bulletGlows,
       this.tips,
       this.coins,
       this.bandages,
