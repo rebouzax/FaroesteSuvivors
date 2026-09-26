@@ -1,8 +1,8 @@
 import { shopHealthPrice } from "../config/abilityConfig.js";
-import { PERMANENT_UPGRADES, permanentPrice } from "../config/shopConfig.js";
+import { PERMANENT_UPGRADES, permanentPrice, upgradeUnlocked } from "../config/shopConfig.js";
 import { ABILITY_IDS } from "../config/abilityConfig.js";
-import { FUSIONS, BENTO_CARDS, STARTER_CARDS, STARTER_DECK, DECK_MIN, DECK_MAX } from "../config/deckConfig.js";
-import { CAMPAIGN, BOSS_IDS, ENEMY_IDS } from "../config/campaignConfig.js";
+import { FUSIONS, BENTO_CARDS, STARTER_CARDS, STARTER_DECK, DECK_MIN, DECK_MAX, fusionUnlocked } from "../config/deckConfig.js";
+import { CAMPAIGN, BOSS_IDS, ENEMY_IDS, MISSION_IDS, unlockedGameplayCards } from "../config/campaignConfig.js";
 const KEY = "faroeste:profile:v2";
 export class ProfileService {
   constructor(storage) {
@@ -23,6 +23,9 @@ export class ProfileService {
       critRank: 0,
       bountyRank: 0,
       completedRuns: 0,
+      progressionVersion: 1,
+      legacyProgression: false,
+      missionClears: [],
       storyClears: {},
       discoveries: { enemies: [], bosses: [], encounteredBosses: [] },
       forgedCards: [],
@@ -30,6 +33,8 @@ export class ProfileService {
       deck: [...STARTER_DECK],
     };
     this.available = true;
+    this.recordedRuns = new WeakSet();
+    this.arsenalJustUnlocked = false;
     try {
       this.storage = storage ?? globalThis.localStorage;
       const saved = JSON.parse(this.storage?.getItem(KEY) || "null");
@@ -65,8 +70,15 @@ export class ProfileService {
           this.data.forgedCards = [...new Set(saved.forgedCards.filter((id) => id in FUSIONS))];
         if (Array.isArray(saved.bentoCards))
           this.data.bentoCards=[...new Set(saved.bentoCards.filter(id=>id in BENTO_CARDS))];
+        this.data.legacyProgression = saved.legacyProgression === true ||
+          (!saved.progressionVersion && (this.data.completedRuns > 0 || this.data.coins > 0 ||
+            Object.keys(this.data.storyClears).length > 0 ||
+            Object.values(PERMANENT_UPGRADES).some(item => this.data[item.field] > 0) ||
+            this.data.forgedCards.length > 0 || this.data.bentoCards.length > 0));
+        if (Array.isArray(saved.missionClears))
+          this.data.missionClears = [...new Set(saved.missionClears.filter(id => MISSION_IDS.includes(id)))];
         if (Array.isArray(saved.deck)) {
-          const owned = new Set([...STARTER_CARDS, ...this.data.forgedCards,...this.data.bentoCards]);
+          const owned = new Set([...STARTER_CARDS, ...unlockedGameplayCards(this.data), ...this.data.forgedCards,...this.data.bentoCards]);
           const deck = [...new Set(saved.deck.filter((id) => ABILITY_IDS.includes(id) && owned.has(id)))];
           if (deck.length >= DECK_MIN && deck.length <= DECK_MAX) this.data.deck = deck;
         }
@@ -97,8 +109,13 @@ export class ProfileService {
     this.save();
   }
   recordRun(run) {
-    if (run.time <= 0) return;
+    if (run.time <= 0 || !["victory", "defeat"].includes(run.phase) || this.recordedRuns.has(run)) return;
+    this.recordedRuns.add(run);
+    this.arsenalJustUnlocked = this.data.completedRuns === 0;
     this.data.completedRuns++;
+    if (run.mode === "story")
+      this.data.missionClears = [...new Set([...this.data.missionClears, ...(run.completedMissionIds || [])])]
+        .filter(id => MISSION_IDS.includes(id) && (this.data.missionClears.includes(id) || id.startsWith(`${run.mapId}:`)));
     for (const [group, found] of [["enemies", run.defeatedTypes], ["bosses", run.defeatedBosses]])
       this.data.discoveries[group] = [...new Set([...this.data.discoveries[group], ...found])]
         .filter((id) => (group === "enemies" ? ENEMY_IDS : BOSS_IDS).includes(id));
@@ -109,7 +126,7 @@ export class ProfileService {
   }
   toggleDeck(id) {
     if (this.data.completedRuns < 1 || !ABILITY_IDS.includes(id) ||
-        !(STARTER_CARDS.includes(id) || this.data.forgedCards.includes(id) || this.data.bentoCards.includes(id))) return false;
+        !(STARTER_CARDS.includes(id) || unlockedGameplayCards(this.data).includes(id) || this.data.forgedCards.includes(id) || this.data.bentoCards.includes(id))) return false;
     const deck = this.data.deck;
     if (deck.includes(id)) {
       if (deck.length <= DECK_MIN) return false;
@@ -124,7 +141,7 @@ export class ProfileService {
   forgeCard(id) {
     const recipe = FUSIONS[id];
     if (!recipe || this.data.completedRuns < 1 || this.data.forgedCards.includes(id) ||
-        (recipe.after && !this.data.storyClears[recipe.after]) ||
+        !fusionUnlocked(this.data, id) ||
         !recipe.ingredients.every((ingredient) => this.data.deck.includes(ingredient))) return false;
     this.data.forgedCards.push(id);
     this.data.deck = this.data.deck.filter((card) => !recipe.ingredients.includes(card));
@@ -150,7 +167,7 @@ export class ProfileService {
   buyUpgrade(id) {
     const upgrade = PERMANENT_UPGRADES[id];
     const price = this.price(id);
-    if (!upgrade || (upgrade.after && !this.data.storyClears[upgrade.after])) return false;
+    if (!upgrade || !upgradeUnlocked(this.data, id)) return false;
     if (!Number.isSafeInteger(price) || this.data.coins < price) return false;
     this.data.coins -= price;
     this.data[upgrade.field]++;

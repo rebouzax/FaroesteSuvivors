@@ -140,6 +140,7 @@ body { background:#111b29; }
 .mode-card:hover:not(:disabled) { background:#39495c; }
 .mode-symbol { color:#edc682; }
 .carousel-preparation { color:#f2e4cd; background:#18283df2; border-color:#b59a75; }
+.progression-notice { flex:none; margin:0; padding:6px 8px; border-left:2px solid #d7ad70; color:#f1dfc0; font-size:12px; line-height:1.35; }
 .carousel-heading small,.carousel-heading .text-button { color:#cbbca5; }
 .carousel-arrow { color:#f1d7aa; background:#293950; border-color:#997d62; }
 .carousel-arrow:hover { background:#3e4d60; }

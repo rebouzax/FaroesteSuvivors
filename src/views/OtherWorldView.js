@@ -24,13 +24,61 @@ export function buildOtherWorld(scene, props, mapId) {
     groups.get(key).transforms.push(dummy.matrix.clone());
   }
   const box=new THREE.BoxGeometry(1,1,1),rock=new THREE.DodecahedronGeometry(1,0);
-  const rust=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x262b31:0x4b3933,roughness:1,flatShading:true});
-  const wood=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x4c534e:mapId==='mine'?0x493b38:0x784b3e,roughness:1,flatShading:true});
-  const wall=new THREE.MeshStandardMaterial({color:mapId==='cemetery'?0x879086:mapId==='canyon'?0xcc8060:mapId==='mine'?0x77625a:0xae8064,roughness:1,flatShading:true});
-  const lamp=new THREE.MeshBasicMaterial({color:mapId==='cemetery'?0x9bd7ed:0xffd887});
+  const rustColor={cemetery:0x262b31,glassMarsh:0x263b39,midnightSaloon:0x34262d,crowFortress:0x282837,forsakenRail:0x3c3335}[mapId]||0x4b3933;
+  const woodColor={cemetery:0x4c534e,mine:0x493b38,midnightSaloon:0x644136,glassMarsh:0x46574b,crowFortress:0x393747,forsakenRail:0x51413c,bellTown:0x57453f}[mapId]||0x784b3e;
+  const wallColor={cemetery:0x879086,canyon:0xcc8060,mine:0x77625a,glassMarsh:0x627c70,midnightSaloon:0x8c634d,crowFortress:0x777187,forsakenRail:0x74625a,bellTown:0x9b8067}[mapId]||0xae8064;
+  const rust=new THREE.MeshStandardMaterial({color:rustColor,roughness:1,flatShading:true});
+  const wood=new THREE.MeshStandardMaterial({color:woodColor,roughness:1,flatShading:true});
+  const wall=new THREE.MeshStandardMaterial({color:wallColor,roughness:1,flatShading:true});
+  const lamp=new THREE.MeshBasicMaterial({color:mapId==='cemetery'||mapId==='glassMarsh'||mapId==='crowFortress'?0x9bd7ed:0xffd887});
+  const salt=new THREE.MeshStandardMaterial({color:0xc8d1d0,roughness:.72,metalness:.08,flatShading:true});
+  const ember=new THREE.MeshBasicMaterial({color:0xff7141});
+  const moon=new THREE.MeshBasicMaterial({color:0xb8c7ff});
+  const thorn=new THREE.MeshStandardMaterial({color:0x556341,roughness:1,flatShading:true});
   for(const prop of props) if(prop.type==='rock')
     collect('rock',rock,rust,prop.x,prop.size*0.55,prop.z,prop.size,prop.size*0.75,prop.size,prop.x);
-  if(mapId==='mine') {
+  if(mapId==='saltFlats'){
+    const crystal=new THREE.ConeGeometry(1,1,5);
+    for(let i=-13;i<=13;i++)for(const side of [-1,1]){
+      const z=i*8,x=side*(13+(i%4)*2);
+      collect('saltSpire',crystal,salt,x,1.8,z,.8,3.6,.8,i*.3);
+      if(i%2===0)collect('saltCluster',rock,wall,x+side*3,.55,z+3,1.5,.75,1.2);
+      if(i%4===0){collect('saltGlow',rock,lamp,side*5,.65,z,.45,1.3,.45);glows.push([side*5,z,2]);}
+    }
+  }else if(mapId==='emberFoundry'){
+    for(let i=-9;i<=9;i++)for(const side of [-1,1]){
+      const z=i*12,x=side*(17+(i%3)*2);
+      collect('foundryStack',box,wall,x,3,z,4,6,5);collect('chimney',box,rust,x,8,z,1.3,10,1.5);
+      collect('furnace',box,ember,side*9,1.5,z,1.5,2.2,1.1);
+      if(i%3===0){collect('slag',rock,rust,side*27,.8,z+4,3,1.3,2);glows.push([side*9,z,2.5]);}
+    }
+  }else if(mapId==='moonMonastery'){
+    for(let i=-10;i<=10;i++)for(const side of [-1,1]){
+      const z=i*10;
+      collect('moonPillar',box,wall,side*16,3.5,z,1.2,7,1.4);
+      collect('moonArch',box,lamp,side*16,7,z,15,.45,1,i*.08);
+      if(i%3===0){collect('moonBell',rock,moon,side*24,5,z+2,1,1.5,1);glows.push([side*24,z+2,2.5]);}
+    }
+    collect('eclipseMoon',new THREE.SphereGeometry(1,10,8),moon,0,28,-92,8,8,2);
+  }else if(mapId==='thornGarden'){
+    for(let i=-12;i<=12;i++)for(const side of [-1,1]){
+      const z=i*9,x=side*(14+(i%4)*2);
+      collect('thornTrunk',rock,wood,x,3,z,1.4,6,1.2,i*.1);
+      for(const end of [-1,1])collect('thornBranch',box,thorn,x+end*1.8,4.1,z,.24,3,.24,end*.65);
+      if(i%2===0)collect('thornBloom',rock,lamp,x-side*2,.6,z+2,.8,1,.8);
+    }
+  }else if(mapId==='lastDawn'){
+    const obelisk=new THREE.ConeGeometry(1,1,5);
+    for(let i=-8;i<=8;i++)for(const side of [-1,1]){
+      const z=i*14,x=side*(18+(i%3)*2);
+      collect('dawnObelisk',obelisk,wall,x,4.2,z,1.5,8.4,1.5,i*.18);
+      collect('dawnRune',rock,lamp,x,7.7,z,1.1,.6,1.1);
+      if(i%2===0)glows.push([x,z,3.5]);
+    }
+  }
+  if(mapId==='saltFlats'||mapId==='emberFoundry'||mapId==='moonMonastery'||mapId==='thornGarden'||mapId==='lastDawn'){
+    // Distinct silhouettes flank the broad, open combat lane.
+  }else if(mapId==='mine') {
     // Túneis de madeira, trilhos, vagões e lampiões aparecem em toda a mina.
     for(let i=-10;i<=10;i++) {
       const z=i*11;
@@ -80,6 +128,78 @@ export function buildOtherWorld(scene, props, mapId) {
       const a=i*Math.PI*2/18;
       collect('mausoleum',box,wall,Math.cos(a)*72,2.8,Math.sin(a)*72,3.3,5.6,3.3,a);
     }
+  }else if(mapId==='bellTown'){
+    for(let i=-8;i<=8;i++){
+      const z=i*14;
+      for(const side of [-1,1]){
+        const x=side*(12+(i%3)*2);
+        collect('house',box,wall,x,2.5,z,7,5,8);
+        collect('roof',rock,wood,x,5.1,z,5.4,1.4,5.5);
+        collect('porch',box,wood,x-side*3.6,2.4,z,1,4.8,8);
+        collect('bellTower',box,rust,side*31,4.8,z,2,9.6,2);
+        collect('bell',rock,lamp,side*31,9.8,z,1.6,1.4,1.6);
+        if(i%2===0)glows.push([side*31,z,3.2]);
+      }
+    }
+  }else if(mapId==='glassMarsh'){
+    for(let i=-13;i<=13;i++)for(const side of [-1,1]){
+      const z=i*8,x=side*(10+(i%4)*3);
+      collect('reed',box,wood,x,.95,z,.15,1.9,.15,i*.23);
+      collect('reedTop',rock,wall,x+side*.18,1.85,z,.4,.65,.38,i*.23);
+      if(i%3===0)collect('deadTree',rock,rust,x+side*7,2.1,z+3,1.4,4.2,1.3,i);
+      if(i%4===0)collect('glassShard',rock,lamp,side*4,.65,z+2,.5,1.3,.5,i);
+    }
+  }else if(mapId==='midnightSaloon'){
+    // Open dance floor; booths, tables, and the bar stay along the walls.
+    for(const side of [-1,1]){
+      collect('wall',box,wall,side*17,4.5,0,1,9,116);
+      for(let i=-5;i<=5;i++){
+        const z=i*18;
+        collect('booth',box,wood,side*13,1.05,z,5,1.9,8);
+        collect('table',box,rust,side*9,1.15,z,2.4,2.3,2.6);
+        collect('stool',rock,wood,side*7,z%2?1.2:.15,z+2,.55,.7,.55);
+        if(i%2===0){collect('sconce',box,lamp,side*16,5,z,.2,.55,.2);glows.push([side*15,z,3]);}
+      }
+    }
+    collect('bar',box,wood,0,1.55,-28,28,3.1,5);
+    collect('barTop',box,wall,0,3.2,-28,29,0.35,5.5);
+    collect('mirror',box,rust,0,6.1,-31,18,4.8,.35);
+    collect('stage',box,wood,0,.45,43,36,.9,12);
+    collect('piano',box,rust,11,1.3,42,8,2.6,4);
+    for(let i=-8;i<=8;i++)collect('ceilingBeam',box,wood,i*2.2,8.7,0,.4,.45,118);
+  }else if(mapId==='forsakenRail'){
+    for(let i=-20;i<=20;i++){
+      const z=i*6;
+      collect('tie',box,wood,0,.05,z,6,.12,.55);
+      if(i%3===0)for(const side of [-1,1]){
+        collect('telegraph',box,rust,side*16,4.2,z,2,8.4,2);
+        collect('wire',box,wood,side*10,8.4,z,12,.12,.12);
+      }
+    }
+    for(const side of [-1,1]){
+      collect('rail',box,wall,side*2.1,.12,0,.22,.2,240);
+      for(let i=-9;i<=9;i++){
+        const z=i*13;
+        collect('wagon',box,wood,side*24,2.1,z,11,4.2,12);
+        collect('wagonRoof',box,rust,side*24,4.3,z,12,.5,13);
+        for(const end of [-1,1])collect('wheel',rock,rust,side*24+end*4,.8,z+4,1.1,1.1,1.1);
+      }
+    }
+  }else if(mapId==='crowFortress'){
+    for(let i=-11;i<=11;i++){
+      const z=i*9;
+      for(const side of [-1,1]){
+        const x=side*(20+(i%3)*2);
+        collect('battlement',box,wall,x,3.4,z,5,6.8,7);
+        collect('parapet',box,rust,x,7,z,6,1,8);
+        if(i%3===0){
+          collect('tower',rock,wood,side*36,5.2,z,5,10.4,5);
+          collect('spire',rock,lamp,side*36,11,z,1.2,2.2,1.2);
+          glows.push([side*36,z,2.8]);
+        }
+      }
+    }
+    for(let i=-12;i<=12;i++)collect('ironGate',box,rust,i*2,3.6,-103,.18,7.2,.7);
   }else{
     // Rua central transitável ladeada por fachadas, marquises e placas.
     for(let i=-5;i<=5;i++) {

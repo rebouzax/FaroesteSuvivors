@@ -1,5 +1,6 @@
 // Run: node src/tools/generateV07Heroes.mjs
-// Builds seven lightweight GLB characters with embedded animation clips.
+// Builds lightweight GLB characters with embedded animation clips. Pass IDs to
+// generate only those new models without replacing the established characters.
 import * as THREE from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { writeFile } from "node:fs/promises";
@@ -16,13 +17,18 @@ const designs = {
   ada: { coat:0x343f50, shirt:0xe0c497, pants:0x494a50, skin:0x724b36, hat:0x3e3740, accent:0xc5ae81, body:[.23,.25,.29,.26,.22], shoulders:.35, height:1.73, cadence:.84, weapon:"crossbow" },
   ruth: { coat:0x875043, shirt:0xd4a779, pants:0x4e524b, skin:0xba7b5a, hat:0x57443c, accent:0xe6b264, body:[.31,.33,.37,.34,.27], shoulders:.43, height:1.8, cadence:.93, weapon:"sawedoff" },
   teo: { coat:0x5b684d, shirt:0xd9c6aa, pants:0x555046, skin:0x9c684e, hat:0x463c30, accent:0xd4a869, body:[.25,.28,.3,.29,.22], shoulders:.37, height:1.86, cadence:.72, weapon:"repeater" },
+  valeria: { coat:0x633b4c, shirt:0xd6b99b, pants:0x3b414a, skin:0x9d654d, hat:0x332f39, accent:0xd3a66d, body:[.23,.24,.27,.26,.21], shoulders:.35, height:1.74, cadence:.65, weapon:"dual" },
+  tomas: { coat:0x4b4b3d, shirt:0xb7a17c, pants:0x4b4942, skin:0xa76f4e, hat:0x302c29, accent:0xc38f55, body:[.34,.39,.45,.41,.36], shoulders:.5, height:1.82, cadence:1.08, weapon:"sawedoff" },
+  luzia: { coat:0x42564b, shirt:0xc4b996, pants:0x3f4943, skin:0x754a39, hat:0x28372f, accent:0x88af95, body:[.24,.27,.3,.28,.23], shoulders:.36, height:1.75, cadence:.76, weapon:"lantern" },
+  benicio: { coat:0x66503b, shirt:0xd1b985, pants:0x48443c, skin:0xa66d48, hat:0x342b27, accent:0xd19a51, body:[.26,.3,.33,.31,.24], shoulders:.39, height:1.83, cadence:.74, weapon:"rifle" },
+  ines: { coat:0x393946, shirt:0xc5af8c, pants:0x393b43, skin:0x50362e, hat:0x282735, accent:0x9a9aa8, body:[.23,.24,.28,.25,.21], shoulders:.34, height:1.76, cadence:.7, weapon:"crossbow" },
 };
 const material = (color, metalness=0) => new THREE.MeshStandardMaterial({color,metalness,roughness:metalness?.48:.91,flatShading:true});
 function makeHero(id, spec) {
   const root = new THREE.Group(); root.name=id;
   const cloth=material(spec.coat),shirt=material(spec.shirt),trousers=material(spec.pants),
     skin=material(spec.skin),hat=material(spec.hat),trim=material(spec.accent,.25),
-    hair=material(["rosa","ada"].includes(id)?0x251d23:id==="silas"?0x161820:0x272224),
+    hair=material(["rosa","ada","valeria","luzia","ines"].includes(id)?0x251d23:id==="silas"?0x161820:0x272224),
     boot=material(0x282324),metal=material(0x7b8388,.78),shadow=material(0x322d28);
   const group=(parent,name,x=0,y=0,z=0)=>{const node=new THREE.Group();node.name=name;node.position.set(x,y,z);parent.add(node);return node;};
   const mesh=(parent,geo,mat,x=0,y=0,z=0)=>{const obj=new THREE.Mesh(geo,mat);obj.position.set(x,y,z);parent.add(obj);return obj;};
@@ -55,7 +61,7 @@ function makeHero(id, spec) {
     }
     for(let n=0;n<4;n++)cyl(chest,.018,.018,.085,trim,-.1+n*.067,.48,.235,6);
   }
-  if(id==="rosa"||id==="ada"){
+  if(["rosa","ada","valeria","luzia","ines"].includes(id)){
     // A short open poncho, long hair and twin holsters distinguish her profile.
     const cape=torso(chest,[.26,.35,.39,.26],trim,.33); cape.scale.z=.96;
     cape.material=material(0x9a6357);cape.position.y=-.05;
@@ -131,7 +137,7 @@ function makeHero(id, spec) {
         cyl(grip,.105,.105,.15,shadow,0,-.03,.07,9).rotation.x=Math.PI/2;
       }
     }
-    if((id==="rosa"||id==="ruth")&&sign<0){
+    if((id==="rosa"||id==="ruth"||id==="valeria")&&sign<0){
       const pistol=group(elbow,"LeftRevolver",0,-.39,.11);
       cyl(pistol,.07,.075,.38,metal,0,-.03,.2,9).rotation.x=Math.PI/2;
     }
@@ -162,7 +168,9 @@ function makeHero(id, spec) {
   return {root,animations:[idle,walk,primary,shot,thrown,hurt]};
 }
 const exporter=new GLTFExporter();
+const selected=new Set(process.argv.slice(2));
 for(const [id,spec] of Object.entries(designs)){
+  if(selected.size&&!selected.has(id))continue;
   const {root,animations}=makeHero(id,spec);
   const glb=await exporter.parseAsync(root,{binary:true,animations,onlyVisible:false,trs:true});
   await writeFile(new URL("../assets/models/"+id+".glb",import.meta.url),Buffer.from(glb));

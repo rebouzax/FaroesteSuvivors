@@ -52,13 +52,41 @@ export class BossSystem {
       if(tell.delay<=0){this.resolve(run,boss,tell);run.bossTelegraph=null;}
     }else if(boss.attackTimer<=0){
       const tx=player.x,tz=player.z,angle=Math.atan2(tz-boss.z,tx-boss.x);
-      run.bossTelegraph={x:tx,z:tz,fromX:boss.x,fromZ:boss.z,angle,pattern:boss.pattern,delay:boss.pattern.startsWith("summon")?.65:1.1,radius:boss.pattern==="fireMark"?2.7:1.9};
+      run.bossTelegraph={x:tx,z:tz,fromX:boss.x,fromZ:boss.z,angle,pattern:boss.pattern,delay:boss.pattern.startsWith("summon")?.65:boss.pattern==="tornadoes"?1.45:1.1,radius:boss.pattern==="fireMark"?2.7:boss.pattern==="tornadoes"?4.1:boss.pattern==="ringGap"?5:boss.pattern==="crossfire"?2.8:1.9};
       boss.attackFlash=.58;
       boss.attackTimer=boss.pattern.startsWith("summon")?7:boss.pattern==="fireMark"?5:4;
     }
   }
   resolve(run,boss,tell){
     const pattern=tell.pattern;
+    if(pattern==="ringGap"){
+      const count=12,gap=tell.angle;
+      for(let i=0;i<count;i++){
+        const angle=i*Math.PI*2/count;
+        if(Math.abs(Math.atan2(Math.sin(angle-gap),Math.cos(angle-gap)))<.43)continue;
+        if(run.enemyShots.length<40)run.enemyShots.push({x:boss.x,z:boss.z,vx:Math.cos(angle)*8.5,vz:Math.sin(angle)*8.5,age:0,damage:Math.ceil(boss.damage*.48)});
+      }
+      run.events.push("shot");return;
+    }
+    if(pattern==="crossfire"){
+      for(const offset of [-.68,-.22,.22,.68]){
+        const angle=tell.angle+offset;
+        if(run.enemyShots.length<40)run.enemyShots.push({x:boss.x,z:boss.z,vx:Math.cos(angle)*10,vz:Math.sin(angle)*10,age:0,damage:Math.ceil(boss.damage*.55)});
+      }
+      run.events.push("shot");return;
+    }
+    if(pattern==="tornadoes"){
+      const perpendicular=tell.angle+Math.PI/2;
+      for(let i=-1;i<=1;i++){
+        const angle=tell.angle+(i*.42);
+        run.tornadoes.push({
+          x:clamp(tell.x+Math.cos(perpendicular)*i*1.5),
+          z:clamp(tell.z+Math.sin(perpendicular)*i*1.5),
+          vx:Math.cos(angle)*3.1,vz:Math.sin(angle)*3.1,age:0,life:8,
+        });
+      }
+      return;
+    }
     if(pattern.startsWith("summon")){
       const species=pattern==="summonMiner"?"miner":"skeleton";
       const existing=run.enemies.filter(e=>e.summoned).length;

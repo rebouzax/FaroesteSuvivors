@@ -1,6 +1,6 @@
 import { RunModel } from "../models/RunModel.js";
 import { RunSystem } from "../systems/RunSystem.js";
-import { STARTER_CARDS } from "../config/deckConfig.js";
+import { STARTER_DECK } from "../config/deckConfig.js";
 
 export class GameViewModel {
   constructor(profile, audio, options = {}) {
@@ -8,7 +8,7 @@ export class GameViewModel {
       Math.random,
       profile.data.healthRank * 20,
       profile.data,
-      { ...options, deck: profile.data.completedRuns ? profile.data.deck : STARTER_CARDS },
+      { ...options, deck: profile.data.completedRuns ? profile.data.deck : STARTER_DECK },
     );
     this.system = new RunSystem();
     this.profile = profile;

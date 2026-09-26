@@ -1,0 +1,128 @@
+[
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\stages\\bell-town-art.png",
+    "bytes": 2770949,
+    "sha256": "8F4BF428CCB8F2348BE5D4B0A3B9D17249E8013DB3833F3D99D60992AC7AB1E2",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-d779852c-4715-40d8-b564-5fe0f002a715.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\stages\\glass-marsh-art.png",
+    "bytes": 2820603,
+    "sha256": "6A161AD7461220ACEEFEA7AE5DE01F172E485BCFCF34E6B3A6132FBA700FB592",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-15dc72cb-e67a-458f-bf97-8a07d93bc3ed.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\stages\\midnight-saloon-art.png",
+    "bytes": 2735972,
+    "sha256": "780E24C43B39901DB13B9AE228891020F60220E2373902C3F9D7156933855A77",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-3398bf4d-d654-4dc0-87d0-4d22032c5016.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\stages\\forsaken-rail-art.png",
+    "bytes": 2679725,
+    "sha256": "51A75A717A060D67723CB9047EF31666D17FA3E8AAA27CBA64EDE362CCEA2967",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-0cf340e4-503b-4d62-a14a-90256b4e05f0.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\stages\\crow-fortress-art.png",
+    "bytes": 2892072,
+    "sha256": "267816D252E749BAA7172DC67B7FD450A9C5139408F7203AB2885EA30E3C809F",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-1be58455-4188-41f5-bb93-18edb9d1017f.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\ruth-art-v3.png",
+    "bytes": 1924213,
+    "sha256": "195424410F06419B6BC9A7C95510E437FB1E9A9513663622F0491DFCB1E6530E",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-4e85798c-ed63-4a1b-9a3e-a2dc07233dc7.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\ada-art-v3.png",
+    "bytes": 1921495,
+    "sha256": "A7F92BA32CBF40B61357309669351C48CCAFF1F26486048B818DF8F4E530C67A",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-b612c498-3264-4daa-8110-815e4efe1ddf.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\silas-art-v3.png",
+    "bytes": 1955841,
+    "sha256": "6DA2854D6427B9F4518EC1F81523096A4D275AF696A1A9A42F375997A3C7C3B3",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-9a825341-b8dc-4eef-a9ef-2ada24f5d984.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\teo-art-v3.png",
+    "bytes": 1824995,
+    "sha256": "AC9F49EC1D1B42119716C07B33ECAC2B47271F1C531A4379E792359E8D07873F",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-94ba2330-fca4-40a8-94d4-f476779dd7e7.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\valeria-art-v3.png",
+    "bytes": 1926793,
+    "sha256": "948793D655531407110CEAFCE975B27C11554773E8FA74BE1C7DF2A4ADD0053F",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-86a8014a-9035-4eca-9356-8e2fa6330d00.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\tomas-art-v3.png",
+    "bytes": 1955192,
+    "sha256": "585A525B2C7369132A546C92F4125500C68FAB0C19A8D5E8E8B4E6BC75B1BB6E",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-f0e1482f-ca9a-4537-bd2c-868c9582a3ab.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\luzia-art-v3.png",
+    "bytes": 1933583,
+    "sha256": "24502994B35C5AB1F79D0CC9652FD18692EEA8A7F008BABFA4A3BC00C601197C",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-dec1308b-fee5-4cc6-9187-486e1a084afc.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\benicio-art-v3.png",
+    "bytes": 1837378,
+    "sha256": "0E6ED19A6758F676DCD985C4FDBDA75D27720F671AAC004E72854A8CB0D38744",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-a06766d5-3915-44d0-ac6c-57fc93e05eb3.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\ines-art-v3.png",
+    "bytes": 1825353,
+    "sha256": "A66511EA5237805FB45B9BDCFDC92A5205C9DCEFB9B9EE8BC08EEA4AA3C284D4",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-62a5a761-8576-4efe-ba24-8e8235936264.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\portraits\\dynamite-art-v3.png",
+    "bytes": 2075079,
+    "sha256": "5C237F7A3400F20ABBBFB90E2A414718CC3B6E8A49068D49744AC2470F55E1EE",
+    "recovery": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-fa39be00-3e92-4fef-99b4-900379b9b865.png"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\bat.wav",
+    "bytes": 33118,
+    "sha256": "F2A9CEFAE5D594BE60B6C5433224A8A1741F8B16D96F8FB45AEA4B016FF1F0A2",
+    "recovery": "Git blob 156c76f428bc22e21ad0829a299f959234e8edc4"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\desert-western.wav",
+    "bytes": 1512044,
+    "sha256": "0CE02F58B724982F5AF1C9F8162F3F3A6A69EF42288F2E65ED3CA59BDF4AE626",
+    "recovery": "Git blob 6c10b40b13f3b6cf6dc10290857c544b41e3f8cb"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\menu-western.wav",
+    "bytes": 1840740,
+    "sha256": "721E7697D5A23A930C50CB4F2DD65BA9695CF80D4BDCAD064B385CEA94417EEB",
+    "recovery": "Git blob 6932d3a35189b94997e9aee5ceec1be4c166a275"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\one-bullet-left.mp3",
+    "bytes": 4274900,
+    "sha256": "63BB6B1A6CE337D0BD3C89ACD71F6DE0A687136E0C7E7C7FDFA7FC4EF59EB43A",
+    "recovery": "Git blob e04c6137e92333a132408a490a3041a71a9fb879"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\the-outlaws-last-prayer.mp3",
+    "bytes": 4334459,
+    "sha256": "6CFA61CCCCF52379CDF1BB9604BC00D77F6CCCC6C369100AB58240BFE54273AE",
+    "recovery": "Git blob 804e4011dc66cdcfb59853226b585fd373fa689c"
+  },
+  {
+    "path": "C:\\projetos\\webjogos\\FaroesteSuvivors\\src\\assets\\audio\\vultures-circle-the-bone.mp3",
+    "bytes": 3828519,
+    "sha256": "BF3A9A77A32EF16E5615966CA6B662C2BDE8DD0DEC33589085B8EAFFE37BBC2D",
+    "recovery": "Git blob b54722ac224ec64cfab81c5fa5e388083590fa03"
+  }
+]

@@ -1,8 +1,16 @@
 import { CONFIG } from "../config/gameConfig.js";
+import { FRONTIER_ENEMIES } from "../config/frontierExpansion.js";
 import { enemyStats } from "../config/abilityConfig.js";
+import { ENEMY_STAGE_GROUPS } from "../config/campaignConfig.js";
 const clamp = (value) =>
   Math.max(-CONFIG.mapHalf + 1, Math.min(CONFIG.mapHalf - 1, value));
+const RANGED_ENEMIES = new Set(["bellRinger","lanternThief","windmillWraith","drownedProspector","barBanshee","railWitch","graveRider","sundownBandit",...Object.keys(FRONTIER_ENEMIES).filter(id=>FRONTIER_ENEMIES[id].behavior==="ranged")]);
 export class EnemySystem {
+  spawnForStage(run) {
+    const roster = ENEMY_STAGE_GROUPS[run.mapId];
+    if (!roster?.length || run.random() < 0.48) return this.spawn(run);
+    return this.spawn(run, roster[Math.floor(run.random() * roster.length)]);
+  }
   spawn(run, type = "bat") {
     if (run.enemies.length >= (run.maxEnemies || CONFIG.maxBats)) return;
     const stats = enemyStats(type, Math.floor(run.time / 60));
@@ -78,7 +86,7 @@ export class EnemySystem {
     run.spawnTimer -= dt;
     if (run.spawnTimer <= 0) {
       run.spawnTimer = Math.max(0.3, 1.5 - run.time / 700);
-      for (let i = 0; i < 1 + Math.floor(run.time / 180); i++) this.spawn(run);
+      for (let i = 0; i < 1 + Math.floor(run.time / 180); i++) this.spawnForStage(run);
     }
     if (run.time >= 60) {
       run.dogTimer -= dt;
@@ -110,10 +118,10 @@ export class EnemySystem {
         this.spawn(run, "miner");
       }
     }
-    if((run.mapId==="canyon"&&run.time>=160)||(run.mapId==="cemetery"&&run.time>=35)){
+    if(ENEMY_STAGE_GROUPS[run.mapId]){
       run.specialSpawnTimer-=dt;
-      if(run.specialSpawnTimer<=0){run.specialSpawnTimer=run.mapId==="canyon"?6:4;
-        this.spawn(run,run.mapId==="canyon"?"wraith":"crow");}
+      if(run.specialSpawnTimer<=0){run.specialSpawnTimer=Math.max(2.4,7.5-minute*.22);
+        this.spawn(run,ENEMY_STAGE_GROUPS[run.mapId][Math.floor(run.random()*ENEMY_STAGE_GROUPS[run.mapId].length)]);}
     }
     for (const enemy of run.enemies) {
       if (enemy.type === "vulture") {
@@ -136,11 +144,18 @@ export class EnemySystem {
         dz = run.player.z - enemy.z;
         distance = Math.hypot(dx, dz);
       }
+      const role=FRONTIER_ENEMIES[enemy.type]?.behavior;
+      if(role==="charge"){
+        enemy.chargeTimer=(enemy.chargeTimer??(1.5+enemy.id%3))-dt;
+        if(enemy.chargeTimer<=0&&!enemy.charge){enemy.charge={vx:dx/Math.max(.01,distance)*8,vz:dz/Math.max(.01,distance)*8,left:.65,warning:.65};enemy.chargeTimer=4.8;enemy.attackFlash=.65;}
+        if(enemy.charge){const c=enemy.charge;c.warning-=dt;if(c.warning<=0){enemy.x=clamp(enemy.x+c.vx*dt);enemy.z=clamp(enemy.z+c.vz*dt);c.left-=dt;if(c.left<=0)enemy.charge=null;}enemy.hitFlash=Math.max(0,enemy.hitFlash-dt);continue;}
+      }
       if (distance > 0.05) {
         if (enemy.type !== "skeleton" || distance > 8) {
-          const sway = enemy.type === "miner" ? Math.sin(run.time * 3 + enemy.id) * 0.4 : 0;
-          enemy.x += ((dx / distance) * enemy.speed - (dz / distance) * sway) * dt;
-          enemy.z += ((dz / distance) * enemy.speed + (dx / distance) * sway) * dt;
+          const sway = role==="orbit"&&distance<11?2.6:enemy.type === "miner" ? Math.sin(run.time * 3 + enemy.id) * 0.4 : 0;
+          const approach=role==="ranged"?(distance<7?-1:distance<12?0:1):role==="orbit"&&distance<6?.25:1;
+          enemy.x = clamp(enemy.x+((dx / distance) * enemy.speed*approach - (dz / distance) * sway) * dt);
+          enemy.z = clamp(enemy.z+((dz / distance) * enemy.speed*approach + (dx / distance) * sway) * dt);
         }
       }
       if (enemy.type === "skeleton" && distance < 17 && enemy.hp > 0) {
@@ -149,6 +164,15 @@ export class EnemySystem {
           enemy.shotTimer = 2.7;
           if (run.enemyShots.length < 40 && distance > 0.01)
             run.enemyShots.push({x:enemy.x,z:enemy.z,vx:dx/distance*8,vz:dz/distance*8,age:0,damage:enemy.damage});
+          enemy.attackFlash = 0.58;
+        }
+      }
+      if (RANGED_ENEMIES.has(enemy.type) && distance < 19 && enemy.hp > 0) {
+        enemy.shotTimer = (enemy.shotTimer ?? 1.8) - dt;
+        if (enemy.shotTimer <= 0) {
+          enemy.shotTimer = 3.2;
+          if (run.enemyShots.length < 40 && distance > 0.01)
+            run.enemyShots.push({x:enemy.x,z:enemy.z,vx:dx/distance*9,vz:dz/distance*9,age:0,damage:Math.ceil(enemy.damage*.55)});
           enemy.attackFlash = 0.58;
         }
       }

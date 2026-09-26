@@ -1,5 +1,13 @@
 import {abilityStats} from '../config/abilityConfig.js';
+import {FRONTIER_HEROES,FRONTIER_STAGES,FRONTIER_ENEMIES,FRONTIER_BOSSES,FRONTIER_CARDS} from '../config/frontierExpansion.js';
 export const LANGUAGES={en:'English (US)',es:'Español',pt:'Português (Brasil)'};
+export function unlockRequirementText(lang, rule) {
+  if (rule.mission) {
+    const [stage, number] = rule.mission.split(":");
+    return t(lang,"completeMission",{stage:t(lang,"map."+stage),number});
+  }
+  return rule.after ? t(lang,"clearStage",{stage:t(lang,"map."+rule.after)}) : "";
+}
 const en={
   menu:'Main menu',character:'Character',stage:'Stage',steps:'Steps',prepare:'PREPARE YOUR JOURNEY',chooseCharacter:'Choose your character',chooseMap:'Choose your stage',continue:'Continue',play:'Ride into the fray',life:'HEALTH',damage:'DAMAGE',duration:'DURATION',minutes:'minutes',coins:'coins',market:"Bento's Market",permanentUpgrades:'Permanent upgrades',permanentHelp:'Market upgrades stay with you in every run.',controlsHelp:'WASD / arrows or touch control. Automatic attacks.',
   'hero.joao':'Weathered leather, trusty whip and nerves of steel.','hero.maria':'A lightning quick gunslinger with a faithful revolver.','hero.indigo':'A skilled desert archer whose arrows pierce the darkness.',
@@ -156,6 +164,92 @@ Object.assign(pt,{
 Object.assign(en,{shopFilter:'Product categories',shopAll:'All',shopUpgrades:'Upgrades',shopCards:'Bento cards'});
 Object.assign(es,{shopFilter:'Categorías de productos',shopAll:'Todo',shopUpgrades:'Mejoras',shopCards:'Cartas de Bento'});
 Object.assign(pt,{shopFilter:'Categorias de mercadorias',shopAll:'Todos',shopUpgrades:'Melhorias',shopCards:'Cartas do Bento'});
+const v08={
+  en:{
+    version:'TEN STAGES / 0.8','map.bellTown':'Bell-Tower Pueblo','map.glassMarsh':'Glasswater Marsh','map.midnightSaloon':'The Midnight Lady','map.forsakenRail':'Forsaken Railroad','map.crowFortress':'Ravenhold Keep',
+    'mapDesc.bellTown':'A wind-scoured pueblo where every bell rings after sundown.','mapDesc.glassMarsh':'Black water, glass reeds and drowned prospectors.','mapDesc.midnightSaloon':'The Dama da Meia-Noite saloon has one last song in it.','mapDesc.forsakenRail':'A haunted line where the locomotive never stops.','mapDesc.crowFortress':'A cliffside fort watched by a crown of ravens.',
+    'hero.valeria':'A quick-drawing duelist who turns a clean opening into a silver storm.','hero.tomas':'A stubborn breacher with a four-shell scattergun and a thick hide.','hero.luzia':'A marsh healer whose lantern reveals a little more experience.','hero.benicio':'A railway rifleman who pierces a line of enemies.','hero.ines':'A raven scout with a patient, critical eye.','hero.dynamite':'A backwoods powder runner who hurls dynamite bundles into enemy crowds.',
+    missionBellRinger:'Defeat bell ringers',missionDustCoyote:'Defeat dust coyotes',missionLanternThief:'Defeat lantern thieves',missionMireLeech:'Defeat mire leeches',missionReedStalker:'Defeat reed stalkers',missionDrownedProspector:'Defeat drowned prospectors',missionSwampCrow:'Defeat swamp crows',missionCardsharpGhoul:'Defeat cardsharp ghouls',missionBarBanshee:'Defeat bar banshees',missionWhiskeyImp:'Defeat whiskey imps',missionPianoCrawler:'Defeat piano crawlers',missionRailWitch:'Defeat rail witches',missionCoalMimic:'Defeat coal mimics',missionIronLocust:'Defeat iron locusts',missionGraveRider:'Defeat grave riders',missionBoneCactus:'Defeat bone cacti',missionSundownBandit:'Defeat sundown bandits',missionCinderHawk:'Defeat cinder hawks',missionRattlesnake:'Defeat rattlesnakes',
+    patternTornadoes:'Three small tornadoes target your last position',
+    'ability.saltedRounds':'Brine-Loaded Rounds','ability.dustWaltz':'Dust Waltz','ability.ironRosary':'Iron Rosary','ability.blueTonic':'Blue Tonic','ability.longshot':'Far-Horizon Sight',
+    'ability.bentoHourglass':'Bento’s Hourglass','ability.bentoLuckyStar':'Lucky Star','ability.bentoSaddle':'Lightning Saddle','ability.bentoMercyCoin':'Mercy Coin','ability.bentoGhostLead':'Ghost Lead',
+    'ability.windwardOath':'Windward Oath','ability.saloonTempest':'Saloon Tempest','ability.marshfire':'Marshfire','ability.railbreaker':'Railbreaker','ability.crowstorm':'Crowstorm',
+    saltedRoundsDesc:'+{damage} primary-weapon damage per rank.',dustWaltzDesc:'+{speed}% movement speed per rank.',ironRosaryDesc:'+{armor} armor per rank.',blueTonicDesc:'+{health} maximum HP and heal {heal} per rank.',longshotDesc:'+{range} m primary-weapon range per rank.',
+    bentoHourglassDesc:'+{haste}% attack speed per rank.',bentoLuckyStarDesc:'+{fortune}% coins and experience per rank.',bentoSaddleDesc:'+{speed}% movement speed per rank.',bentoMercyCoinDesc:'Recover {heal} HP when chosen.',bentoGhostLeadDesc:'+{damage} primary-weapon damage per rank.',
+    'bentoDesc.bentoHourglass':'A permanent Arsenal card that speeds every attack.','bentoDesc.bentoLuckyStar':'A permanent Arsenal card for more coins and experience.','bentoDesc.bentoSaddle':'A permanent Arsenal card for faster movement.','bentoDesc.bentoMercyCoin':'A permanent Arsenal card that restores health.','bentoDesc.bentoGhostLead':'A permanent Arsenal card that strengthens your weapon.',
+    'enemy.bellRinger':'Bell Ringer','enemy.dustCoyote':'Dust Coyote','enemy.lanternThief':'Lantern Thief','enemy.windmillWraith':'Windmill Wraith',
+    'enemy.mireLeech':'Mire Leech','enemy.reedStalker':'Reed Stalker','enemy.drownedProspector':'Drowned Prospector','enemy.swampCrow':'Marsh Crow',
+    'enemy.cardsharpGhoul':'Cardsharp Ghoul','enemy.barBanshee':'Bar Banshee','enemy.whiskeyImp':'Whiskey Imp','enemy.pianoCrawler':'Piano Crawler',
+    'enemy.railWitch':'Rail Witch','enemy.coalMimic':'Coal Mimic','enemy.ironLocust':'Iron Locust','enemy.graveRider':'Grave Rider',
+    'enemy.boneCactus':'Bone Cactus','enemy.sundownBandit':'Sundown Bandit','enemy.cinderHawk':'Cinder Hawk','enemy.rattlesnake':'Rattlesnake',
+    'boss.bellTowerKeeper':'Bell-Tower Keeper','boss.windmillWidow':'Windmill Widow','boss.mudKing':'King of the Mire','boss.drownedBride':'The Drowned Bride','boss.bottleBaron':'Bottle Baron','boss.damaMalvina':'Dama Malvina','boss.ironLocomotive':'The Iron Locomotive','boss.railWitchQueen':'Rail-Witch Queen','boss.boneCactusMatriarch':'Bone-Cactus Matriarch','boss.crowKing':'The Crow King',
+    'lore.damaMalvina':'Dama Malvina marks where you stood, then sends three small tornadoes through that spot. Keep moving when the warning appears.',
+  },
+  es:{
+    version:'DIEZ FASES / 0.8','map.bellTown':'Pueblo del Campanario','map.glassMarsh':'Pantano de Cristal','map.midnightSaloon':'La Dama de Medianoche','map.forsakenRail':'Ferrocarril Maldito','map.crowFortress':'Fortaleza del Cuervo',
+    'mapDesc.bellTown':'Un pueblo azotado por el viento donde las campanas suenan al anochecer.','mapDesc.glassMarsh':'Agua negra, juncos de cristal y mineros ahogados.','mapDesc.midnightSaloon':'El saloon Dama da Meia-Noite aún guarda una última canción.','mapDesc.forsakenRail':'Una vía maldita por donde nunca deja de pasar el tren.','mapDesc.crowFortress':'Una fortaleza en el risco vigilada por cuervos.',
+    'hero.valeria':'Una duelista veloz que aprovecha cada oportunidad con precisión.','hero.tomas':'Un experto en brechas, terco y armado con una escopeta de cuatro cargas.','hero.luzia':'Sanadora del pantano cuya linterna revela experiencia.','hero.benicio':'Fusilero ferroviario que atraviesa filas de enemigos.','hero.ines':'Exploradora de cuervos con una puntería paciente.','hero.dynamite':'Un minero explosivista que lanza cartuchos de dinamita contra grupos de enemigos.',
+    missionBellRinger:'Derrota campaneros',missionDustCoyote:'Derrota coyotes del polvo',missionLanternThief:'Derrota ladrones de faroles',missionMireLeech:'Derrota sanguijuelas del pantano',missionReedStalker:'Derrota acechadores de juncos',missionDrownedProspector:'Derrota buscadores ahogados',missionSwampCrow:'Derrota cuervos del pantano',missionCardsharpGhoul:'Derrota necrófagos tahúres',missionBarBanshee:'Derrota banshees del bar',missionWhiskeyImp:'Derrota diablillos del whisky',missionPianoCrawler:'Derrota pianos rastreros',missionRailWitch:'Derrota brujas ferroviarias',missionCoalMimic:'Derrota cofres de carbón',missionIronLocust:'Derrota langostas de hierro',missionGraveRider:'Derrota jinetes de tumbas',missionBoneCactus:'Derrota cactus de hueso',missionSundownBandit:'Derrota bandidos del ocaso',missionCinderHawk:'Derrota halcones de ceniza',missionRattlesnake:'Derrota serpientes de cascabel',
+    patternTornadoes:'Tres tornados pequeños atacan tu última posición',
+    'ability.saltedRounds':'Balas Salmueradas','ability.dustWaltz':'Vals de Polvo','ability.ironRosary':'Rosario de Hierro','ability.blueTonic':'Tónico Azul','ability.longshot':'Mira del Horizonte',
+    'ability.bentoHourglass':'Reloj de Arena de Bento','ability.bentoLuckyStar':'Estrella de la Suerte','ability.bentoSaddle':'Silla Relámpago','ability.bentoMercyCoin':'Moneda de Misericordia','ability.bentoGhostLead':'Plomo Fantasma',
+    'ability.windwardOath':'Juramento del Viento','ability.saloonTempest':'Tempestad del Saloon','ability.marshfire':'Fuego del Pantano','ability.railbreaker':'Rompevías','ability.crowstorm':'Tormenta de Cuervos',
+    saltedRoundsDesc:'+{damage} de daño de arma por nivel.',dustWaltzDesc:'+{speed}% de velocidad por nivel.',ironRosaryDesc:'+{armor} de armadura por nivel.',blueTonicDesc:'+{health} de vida máxima y cura {heal} por nivel.',longshotDesc:'+{range} m de alcance por nivel.',
+    bentoHourglassDesc:'+{haste}% de velocidad de ataque por nivel.',bentoLuckyStarDesc:'+{fortune}% de monedas y experiencia por nivel.',bentoSaddleDesc:'+{speed}% de movimiento por nivel.',bentoMercyCoinDesc:'Recupera {heal} de vida al elegirla.',bentoGhostLeadDesc:'+{damage} de daño de arma por nivel.',
+    'bentoDesc.bentoHourglass':'Carta permanente del Arsenal que acelera los ataques.','bentoDesc.bentoLuckyStar':'Carta permanente para conseguir monedas y experiencia.','bentoDesc.bentoSaddle':'Carta permanente para moverse más rápido.','bentoDesc.bentoMercyCoin':'Carta permanente que recupera vida.','bentoDesc.bentoGhostLead':'Carta permanente que mejora el arma.',
+    'enemy.bellRinger':'Campanero','enemy.dustCoyote':'Coyote del Polvo','enemy.lanternThief':'Ladrón de Faroles','enemy.windmillWraith':'Espectro del Molino','enemy.mireLeech':'Sanguijuela del Pantano','enemy.reedStalker':'Acechador de Juncos','enemy.drownedProspector':'Buscador Ahogado','enemy.swampCrow':'Cuervo del Pantano','enemy.cardsharpGhoul':'Necrófago Tahúr','enemy.barBanshee':'Banshee del Bar','enemy.whiskeyImp':'Diablillo del Whisky','enemy.pianoCrawler':'Piano Rastrero','enemy.railWitch':'Bruja Ferroviaria','enemy.coalMimic':'Mímico de Carbón','enemy.ironLocust':'Langosta de Hierro','enemy.graveRider':'Jinete de Tumbas','enemy.boneCactus':'Cactus de Hueso','enemy.sundownBandit':'Bandido del Ocaso','enemy.cinderHawk':'Halcón de Ceniza','enemy.rattlesnake':'Serpiente de Cascabel',
+    'boss.bellTowerKeeper':'Guardián del Campanario','boss.windmillWidow':'Viuda del Molino','boss.mudKing':'Rey del Pantano','boss.drownedBride':'Novia Ahogada','boss.bottleBaron':'Barón de las Botellas','boss.damaMalvina':'Dama Malvina','boss.ironLocomotive':'La Locomotora de Hierro','boss.railWitchQueen':'Reina de las Brujas del Tren','boss.boneCactusMatriarch':'Matriarca del Cactus de Hueso','boss.crowKing':'Rey de los Cuervos',
+    'lore.damaMalvina':'Dama Malvina marca tu posición y lanza tres tornados pequeños sobre ese lugar. Muévete al ver la señal.',
+  },
+  pt:{
+    version:'DEZ FASES / 0.8','map.bellTown':'Pueblo das Campanas','map.glassMarsh':'Pântano de Vidro','map.midnightSaloon':'Dama da Meia-Noite','map.forsakenRail':'Ferrovia dos Condenados','map.crowFortress':'Fortaleza dos Corvos',
+    'mapDesc.bellTown':'Um pueblo varrido pelo vento, onde os sinos tocam depois do pôr do sol.','mapDesc.glassMarsh':'Água escura, juncos de vidro e garimpeiros afogados.','mapDesc.midnightSaloon':'O bar Dama da Meia-Noite ainda guarda uma última canção.','mapDesc.forsakenRail':'Trilhos assombrados por uma locomotiva que nunca para.','mapDesc.crowFortress':'Uma fortaleza no penhasco, vigiada por uma coroa de corvos.',
+    'hero.valeria':'Duelista veloz que transforma uma abertura limpa em uma chuva de prata.','hero.tomas':'Arrombador teimoso, com escopeta de quatro tiros e couro grosso.','hero.luzia':'Curandeira do brejo cuja lanterna revela mais experiência.','hero.benicio':'Rifleiro ferroviário que atravessa uma fileira de inimigos.','hero.ines':'Batedora dos corvos com mira paciente e certeira.','hero.dynamite':'Mineiro explosivista que arremessa feixes de dinamite contra grupos de inimigos.',
+    missionBellRinger:'Derrote os sineiros',missionDustCoyote:'Derrote os coiotes da poeira',missionLanternThief:'Derrote os ladrões de lampião',missionMireLeech:'Derrote as sanguessugas do brejo',missionReedStalker:'Derrote os espreitadores dos juncos',missionDrownedProspector:'Derrote os garimpeiros afogados',missionSwampCrow:'Derrote os corvos do pântano',missionCardsharpGhoul:'Derrote os carniçais jogadores',missionBarBanshee:'Derrote as banshees do bar',missionWhiskeyImp:'Derrote os diabretes do uísque',missionPianoCrawler:'Derrote os pianos rastejantes',missionRailWitch:'Derrote as bruxas dos trilhos',missionCoalMimic:'Derrote os baús de carvão',missionIronLocust:'Derrote os gafanhotos de ferro',missionGraveRider:'Derrote os cavaleiros das covas',missionBoneCactus:'Derrote os cactos de osso',missionSundownBandit:'Derrote os bandidos do crepúsculo',missionCinderHawk:'Derrote os falcões de brasa',missionRattlesnake:'Derrote as cascavéis',
+    patternTornadoes:'Três pequenos tornados atingem sua última posição',
+    'ability.saltedRounds':'Cartuchos Salmourados','ability.dustWaltz':'Valsa da Poeira','ability.ironRosary':'Rosário de Ferro','ability.blueTonic':'Tônico Azul','ability.longshot':'Mira do Horizonte',
+    'ability.bentoHourglass':'Ampulheta do Bento','ability.bentoLuckyStar':'Estrela da Sorte','ability.bentoSaddle':'Sela do Relâmpago','ability.bentoMercyCoin':'Moeda da Misericórdia','ability.bentoGhostLead':'Chumbo Fantasma',
+    'ability.windwardOath':'Juramento do Vendaval','ability.saloonTempest':'Tempestade do Saloon','ability.marshfire':'Fogo do Brejo','ability.railbreaker':'Quebra-Trilhos','ability.crowstorm':'Nuvem de Corvos',
+    saltedRoundsDesc:'+{damage} de dano à arma por nível.',dustWaltzDesc:'+{speed}% de velocidade por nível.',ironRosaryDesc:'+{armor} de armadura por nível.',blueTonicDesc:'+{health} de vida máxima e cura {heal} por nível.',longshotDesc:'+{range} m de alcance da arma por nível.',
+    bentoHourglassDesc:'+{haste}% de velocidade de ataque por nível.',bentoLuckyStarDesc:'+{fortune}% de moedas e experiência por nível.',bentoSaddleDesc:'+{speed}% de movimento por nível.',bentoMercyCoinDesc:'Recupera {heal} de vida ao escolher a carta.',bentoGhostLeadDesc:'+{damage} de dano à arma por nível.',
+    'bentoDesc.bentoHourglass':'Carta permanente do Arsenal que acelera os ataques.','bentoDesc.bentoLuckyStar':'Carta permanente para ganhar mais moedas e experiência.','bentoDesc.bentoSaddle':'Carta permanente para se mover mais rápido.','bentoDesc.bentoMercyCoin':'Carta permanente que recupera vida.','bentoDesc.bentoGhostLead':'Carta permanente que fortalece sua arma.',
+    'enemy.bellRinger':'Sineiro','enemy.dustCoyote':'Coiote da Poeira','enemy.lanternThief':'Ladrão de Lampião','enemy.windmillWraith':'Espectro do Moinho','enemy.mireLeech':'Sanguessuga do Brejo','enemy.reedStalker':'Espreitador dos Juncos','enemy.drownedProspector':'Garimpeiro Afogado','enemy.swampCrow':'Corvo do Pântano','enemy.cardsharpGhoul':'Carniçal Jogador','enemy.barBanshee':'Banshee do Bar','enemy.whiskeyImp':'Diabrete do Uísque','enemy.pianoCrawler':'Piano Rastejante','enemy.railWitch':'Bruxa dos Trilhos','enemy.coalMimic':'Mímico de Carvão','enemy.ironLocust':'Gafanhoto de Ferro','enemy.graveRider':'Cavaleiro das Covas','enemy.boneCactus':'Cacto de Osso','enemy.sundownBandit':'Bandido do Crepúsculo','enemy.cinderHawk':'Falcão de Brasa','enemy.rattlesnake':'Cascavel',
+    'boss.bellTowerKeeper':'Guardião do Campanário','boss.windmillWidow':'Viúva do Moinho','boss.mudKing':'Rei do Brejo','boss.drownedBride':'Noiva Afogada','boss.bottleBaron':'Barão das Garrafas','boss.damaMalvina':'Dama Malvina','boss.ironLocomotive':'A Locomotiva de Ferro','boss.railWitchQueen':'Rainha das Bruxas dos Trilhos','boss.boneCactusMatriarch':'Matriarca do Cacto de Osso','boss.crowKing':'Rei dos Corvos',
+    'lore.damaMalvina':'Dama Malvina marca o lugar onde você estava e lança três pequenos tornados ali. Saia da marca quando o aviso aparecer.',
+  },
+};
+for(const [language,copy] of Object.entries(v08)) Object.assign({en,es,pt}[language],copy);
+for(const language of [en,es,pt]){
+  language.controlsHelp=language===pt?'WASD / setas ou toque e arraste. O personagem fica parado sem comando; ataques são automáticos.':language===es?'WASD / flechas o toque y arrastre. El personaje se detiene al soltar; los ataques son automáticos.':'WASD / arrows or touch and drag. The hero stops when released; attacks are automatic.';
+}
+for(const [language,copy] of Object.entries(v08)){
+  const dictionary={en,es,pt}[language];
+  dictionary.bestiaryEnemyStats=language==='pt'?'VIDA {hp} · DANO {damage} · ARMADURA {armor} · VELOCIDADE {speed}':language==='es'?'VIDA {hp} · DAÑO {damage} · ARMADURA {armor} · VELOCIDAD {speed}':'HP {hp} · DAMAGE {damage} · ARMOR {armor} · SPEED {speed}';
+  const names=Object.entries(copy).filter(([key])=>key.startsWith('enemy.'));
+  for(const [key,name] of names){
+    const id=key.slice(6);
+    dictionary['mission'+id[0].toUpperCase()+id.slice(1)] ??= language==='pt'?'Derrote '+name.toLowerCase()+'s':language==='es'?'Derrota '+name.toLowerCase()+'s':'Defeat '+name.toLowerCase()+'s';
+    dictionary['lore.'+id] ??= language==='pt'?'Uma criatura da fronteira com força e resistência próprias.':language==='es'?'Una criatura de la frontera con fuerza y resistencia propias.':'A frontier creature with its own strength and weaknesses.';
+    dictionary['weakness.'+id] ??= language==='pt'?'Observe o padrão e ataque quando ela se expuser.':language==='es'?'Observa su patrón y ataca cuando quede expuesta.':'Study its pattern and strike when it is exposed.';
+  }
+  for(const id of ['windwardOath','saloonTempest','marshfire','railbreaker','crowstorm']){
+    dictionary[id+'Desc'] ??= language==='pt'?'Combinação forjada que melhora suas habilidades de combate.':language==='es'?'Combinación forjada que mejora tus habilidades de combate.':'A forged combination that strengthens your combat abilities.';
+  }
+  dictionary['pattern.tornadoes']=copy.patternTornadoes;
+  const bosses={
+    bellTowerKeeper:'Uses a radial bell shockwave; move out of its circle.',
+    windmillWidow:'Charges across the arena after marking a straight path.',
+    mudKing:'Marks a patch of black water that burns on contact.',
+    drownedBride:'Fires a spread of spectral shots from the marsh.',
+    bottleBaron:'Marks the floor, then fires a close shotgun fan.',
+    damaMalvina:copy['lore.damaMalvina'],
+    ironLocomotive:'Rushes along a marked line through the arena.',
+    railWitchQueen:'Summons skeletal rail hands to pin down escape routes.',
+    boneCactusMatriarch:'Sets a burning patch beneath the marked player position.',
+    crowKing:'Sends three small tornadoes through your last position.',
+  };
+  for(const [id,lore] of Object.entries(bosses))dictionary['lore.'+id]??=lore;
+}
 const suits={
   en:{FERRO:'IRON',FOGO:'FIRE',VIDA:'HEALTH',SOMBRA:'SHADOW',ALMA:'SOUL',VENTO:'WIND',PRATA:'SILVER',MALDIÇÃO:'CURSE',OSSO:'BONE',DEFESA:'DEFENSE',CORAGEM:'COURAGE'},
   es:{FERRO:'HIERRO',FOGO:'FUEGO',VIDA:'VIDA',SOMBRA:'SOMBRA',ALMA:'ALMA',VENTO:'VIENTO',PRATA:'PLATA',MALDIÇÃO:'MALDICIÓN',OSSO:'HUESO',DEFESA:'DEFENSA',CORAGEM:'VALOR'},
@@ -166,6 +260,91 @@ const audioTexts={
   es:{audioLoading:'Cargando y probando sonidos…',audioBlocked:'Audio bloqueado. Pulsa Probar audio otra vez.',audioDisabled:'Activa los sonidos para escuchar la prueba.',audioUnavailable:'No se pudo cargar el disparo. Comprueba la conexión.',audioPartial:'Disparo reproducido, pero fallaron {count} sonido(s). Reintenta.',audioSuccess:'Disparo reproducido. Comprueba el volumen y si la pestaña está silenciada.',webglFailed:'No se pudo iniciar el 3D. Comprueba WebGL y la aceleración de hardware.'},
   pt:{audioLoading:'Carregando e testando os sons…',audioBlocked:'Áudio bloqueado. Toque novamente em Testar áudio.',audioDisabled:'Ative Sons do jogo para ouvir o teste.',audioUnavailable:'Não foi possível carregar o disparo. Verifique a conexão.',audioPartial:'Disparo reproduzido, mas {count} áudio(s) falharam. Tente novamente.',audioSuccess:'Disparo reproduzido. Verifique o volume e se esta aba está silenciada.',webglFailed:'Não foi possível iniciar o 3D. Verifique WebGL e a aceleração de hardware.'},
 };
+Object.assign(pt, {
+  'map.desert':'Deserto dos Condenados',
+  completeMission:'Conclua a missão {number} de {stage} na campanha e termine a partida.',
+  arsenalLocked:'O Arsenal abre após a primeira partida: sobreviva 15 minutos ou morra. Abandonar não conta.',
+  arsenalUnlocked:'Arsenal liberado! Agora você pode montar seu deck e combinar as cartas conquistadas.',
+  winTitle:'Você sobreviveu!',
+  storyClear:'Fase concluída! Recompensas permanentes liberadas. Consulte os mapas, campeões e o mercador.',
+  storyIncomplete:'Fase ainda não concluída: {missions}/{total} missões e {bosses}/{all} chefes nesta partida. Para avançar, sobreviva 15 minutos e conclua todos os objetivos na mesma partida. Missões concluídas ficam registradas mesmo na derrota.',
+});
+Object.assign(en, {
+  'map.desert':'Desert of the Condemned',
+  completeMission:'Complete mission {number} in {stage} in Story mode and finish the run.',
+  arsenalLocked:'The Arsenal opens after your first run: survive 15 minutes or die. Abandoning does not count.',
+  arsenalUnlocked:'Arsenal unlocked! Build your deck and combine the cards you have earned.',
+  winTitle:'You survived!',
+  storyClear:'Stage cleared! Permanent rewards unlocked. Check the maps, heroes and merchant.',
+  storyIncomplete:'Stage not cleared: {missions}/{total} missions and {bosses}/{all} bosses this run. Survive 15 minutes and complete all objectives in one run to advance. Completed missions remain recorded even after defeat.',
+});
+Object.assign(es, {
+  'map.desert':'Desierto de los Condenados',
+  completeMission:'Completa la misión {number} de {stage} en campaña y termina la partida.',
+  arsenalLocked:'El Arsenal abre tras la primera partida: sobrevive 15 minutos o muere. Abandonar no cuenta.',
+  arsenalUnlocked:'¡Arsenal desbloqueado! Prepara tu mazo y combina las cartas obtenidas.',
+  winTitle:'¡Sobreviviste!',
+  storyClear:'¡Fase completada! Recompensas permanentes desbloqueadas. Revisa mapas, héroes y mercader.',
+  storyIncomplete:'Fase sin completar: {missions}/{total} misiones y {bosses}/{all} jefes en esta partida. Sobrevive 15 minutos y completa todos los objetivos en una partida para avanzar. Las misiones completadas se guardan incluso al morir.',
+});
+const addedTranslations={
+  en:{
+    saltFlats:"Forgotten Salt Flats",emberFoundry:"Soul Foundry",moonMonastery:"Eclipse Monastery",thornGarden:"Thorn Garden",lastDawn:"Last Dawn Gate",
+    hero:{jacinto:"A lizard ranger who sends a curved boomerang through enemies and catches its return.",aurora:"A patient crossbow scout who holds the high ground.",gaspar:"A broad shotgun veteran who turns a crowded road into a wall of lead.",celeste:"A moonlit lantern keeper whose light feeds her uncanny aim.",severino:"A quick bounty hunter with paired throwing knives.",amara:"A disciplined frontier scout with a piercing repeater."},
+  },
+  es:{
+    saltFlats:"Salinas del Olvido",emberFoundry:"Fundición de las Almas",moonMonastery:"Monasterio del Eclipse",thornGarden:"Jardín de Espinas",lastDawn:"Portal del Último Amanecer",
+    hero:{jacinto:"Un guardabosques lagarto que atraviesa enemigos con su bumerán y atrapa su regreso.",aurora:"Exploradora de ballesta paciente y precisa.",gaspar:"Veterano corpulento de escopeta que cubre el camino de plomo.",celeste:"Farolera lunar de puntería sobrenatural.",severino:"Cazarrecompensas veloz que lanza cuchillos dobles.",amara:"Exploradora disciplinada con rifle perforante."},
+  },
+  pt:{
+    saltFlats:"Salinas do Esquecimento",emberFoundry:"Fundição das Almas",moonMonastery:"Mosteiro do Eclipse",thornGarden:"Jardim dos Espinhos",lastDawn:"Portal da Última Aurora",
+    hero:{jacinto:"Um patrulheiro lagarto que atravessa inimigos com o bumerangue e o apanha na volta.",aurora:"Batedora de besta, paciente e precisa.",gaspar:"Veterano corpulento de escopeta que enche o caminho de chumbo.",celeste:"Guardião de um lampião lunar e de uma mira sobrenatural.",severino:"Caçador de recompensas veloz que lança facas duplas.",amara:"Batedora disciplinada com rifle perfurante."},
+  },
+};
+const addedMapDescriptions={
+  en:{saltFlats:"Moonlit salt crystals, mirages and bleached bones.",emberFoundry:"Living furnaces and iron machines guard the dead.",moonMonastery:"Lunar arches and silent bells circle a cursed observatory.",thornGarden:"Giant roots and carnivorous blooms overrun the old farm.",lastDawn:"Five obelisks hold open the gateway that feeds the curse."},
+  es:{saltFlats:"Cristales de sal bajo la luna, espejismos y huesos blanqueados.",emberFoundry:"Hornos vivos y máquinas de hierro custodian a los muertos.",moonMonastery:"Arcos lunares y campanas mudas rodean un observatorio maldito.",thornGarden:"Raíces gigantes y flores carnívoras cubren la antigua granja.",lastDawn:"Cinco obeliscos mantienen abierto el portal que alimenta la maldición."},
+  pt:{saltFlats:FRONTIER_STAGES.saltFlats.description,emberFoundry:FRONTIER_STAGES.emberFoundry.description,moonMonastery:FRONTIER_STAGES.moonMonastery.description,thornGarden:FRONTIER_STAGES.thornGarden.description,lastDawn:FRONTIER_STAGES.lastDawn.description},
+};
+const expansionEnemies={
+  en:["Salt Scorpion","Mirage Gunner","Glass Moth","Brine Miner","Salt Widow","Bleached Jackal","Crystal Wisp","Slag Hound","Furnace Keeper","Rivet Imp","Copper Hornet","Chain Worker","Ash Welder","Bellows Bat","Moon Acolyte","Eclipse Owl","Wax Penitent","Scripture Wraith","Silver Lynx","Candle Moth","Astral Monk","Thorn Boar","Root Sentinel","Venom Bloom","Bramble Crow","Orchard Reaper","Sap Crawler","Dawn Exile","Rift Hound","Void Vulture","Obelisk Guard","Sunless Gunslinger","Cinder Seraph"],
+  es:["Escorpión Salino","Tirador de Espejismos","Polilla de Cristal","Minero de Salmuera","Viuda Salina","Chacal Blanqueado","Luciérnaga de Cristal","Sabueso de Escoria","Guardián del Horno","Diablillo de Remaches","Avispa de Cobre","Obrero Encadenado","Soldador de Ceniza","Murciélago Fuelle","Acólito Lunar","Búho del Eclipse","Penitente de Cera","Espectro de Escrituras","Lince Plateado","Polilla de Vela","Monje Astral","Jabalí de Espinas","Centinela de Raíces","Flor Venenosa","Cuervo de Zarzas","Segador del Huerto","Rastrero de Savia","Exiliado del Alba","Sabueso de la Grieta","Buitre del Vacío","Guardián del Obelisco","Pistolero sin Sol","Serafín de Brasa"],
+};
+const expansionBosses={
+  en:["Salt Colossus","Mirage Queen","Furnace Bull","Chain Foreman","Eclipse Abbot","Moon Devourer","Briar Matriarch","Venom Stag","Hollow Seraph","Last Eclipse"],
+  es:["Coloso de Sal","Reina de los Espejismos","Toro de la Forja","Capataz de las Cadenas","Abad del Eclipse","Devorador Lunar","Matriarca de Zarzas","Ciervo Venenoso","Serafín Hueco","Último Eclipse"],
+};
+const expansionCards={
+  en:["Salt Ward","Furnace Heart","Moon Lens","Thorn Mail","Dawn Seal","Returning Blade","Salt Compass","Furnace Badge","Moon Dial","Root Flask","Dawn Coin","Crystal Bastion","Furnace Oath","Lunar Return","Living Briar","Dawn Tempest"],
+  es:["Piel Salina","Corazón de la Forja","Lente Lunar","Malla de Espinas","Sello del Alba","Hoja Retornante","Brújula Salina","Insignia de la Forja","Reloj Lunar","Cantimplora de Savia","Moneda del Alba","Bastión de Cristal","Juramento de la Forja","Regreso Lunar","Zarza Viva","Tempestad del Alba"],
+};
+const expansionBentoDescriptions={
+  en:["A permanent Arsenal card for pickup range and weapon reach.","A permanent Arsenal card for armor and attack speed.","A permanent Arsenal card for attack speed and reach.","A permanent Arsenal card for health and slow regeneration.","A permanent Arsenal card for fortune and damage."],
+  es:["Carta permanente para recoger objetos desde más lejos y aumentar el alcance.","Carta permanente de armadura y velocidad de ataque.","Carta permanente para acelerar el ataque y ampliar el alcance.","Carta permanente de vida y regeneración lenta.","Carta permanente de suerte y daño."],
+  pt:["Carta permanente para atrair itens de mais longe e aumentar o alcance.","Carta permanente de armadura e velocidade de ataque.","Carta permanente para acelerar ataques e ampliar o alcance.","Carta permanente de vida e regeneração gradual.","Carta permanente de sorte e dano."],
+};
+for(const language of ["en","es","pt"]){
+  const dict={en,es,pt}[language],extra=addedTranslations[language];
+  dict.version=language==="pt"?"15 FASES · META 1.0":language==="es"?"15 ESCENARIOS · META 1.0":"15 STAGES · 1.0 TARGET";
+  dict["pattern.ringGap"]=language==="pt"?"Anel de disparos com uma brecha segura":language==="es"?"Anillo de disparos con una abertura segura":"Bullet ring with one safe gap";
+  dict["pattern.crossfire"]=language==="pt"?"Leque de disparos cruzados":language==="es"?"Abanico de disparos cruzados":"Crossfire fan";
+  for(const [id,hero] of Object.entries(FRONTIER_HEROES)){dict[`hero.${id}`]=extra.hero[id];dict[`weapon.${hero.primary}`]=hero.primary==="boomerang"?(language==="pt"?"Bumerangue de Jacinto":language==="es"?"Bumerán de Jacinto":"Jacinto’s Boomerang"):hero.primary;}
+  for(const [id,stage] of Object.entries(FRONTIER_STAGES)){dict[`map.${id}`]=extra[id];dict[`mapDesc.${id}`]=addedMapDescriptions[language][id];}
+  for(const [index,[id,enemy]] of Object.entries(FRONTIER_ENEMIES).entries()){
+    const name=language==="pt"?enemy.name:expansionEnemies[language][index];
+    dict[`enemy.${id}`]=name;dict[`mission${id[0].toUpperCase()+id.slice(1)}`]=`${language==="en"?"Defeat":language==="es"?"Derrota":"Derrote"} ${name}`;
+    dict[`lore.${id}`]=language==="pt"?`${name} ronda esta região amaldiçoada e resiste a ${t(language,"ability."+enemy.weakness)}.`:`${name} stalks this cursed territory and is vulnerable to ${dict[`ability.${enemy.weakness}`]||enemy.weakness}.`;
+  }
+  for(const [index,[id,boss]] of Object.entries(FRONTIER_BOSSES).entries()){
+    const name=language==="pt"?boss.name:expansionBosses[language][index];dict[`boss.${id}`]=name;
+    dict[`lore.${id}`]=`${name}: ${dict[`pattern.${boss.pattern}`]||boss.pattern}.`;
+  }
+  const cardNames=language==="pt"?Object.values(FRONTIER_CARDS).map(c=>c.name):expansionCards[language];
+  for(const [index,[id,card]] of Object.entries(FRONTIER_CARDS).entries()){
+    dict[`ability.${id}`]=cardNames[index];dict[`${id}Desc`]=card.description;
+    if(card.price)dict[`bentoDesc.${id}`]=expansionBentoDescriptions[language][index-6];
+  }
+}
 export function t(language,key,params={}) {
   const template=key.startsWith('suit.')?(suits[language]?.[key.slice(5)]??key.slice(5)):(audioTexts[language]?.[key]??audioTexts.en[key]??dictionary[language]?.[key]??en[key]??key);
   return template.replace(/\{(\w+)\}/g,(_,field)=>String(params[field]??''));
@@ -173,6 +352,7 @@ export function t(language,key,params={}) {
 export function localizedCardDescription(language,id,level,attackRate=1){
   const stats=abilityStats(id,level);
   const values={...stats,damage:stats.damage,attack:Math.round((stats.attack||0)*100),
+    speed:Math.round((stats.speed||0)*100),haste:Math.round((stats.haste||0)*100),fortune:Math.round((stats.fortune||0)*100),critPercent:Math.round((stats.crit||0)*100),
     cooldown:stats.cooldown?Math.max(0.15,stats.cooldown/attackRate).toFixed(2):'',
     radius:stats.radius?.toFixed(1),duration:stats.duration?.toFixed(2)};
   return t(language,(id==='heart'?'health':id)+'Desc',values);

@@ -110,7 +110,8 @@ button {
     11px/1.3 ui-monospace,
     monospace !important;
   letter-spacing: 0.5px;
-  color: #593a25;
+  color: #fff !important;
+  text-shadow: 0 1px 4px #10151ddd;
 }
 .merchant-compass {
   position: absolute;

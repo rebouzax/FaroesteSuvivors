@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { CONFIG } from "../config/gameConfig.js";
 import { disposeObject } from "./CharacterFactory.js";
 import {
@@ -13,6 +17,7 @@ import { buildDesertWorld } from "./DesertWorldView.js";
 import { buildOtherWorld } from "./OtherWorldView.js";
 import { WorldEventsView } from "./WorldEventsView.js";
 import { MAPS } from "../config/mapConfig.js";
+import { FRONTIER_ENEMIES,FRONTIER_BOSSES } from "../config/frontierExpansion.js";
 
 export class GameView {
   constructor(host, run) {
@@ -35,6 +40,9 @@ export class GameView {
       antialias: !this.coarsePointer,
       powerPreference: "high-performance",
     });
+    this.desertEffects = run.mapId === "desert";
+    this.renderer.shadowMap.enabled = this.desertEffects && !this.coarsePointer;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = run.mapId === "desert" ? 0.84 : 1;
@@ -53,18 +61,59 @@ export class GameView {
       new THREE.HemisphereLight(
         palette.ambient,
         run.mapId === "desert" ? 0x525368 : 0x635347,
-        run.mapId === "mine" ? 1.65 : run.mapId === "desert" ? 1.55 : 2.4,
+        run.mapId === "mine" ? 1.65 : run.mapId === "desert" ? 1.25 : 2.4,
       ),
     );
     const sun = new THREE.DirectionalLight(
       palette.warm,
-      run.mapId === "mine" ? 1.5 : run.mapId === "desert" ? 1.65 : 3,
+      run.mapId === "mine" ? 1.5 : run.mapId === "desert" ? 1.35 : 3,
     );
     sun.position.set(-15, 30, 10);
     this.scene.add(sun);
+    if (this.desertEffects) {
+      // A compact shadow frustum follows the player instead of wasting
+      // resolution on the full 240-metre desert. Touch devices keep decals.
+      if (!this.coarsePointer) {
+        sun.castShadow = true;
+        sun.shadow.mapSize.set(1024, 1024);
+        sun.shadow.camera.left = sun.shadow.camera.bottom = -12;
+        sun.shadow.camera.right = sun.shadow.camera.top = 12;
+        sun.shadow.camera.near = 1;
+        sun.shadow.camera.far = 62;
+        sun.shadow.normalBias = 0.025;
+        this.sun = sun;
+        this.scene.add(sun.target);
+      }
+      const rim = new THREE.DirectionalLight(0x829dc9, 0.55);
+      rim.position.set(12, 8, -12);
+      this.scene.add(rim);
+    }
     this.buildWorld();
     this.player = createCowboyRig(run.characterId);
     this.scene.add(this.player);
+    if (this.sun) this.player.userData.ready?.then(() => {
+      if (this.player.userData.disposed) return;
+      // Only the large silhouette pieces enter the shadow pass.
+      const silhouette = new Set(["CoatBody", "DusterFront", "Lapel", "Face", "Jaw", "HatBrim", "HatCrown", "CurvedHatEdge", "Sleeve", "Forearm", "Boot", "TrouserLeg", "LowerLeg"]);
+      this.player.traverse((part) => { if (part.isMesh && silhouette.has(part.name)) part.castShadow = true; });
+    });
+    if (this.desertEffects) {
+      const count = this.coarsePointer ? 48 : 104;
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+      this.desertDust = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xe2c598, size: 0.11, transparent: true, opacity: 0.46, depthWrite: false, sizeAttenuation: true }));
+      this.desertDust.frustumCulled = false;
+      this.scene.add(this.desertDust);
+    }
+    // Bloom is restrained to bright highlights and disabled after sustained
+    // slow frames. Mobile uses the lighter direct WebGL path.
+    if (this.desertEffects && !this.coarsePointer) {
+      this.composer = new EffectComposer(this.renderer);
+      this.composer.addPass(new RenderPass(this.scene, this.camera));
+      this.composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.24, 0.25, 0.97));
+      this.composer.addPass(new OutputPass());
+      this.bloomEnabled = true;
+    }
     this.mapMerchant = new MapMerchantView(this.scene);
     this.worldEvents = new WorldEventsView(this.scene);
     const warnings = new THREE.BufferGeometry();
@@ -207,15 +256,17 @@ export class GameView {
     this.projectileAxis = new THREE.Vector3(0, 1, 0);
     this.projectileHeading = new THREE.Vector3();
     const arrow = ["bow","crossbow"].includes(run.hero.primary);
+    const dynamite = run.hero.primary === "dynamite";
+    const boomerang = run.hero.primary === "boomerang";
     const knives = run.hero.primary === "knives";
     const pellets = ["shotgun","sawedoff"].includes(run.hero.primary);
     this.primaryBody = new THREE.InstancedMesh(
-      arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
-      new THREE.MeshStandardMaterial({color: arrow ? 0x805034 : knives ? 0x8d969a : 0xe6ad49, metalness: arrow ? 0 : 0.72, roughness: 0.36}), 64,
+      boomerang ? new THREE.TorusGeometry(.23,.055,5,9,Math.PI*1.55) : dynamite ? new THREE.BoxGeometry(.17,.42,.18) : arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
+      new THREE.MeshStandardMaterial({color: boomerang ? 0xb37a32 : dynamite ? 0x8f2923 : arrow ? 0x805034 : knives ? 0x8d969a : 0xe6ad49, metalness: arrow ? 0 : 0.55, roughness: 0.36}), 64,
     );
     this.primaryTip = new THREE.InstancedMesh(
-      arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
-      new THREE.MeshStandardMaterial({color: arrow || knives ? 0xc4d1ce : 0xffe6a2, metalness: 0.7, roughness: 0.24, emissive: arrow || knives ? 0x163331 : 0x754614}), 64,
+      dynamite ? new THREE.ConeGeometry(.09,.2,5) : arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
+      new THREE.MeshStandardMaterial({color: dynamite ? 0xffaa39 : arrow || knives ? 0xc4d1ce : 0xffe6a2, metalness: dynamite ? 0 : 0.7, roughness: 0.24, emissive: dynamite ? 0xd74711 : arrow || knives ? 0x163331 : 0x754614}), 64,
     );
     this.primaryFletch = arrow ? new THREE.InstancedMesh(
       new THREE.ConeGeometry(0.16, 0.27, 4),
@@ -253,6 +304,7 @@ export class GameView {
     const width = this.host.clientWidth || innerWidth,
       height = this.host.clientHeight || innerHeight;
     this.renderer.setSize(width, height);
+    this.composer?.setSize(width, height);
     const aspect = width / height;
     // Cap the visible world radius so enemies always spawn beyond the camera.
     const halfHeight = Math.min(14, 23 / aspect);
@@ -281,8 +333,11 @@ export class GameView {
         if (Math.abs(next - this.pixelRatio) > 0.02) {
           this.pixelRatio = next;
           this.renderer.setPixelRatio(next);
+          this.composer?.setPixelRatio(next);
           this.resize();
         }
+        if (this.bloomEnabled && average > 0.036 && this.pixelRatio <= 0.82)
+          this.bloomEnabled = false;
         this.sampleFrames = 0;
         this.sampleDuration = 0;
       }
@@ -294,6 +349,19 @@ export class GameView {
     this.shadow.position.set(p.x, 0.06, p.z);
     this.camera.position.set(p.x, 24, p.z + 20);
     this.camera.lookAt(p.x, 0, p.z);
+    if (this.sun) {
+      this.sun.position.set(p.x - 15, 30, p.z + 10);
+      this.sun.target.position.set(p.x, 0, p.z);
+    }
+    if (this.desertDust) {
+      const points = this.desertDust.geometry.attributes.position;
+      for (let i = 0; i < points.count; i++) {
+        points.setXYZ(i, p.x + Math.sin(i * 19.71 + time * 0.18) * 14,
+          0.25 + ((i * 0.618 + time * 0.09) % 1) * 1.35,
+          p.z + Math.cos(i * 27.13 + time * 0.11) * 12);
+      }
+      points.needsUpdate = true;
+    }
     const live = new Set(run.enemies.map((enemy) => enemy.id));
     for (const [id, view] of this.enemyViews)
       if (!live.has(id)) {
@@ -315,9 +383,14 @@ export class GameView {
         this.enemyViews.set(enemy.id, view);
       }
       view.visible = true;
-      if ((enemy.bossId || enemy.type === "crow" || enemy.type === "wraith") && (view.userData.bossId !== (enemy.bossId||enemy.type) ||
+      if ((enemy.bossId || !["bat","dog","vulture","skeleton","miner"].includes(enemy.type)) && (view.userData.bossId !== (enemy.bossId||enemy.type) ||
           (view.children.length > 0 && !view.userData.tinted))) {
-        const shade = { giantBat:0xaa8ec9,fireChupacabra:0xff7240,shadowMarshal:0x9fa2d4,shovelMiner:0x9a806a,giantMoth:0x9bbba6,minerGeneral:0xb1a1cb,boneHound:0xb4b5a4,boneSinger:0xa8b8d4,zombieDeputy:0xb6a07b,ashSerpent:0xcf6c55,stormVulture:0x9ea5cf,railRevenant:0xc7a482,cryptMother:0xbba3b4,deadPreacher:0xd0bca1,lastConductor:0xa7c3d6,wraith:0x9ccdd7,crow:0xbbabc5 }[enemy.bossId||enemy.type];
+        const bossTints=[0xc5d5df,0xef9666,0xc1c0ef,0xaac286,0xe8b092];
+        const shade = { ...Object.fromEntries(Object.entries(FRONTIER_ENEMIES).map(([id,e])=>[id,e.color])),...Object.fromEntries(Object.keys(FRONTIER_BOSSES).map((id,i)=>[id,bossTints[i%bossTints.length]])),giantBat:0xaa8ec9,fireChupacabra:0xff7240,shadowMarshal:0x9fa2d4,shovelMiner:0x9a806a,giantMoth:0x9bbba6,minerGeneral:0xb1a1cb,boneHound:0xb4b5a4,boneSinger:0xa8b8d4,zombieDeputy:0xb6a07b,ashSerpent:0xcf6c55,stormVulture:0x9ea5cf,railRevenant:0xc7a482,cryptMother:0xbba3b4,deadPreacher:0xd0bca1,lastConductor:0xa7c3d6,wraith:0x9ccdd7,crow:0xbbabc5,
+          bellTowerKeeper:0xe2c675,windmillWidow:0xa99bbf,mudKing:0x537868,drownedBride:0x9bb7af,bottleBaron:0xc38a58,damaMalvina:0x9a6bc3,ironLocomotive:0xa57a4d,railWitchQueen:0x9b669d,boneCactusMatriarch:0xc58e67,crowKing:0x6f74aa,
+          bellRinger:0xc7b473,dustCoyote:0xc58c67,lanternThief:0xa79366,windmillWraith:0xa998bb,mireLeech:0x638f72,reedStalker:0x6c9d87,drownedProspector:0x797f70,swampCrow:0x667d83,
+          cardsharpGhoul:0x887195,barBanshee:0xb794aa,whiskeyImp:0x9b633f,pianoCrawler:0x51465a,railWitch:0x87669b,coalMimic:0x61564f,ironLocust:0x9b8d45,graveRider:0x776754,
+          boneCactus:0xa58b69,sundownBandit:0xb26c4f,cinderHawk:0xb66a51,rattlesnake:0x997a48 }[enemy.bossId||enemy.type];
         if (shade) view.traverse((part) => {
           if (!part.isMesh || !part.material?.color) return;
           part.userData.baseColor ??= part.material.color.clone();
@@ -327,7 +400,7 @@ export class GameView {
         view.userData.tinted = view.children.length > 0;
       }
       view.scale.setScalar((enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.12 : 1));
-      const airborne = enemy.type === "bat" || enemy.type === "vulture" || enemy.type === "crow" || ["giantBat","giantMoth","stormVulture"].includes(enemy.bossId);
+      const airborne = ["bat","vulture","crow","swampCrow","cinderHawk","ironLocust"].includes(enemy.type) || ["giantBat","giantMoth","stormVulture","windmillWidow","crowKing"].includes(enemy.bossId);
       view.position.set(
         enemy.x,
         airborne
@@ -399,7 +472,8 @@ export class GameView {
     }
     positions.needsUpdate = true;
     this.chargeWarnings.geometry.setDrawRange(0, warningCount * 2);
-    this.renderer.render(this.scene, this.camera);
+    if (this.bloomEnabled) this.composer.render();
+    else this.renderer.render(this.scene, this.camera);
   }
   merchantIndicator(run) {
     if (!run.merchant) return null;
@@ -491,11 +565,14 @@ export class GameView {
       if (count >= 64) break;
       this.projectileHeading.set(shot.vx, 0, shot.vz).normalize();
       this.dummy.quaternion.setFromUnitVectors(this.projectileAxis, this.projectileHeading);
-      this.dummy.position.set(shot.x, 0.96, shot.z);
+      if(shot.kind==="boomerang")this.dummy.rotateOnWorldAxis(this.projectileAxis,(shot.age+(shot.returnAge||0))*13*(shot.returnLeg?-1:1));
+      const flightProgress=shot.kind==="dynamite"?Math.min(1,shot.age/shot.flight):0;
+      const flightHeight=shot.kind==="dynamite"?Math.sin(flightProgress*Math.PI)*1.15:0;
+      this.dummy.position.set(shot.x, 0.96+flightHeight, shot.z);
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
       this.primaryBody.setMatrixAt(count, this.dummy.matrix);
-      this.dummy.position.addScaledVector(this.projectileHeading, arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
+      this.dummy.position.addScaledVector(this.projectileHeading, ["dynamite","boomerang"].includes(shot.kind)?.13:arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
       this.dummy.updateMatrix();
       this.primaryTip.setMatrixAt(count, this.dummy.matrix);
       if (arrow) {
@@ -579,6 +656,7 @@ export class GameView {
     for (const view of this.enemyViews.values()) view.userData.disposed = true;
     for (const pool of this.enemyPools.values())
       for (const view of pool) view.userData.disposed = true;
+    this.composer?.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss();
     this.renderer.domElement.remove();

@@ -1,3 +1,6 @@
+import { FRONTIER_STAGES } from "../config/frontierExpansion.js";
+
+const landmarkStages=new Set(Object.keys(FRONTIER_STAGES));
 export function createWorld(mapId = "desert") {
   let seed = 1887;
   const random = () => {
@@ -9,12 +12,13 @@ export function createWorld(mapId = "desert") {
     { x: -14, z: -9, type: "rock", size: 3.5, radius: 3.15 },
     { x: 9, z: 5, type: "cactus", size: 1.4, radius: 0.42 },
   ] : [];
-  for (let i = 0; i < (mapId === "desert" ? 220 : 110); i++) {
+  const sparseLandmarks=landmarkStages.has(mapId);
+  for (let i = 0; i < (mapId === "desert" ? 220 : sparseLandmarks ? 28 : 110); i++) {
     const x = (random() - 0.5) * 225,
       z = (random() - 0.5) * 225;
-    if (Math.hypot(x, z) < 14) continue;
+    if (Math.hypot(x, z) < (sparseLandmarks ? 27 : 14)) continue;
     const type = mapId === "desert" ? (i % 3 === 0 ? "rock" : "cactus") : "rock";
-    const size = mapId === "desert" ? 0.8 + random() * 2 : 0.6 + random() * 1.0;
+    const size = mapId === "desert" ? 0.8 + random() * 2 : sparseLandmarks ? 0.35 + random() * 0.5 : 0.6 + random() * 1.0;
     props.push({
       x,
       z,

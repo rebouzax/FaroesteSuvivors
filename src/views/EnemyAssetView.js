@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { FRONTIER_ENEMIES, FRONTIER_BOSSES } from "../config/frontierExpansion.js";
 import batUrl from "../assets/models/bat.glb?url";
 import dogUrl from "../assets/models/dog.glb?url";
 import vultureUrl from "../assets/models/vulture.glb?url";
@@ -8,9 +9,22 @@ import bossUrl from "../assets/models/boss.glb?url";
 import marshalUrl from "../assets/models/marshal.glb?url";
 
 const URLS={bat:batUrl,dog:dogUrl,vulture:vultureUrl,skeleton:skeletonUrl,miner:minerUrl,boss:bossUrl,marshal:marshalUrl};
-const BOSS_SHAPES={giantBat:"bat",fireChupacabra:"dog",shadowMarshal:"marshal",shovelMiner:"miner",giantMoth:"vulture",minerGeneral:"miner",boneHound:"dog",boneSinger:"skeleton",zombieDeputy:"marshal",ashSerpent:"dog",stormVulture:"vulture",railRevenant:"marshal",cryptMother:"miner",deadPreacher:"skeleton",lastConductor:"marshal"};
+const BOSS_SHAPES={...Object.fromEntries(Object.entries(FRONTIER_BOSSES).map(([id,s])=>[id,s.shape])),giantBat:"bat",fireChupacabra:"dog",shadowMarshal:"marshal",shovelMiner:"miner",giantMoth:"vulture",minerGeneral:"miner",boneHound:"dog",boneSinger:"skeleton",zombieDeputy:"marshal",ashSerpent:"dog",stormVulture:"vulture",railRevenant:"marshal",cryptMother:"miner",deadPreacher:"skeleton",lastConductor:"marshal",
+  bellTowerKeeper:"marshal",windmillWidow:"vulture",mudKing:"miner",drownedBride:"wraith",bottleBaron:"marshal",damaMalvina:"wraith",ironLocomotive:"miner",railWitchQueen:"marshal",boneCactusMatriarch:"dog",crowKing:"vulture"};
 export const enemyAppearance=(type,bossId)=>bossId?bossId:type;
-const meshFor=(type,bossId)=>bossId?BOSS_SHAPES[bossId]||type:({wraith:"miner",crow:"vulture"}[type]||type);
+const SPECIES={...Object.fromEntries(Object.entries(FRONTIER_ENEMIES).map(([id,s])=>[id,s.shape])),wraith:"miner",crow:"vulture",swampCrow:"vulture",cinderHawk:"vulture",dustCoyote:"dog",mireLeech:"dog",reedStalker:"skeleton",
+  bellRinger:"skeleton",lanternThief:"marshal",windmillWraith:"miner",drownedProspector:"miner",cardsharpGhoul:"marshal",barBanshee:"wraith",
+  whiskeyImp:"dog",pianoCrawler:"miner",railWitch:"marshal",coalMimic:"miner",ironLocust:"vulture",graveRider:"dog",
+  boneCactus:"dog",sundownBandit:"marshal",rattlesnake:"dog"};
+export function meshFor(type, bossId) {
+  let shape = bossId ? BOSS_SHAPES[bossId] || "marshal" : type;
+  const visited = new Set();
+  while (SPECIES[shape] && !visited.has(shape)) {
+    visited.add(shape);
+    shape = SPECIES[shape];
+  }
+  return URLS[shape] ? shape : "marshal";
+}
 let loaderPromise;
 const cached=new Map();
 function asset(type){
@@ -37,7 +51,7 @@ export class EnemyAssetView {
     asset(shape).then(({scene,animations})=>{
       if (view.userData.disposed) return;
       const model=scene.clone(true);
-      if (bossId || type === "wraith" || type === "crow")
+      if (bossId || !["bat","dog","vulture","skeleton","miner"].includes(type))
         model.traverse((part) => {
           if (part.isMesh) part.material = part.material.clone();
         });

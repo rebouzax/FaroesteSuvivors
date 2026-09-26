@@ -21,6 +21,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
   sand.rotateX(-Math.PI / 2);
   sand.computeVertexNormals();
   const ground = new THREE.Mesh(sand, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1 }));
+  ground.receiveShadow = true;
   scene.add(ground);
 
   // Veios de areia escura pintados com uma única malha instanciada.
@@ -67,6 +68,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
     return dummy.matrix.clone();
   }
   const rocks=[], stems=[], arms=[], cactusTips=[], walls=[], dunes=[], scrub=[], bones=[], fences=[], shadows=[], lanterns=[], lanternHalos=[];
+  const telegraphPosts=[], crossbeams=[], insulators=[], wagonBodies=[], wagonWheels=[], graveMarkers=[];
   for (const prop of props) {
     const { x,z,size } = prop;
     if (prop.type === "rock") {
@@ -109,6 +111,29 @@ export function buildDesertWorld(scene, props, detailed = true) {
     lanterns.push(transform(x,1.35,z,0.18,0.24,0.18));
     lanternHalos.push(groundShadow(x,z,3.1,3.1));
   }
+  // Landmarks near the opening route give the first arena a recognizable
+  // frontier silhouette. They remain visual scenery, so combat stays 2.5D.
+  for(const [x,z] of [[-15,-4],[16,19],[-22,29],[24,-17],[-33,1],[38,35]]){
+    telegraphPosts.push(transform(x,2.15,z,.18,4.3,.18));
+    crossbeams.push(transform(x,4.03,z,.94,.12,.15));
+    for(const side of [-1,1])insulators.push(transform(x+side*.78,4.2,z,.1,.17,.1));
+    shadows.push(groundShadow(x+.55,z+.25,.5,.35));
+  }
+  for(const [x,z,angle] of [[-15,19,.38],[19,-13,-.43],[-37,-29,.2]]){
+    const vx=Math.cos(angle),vz=Math.sin(angle);
+    wagonBodies.push(transform(x,.95,z,2.2,.48,1.1,angle));
+    wagonBodies.push(transform(x,1.46,z-.34,.95,.52,.12,angle));
+    wagonBodies.push(transform(x,1.49,z+.34,.95,.52,.12,angle));
+    for(const side of [-1,1])for(const axle of [-1,1]){
+      const wheel=transform(x+side*1.02*vx+axle*.43*vz,.49,z+side*1.02*vz-axle*.43*vx,.47,.47,.09,angle);
+      wagonWheels.push(wheel);
+    }
+    shadows.push(groundShadow(x+.25,z+.13,2.5,1.4));
+  }
+  for(const [x,z] of [[-8,21],[20,11],[-25,-15],[7,-27],[33,-8]]){
+    graveMarkers.push(transform(x,.44,z,.2,.88,.18));
+    graveMarkers.push(transform(x,.82,z,.48,.13,.2));
+  }
   instanced(new THREE.DodecahedronGeometry(1,0),rockMat,rocks);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,stems);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,arms);
@@ -118,6 +143,12 @@ export function buildDesertWorld(scene, props, detailed = true) {
   instanced(new THREE.ConeGeometry(1,2,5),woodMat,scrub);
   instanced(new THREE.CylinderGeometry(1,1,2,5),paleMat,bones);
   instanced(new THREE.BoxGeometry(2,2,2),woodMat,fences);
+  instanced(new THREE.BoxGeometry(1,1,1),woodMat,telegraphPosts);
+  instanced(new THREE.BoxGeometry(1,1,1),woodMat,crossbeams);
+  instanced(new THREE.CylinderGeometry(1,1,1,6),paleMat,insulators);
+  instanced(new THREE.BoxGeometry(1,1,1),woodMat,wagonBodies);
+  instanced(new THREE.TorusGeometry(1,.18,5,12),rockMat,wagonWheels);
+  instanced(new THREE.BoxGeometry(1,1,1),paleMat,graveMarkers);
   instanced(new THREE.SphereGeometry(1,8,5),new THREE.MeshBasicMaterial({color:0xffd99a}),lanterns);
   const haloCanvas=document.createElement("canvas");
   haloCanvas.width=haloCanvas.height=64;

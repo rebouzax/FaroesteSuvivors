@@ -1,0 +1,80 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "destination": "src/assets/stages/bell-town-art.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-d779852c-4715-40d8-b564-5fe0f002a715.png",
+      "prompt": "Pueblo das Campanas: wind-scoured abandoned adobe frontier pueblo with a tall cracked mission bell tower, visible bronze bells, dusty plaza, windmill, purple dusk, amber lanterns."
+    },
+    {
+      "destination": "src/assets/stages/glass-marsh-art.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-15dc72cb-e67a-458f-bf97-8a07d93bc3ed.png",
+      "prompt": "Use case: stylized-concept. NEW game map selection artwork. Pântano de Vidro: haunted frontier marsh, black reflective water, translucent glass reeds, crooked boardwalk, drowned mining equipment, cypress silhouettes, teal moonlit mist and pale green reflections. Cinematic realistic dark western environment illustration matching the existing moonlit ghost town art: intricate weathered materials, atmospheric depth, dramatic lighting. Portrait 2:3, central landmark readable at thumbnail scale. Edge-to-edge scene. No text, UI, border or watermark."
+    },
+    {
+      "destination": "src/assets/stages/midnight-saloon-art.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-3398bf4d-d654-4dc0-87d0-4d22032c5016.png",
+      "prompt": "Use case: stylized-concept. NEW game map selection artwork. Dama da Meia-Noite: interior of an abandoned haunted old west saloon at midnight, grand battered piano, dusty bar bottles, card tables, balcony, warm amber lamps against purple moonlit windows. No people. Cinematic realistic dark western environment illustration matching the existing moonlit ghost town art: intricate weathered materials, atmospheric depth, dramatic lighting. Portrait 2:3, central landmark readable at thumbnail scale. Edge-to-edge scene. No text, UI, border or watermark."
+    },
+    {
+      "destination": "src/assets/stages/forsaken-rail-art.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-0cf340e4-503b-4d62-a14a-90256b4e05f0.png",
+      "prompt": "Use case: stylized-concept. NEW game map selection artwork. Ferrovia dos Condenados: haunted steam locomotive approaching on iron rails across desolate frontier, glowing furnace and headlamp, spectral steam, broken telegraph poles, slate blue night and amber sparks. Cinematic realistic dark western environment illustration matching the existing moonlit ghost town art: intricate weathered materials, atmospheric depth, dramatic lighting. Portrait 2:3, central landmark readable at thumbnail scale. Edge-to-edge scene. No text, UI, border or watermark."
+    },
+    {
+      "destination": "src/assets/stages/crow-fortress-art.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-1be58455-4188-41f5-bb93-18edb9d1017f.png",
+      "prompt": "Use case: stylized-concept. NEW game map selection artwork. Fortaleza dos Corvos: imposing ruined frontier stone fortress on a sheer desert cliff, wooden palisades, ravens circling towers, narrow approach, stormy indigo moonlight, cold silver mist. Cinematic realistic dark western environment illustration matching the existing moonlit ghost town art: intricate weathered materials, atmospheric depth, dramatic lighting. Portrait 2:3, central landmark readable at thumbnail scale. Edge-to-edge scene. No text, UI, border or watermark."
+    },
+    {
+      "destination": "src/assets/portraits/ruth-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-4e85798c-ed63-4a1b-9a3e-a2dc07233dc7.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Ruth Faísca, adult tough female gunslinger, copper red tied hair, rust red leather coat, ochre neckerchief, brown cowboy hat, dark trousers and boots, holding a short double-barrel sawed-off shotgun. Match existing Joao and Maria game portraits: polished stylized semi-realistic low-poly painterly illustration, angular sculpted planes, detailed leather, expressive realistic face, dramatic warm amber rim light and cool fill. Full body head to boots, confident natural three-quarter stance, centered, entire weapon and hat inside frame, margin all around, portrait 2:3. Isolated cutout on truly transparent alpha background. No scenery, floor, text, border, watermark, wireframe or primitive mannequin."
+    },
+    {
+      "destination": "src/assets/portraits/ada-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-b612c498-3264-4daa-8110-815e4efe1ddf.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Ada Morrow, adult female crossbow hunter, dark skin, tied dark hair, midnight blue frontier coat, cream scarf, dark cowboy hat, leather boots, holding a detailed wood and steel crossbow. Match existing Joao and Maria game portraits: polished stylized semi-realistic low-poly painterly illustration, angular sculpted planes, detailed leather, expressive realistic face, dramatic warm amber rim light and cool fill. Full body head to boots, confident natural three-quarter stance, centered, entire weapon and hat inside frame, margin all around, portrait 2:3. Isolated cutout on truly transparent alpha background. No scenery, floor, text, border, watermark, wireframe or primitive mannequin."
+    },
+    {
+      "destination": "src/assets/portraits/silas-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-9a825341-b8dc-4eef-a9ef-2ada24f5d984.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Silas Corvo, lean adult male knife fighter, black coat, gray scarf, black feathered cowboy hat, dark trousers and boots, one throwing knife in each hand, watchful expression. Match existing Joao and Maria game portraits: polished stylized semi-realistic low-poly painterly illustration, angular sculpted planes, detailed leather, expressive realistic face, dramatic warm amber rim light and cool fill. Full body head to boots, confident natural three-quarter stance, centered, entire weapon and hat inside frame, margin all around, portrait 2:3. Isolated cutout on truly transparent alpha background. No scenery, floor, text, border, watermark, wireframe or primitive mannequin."
+    },
+    {
+      "destination": "src/assets/portraits/teo-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-94ba2330-fca4-40a8-94d4-f476779dd7e7.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Teo Carril, lean young adult male railway gunslinger, olive green coat, ochre scarf, brown cowboy hat, holding a lever-action repeating rifle, dark trousers and leather boots. Match existing Joao and Maria game portraits: polished stylized semi-realistic low-poly painterly illustration, angular sculpted planes, detailed leather, expressive realistic face, dramatic warm amber rim light and cool fill. Full body head to boots, confident natural three-quarter stance, centered, entire weapon and hat inside frame, margin all around, portrait 2:3. Isolated cutout on truly transparent alpha background. No scenery, floor, text, border, watermark, wireframe or primitive mannequin."
+    },
+    {
+      "destination": "src/assets/portraits/valeria-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-86a8014a-9035-4eca-9356-8e2fa6330d00.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Valéria Vento, adult female fast duelist, plum burgundy coat, cream scarf, black cowboy hat, tied dark hair, holding a silver revolver, dark trousers and leather boots, agile confident stance. Match existing Joao and Maria game portraits: polished stylized semi-realistic low-poly painterly illustration, angular sculpted planes, detailed leather, expressive realistic face, dramatic warm amber rim light and cool fill. Full body head to boots, confident natural three-quarter stance, centered, entire weapon and hat inside frame, margin all around, portrait 2:3. Isolated cutout on truly transparent alpha background. No scenery, floor, text, border, watermark, wireframe or primitive mannequin."
+    },
+    {
+      "destination": "src/assets/portraits/tomas-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-f0e1482f-ca9a-4537-bd2c-868c9582a3ab.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Tomás Trabuco, stocky adult male breacher, heavy dark beard, charcoal olive heavy leather coat, black cowboy hat, ochre scarf, holding a robust four-barrel shotgun, sturdy dark trousers and boots. Polished stylized semi-realistic low-poly painterly illustration matching existing western game portraits: angular sculpted planes, detailed leather, expressive realistic face, amber rim lighting ONLY on character. Full body head to boots, confident three-quarter stance, centered, entire weapon and hat inside frame with margins, portrait 2:3. Isolated character cutout on transparent background: absolutely no backdrop, no glow behind subject, no gradient, no floor. No text, border, watermark or wireframe."
+    },
+    {
+      "destination": "src/assets/portraits/luzia-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-dec1308b-fee5-4cc6-9187-486e1a084afc.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Luzia do Brejo, adult dark-skinned female marsh healer, deep green coat and green hat, mint scarf, tied dark hair, holding an antique glowing green-gold lantern, belt with small herb pouches, dark trousers and boots. Polished stylized semi-realistic low-poly painterly illustration matching existing western game portraits: angular sculpted planes, detailed leather, expressive realistic face, amber rim lighting ONLY on character. Full body head to boots, confident three-quarter stance, centered, entire weapon and hat inside frame with margins, portrait 2:3. Isolated character cutout on transparent background: absolutely no backdrop, no glow behind subject, no gradient, no floor. No text, border, watermark or wireframe."
+    },
+    {
+      "destination": "src/assets/portraits/benicio-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-a06766d5-3915-44d0-ac6c-57fc93e05eb3.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Benício Fagulha, adult male railway rifleman, small dark beard, brass goggles on brown cowboy hat, brown work coat and ochre scarf, holding a long precision rifle, dark trousers and boots. Polished stylized semi-realistic low-poly painterly illustration matching existing western game portraits: angular sculpted planes, detailed leather, expressive realistic face, amber rim lighting ONLY on character. Full body head to boots, confident three-quarter stance, centered, entire weapon and hat inside frame with margins, portrait 2:3. Isolated character cutout on transparent background: absolutely no backdrop, no glow behind subject, no gradient, no floor. No text, border, watermark or wireframe."
+    },
+    {
+      "destination": "src/assets/portraits/ines-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-62a5a761-8576-4efe-ba24-8e8235936264.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Inês Corvo, adult dark-skinned female raven scout, midnight violet coat, pale gray scarf, black feather in dark cowboy hat, holding a longbow with quiver of arrows, dark trousers and boots. Polished stylized semi-realistic low-poly painterly illustration matching existing western game portraits: angular sculpted planes, detailed leather, expressive realistic face, amber rim lighting ONLY on character. Full body head to boots, confident three-quarter stance, centered, entire weapon and hat inside frame with margins, portrait 2:3. Isolated character cutout on transparent background: absolutely no backdrop, no glow behind subject, no gradient, no floor. No text, border, watermark or wireframe."
+    },
+    {
+      "destination": "src/assets/portraits/dynamite-art-v3.png",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-fa39be00-3e92-4fef-99b4-900379b9b865.png",
+      "prompt": "Use case: stylized-concept. NEW game character selection artwork. Neco Pavio, adult male frontier explosives miner, thick dark mustache, russet brown coat, orange scarf, brown cowboy hat, holding a bundle of red dynamite sticks with unlit fuses, mining belt, dark trousers and boots. Polished stylized semi-realistic low-poly painterly illustration matching existing western game portraits: angular sculpted planes, detailed leather, expressive realistic face, amber rim lighting ONLY on character. Full body head to boots, confident three-quarter stance, centered, entire weapon and hat inside frame with margins, portrait 2:3. Isolated character cutout on transparent background: absolutely no backdrop, no glow behind subject, no gradient, no floor. No text, border, watermark or wireframe."
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { CAMPAIGN } from "../config/campaignConfig.js";
+import { CAMPAIGN, missionId } from "../config/campaignConfig.js";
 
 export class MissionSystem {
   update(run, killed = [], dt = 1/60) {
@@ -11,7 +11,7 @@ export class MissionSystem {
     const missions = CAMPAIGN[run.mapId].missions;
     if (!run.mission && run.missionIndex < missions.length && run.time >= missions[run.missionIndex].at) {
       const spec = missions[run.missionIndex++];
-      run.mission = { ...spec, progress: 0, expiresAt: run.time + spec.duration, success: false, lastCrates: run.cratesBroken };
+      run.mission = { ...spec, id: missionId(run.mapId, run.missionIndex - 1), progress: 0, expiresAt: run.time + spec.duration, success: false, lastCrates: run.cratesBroken };
       run.events.push("level");
     }
     const mission = run.mission;
@@ -24,6 +24,7 @@ export class MissionSystem {
       mission.progress = mission.target;
       mission.success = true;
       run.missionsCompleted++;
+      run.completedMissionIds.add(mission.id);
       run.phase = "mission-reward";
       run.events.push("level");
     } else if (run.time >= mission.expiresAt) {

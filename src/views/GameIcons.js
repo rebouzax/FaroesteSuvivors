@@ -1,6 +1,13 @@
 // Símbolos vetoriais locais. Compartilhados por cartas, loja, HUD e bússola.
 // SVG inline evita fonte de ícones externa e mantém as bordas nítidas no celular.
 const drawings = {
+  returningBlade: '<path d="M12 43c5 12 30 12 40-1 7-9 2-21-8-24-8-2-14 3-15 8 7-7 16-2 14 5-2 7-11 7-16 2-5-5-13-2-15 4z"/><path d="m15 38 9-4m-1 11 9-4m5 8 5-4"/>',
+  lunarReturn: '<path d="M11 43c6 13 30 13 41-1 7-9 2-21-8-24-8-2-14 3-15 8 7-7 16-2 14 5-2 7-11 7-16 2-5-5-13-2-16 4z"/><circle cx="32" cy="32" r="27" stroke-dasharray="3 7"/>',
+  saltWard: '<path d="m32 7 18 11-3 24-15 15-15-15-3-24z"/><path d="m22 25 10-8 10 8-3 14-7 8-7-8z"/>',
+  emberHeart: '<path d="M32 56C10 46 7 27 19 22c6-3 10 0 13 6 4-15 17-20 21-7 4 13-7 28-21 35z"/><path d="M32 18c-4 7 3 9 0 15 7-5 8-9 7-13"/>',
+  moonLens: '<circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="12"/><path d="M47 16a19 19 0 0 0-17 34 22 22 0 0 1 17-34z"/>',
+  thornMail: '<path d="m32 6 6 16 16-7-8 16 13 8-18 1 1 18-10-14-10 14 1-18-18-1 13-8-8-16 16 7z"/>',
+  dawnSeal: '<circle cx="32" cy="32" r="12"/><path d="M32 4v12m0 32v12M4 32h12m32 0h12M12 12l9 9m22 22 9 9m0-40-9 9m-22 22-9 9"/>',
   pistol:
     '<path d="M9 25h30l6-5h9v8l-9 3-6-2-8 5H19l-4 14-7 2-2-4 8-18H9z"/><path d="M28 22v12M20 38l9 4M47 21v9"/>',
   molotov:

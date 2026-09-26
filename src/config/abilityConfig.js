@@ -1,5 +1,7 @@
-export const ABILITY_IDS = ["pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand", "bulwark", "inferno", "silverStorm", "ironCharm", "deadeye", "bloodOath"];
+import { FRONTIER_CARDS, FRONTIER_ENEMIES, frontierCardStats } from "./frontierExpansion.js";
+export const ABILITY_IDS = [...Object.keys(FRONTIER_CARDS), "pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand", "bulwark", "inferno", "silverStorm", "ironCharm", "deadeye", "bloodOath", "saltedRounds", "dustWaltz", "ironRosary", "blueTonic", "longshot", "bentoHourglass", "bentoLuckyStar", "bentoSaddle", "bentoMercyCoin", "bentoGhostLead", "windwardOath", "saloonTempest", "marshfire", "railbreaker", "crowstorm"];
 export const ABILITIES = {
+  ...FRONTIER_CARDS,
   pistol: {
     name: "Pistola do Sertão",
     icon: "✦",
@@ -28,8 +30,24 @@ export const ABILITIES = {
   ironCharm: { name: "Amuleto do Bento", icon: "⬟", suit: "DEFESA", color: "heart" },
   deadeye: { name: "Olho de Chumbo", icon: "✦", suit: "FERRO", color: "steel" },
   bloodOath: { name: "Pacto da Fronteira", icon: "♥", suit: "VIDA", color: "heart" },
+  saltedRounds: { name: "Cartuchos Salmourados", icon: "✦", suit: "FERRO", color: "steel" },
+  dustWaltz: { name: "Valsa da Poeira", icon: "◌", suit: "VENTO", color: "fire" },
+  ironRosary: { name: "Rosário de Ferro", icon: "⬟", suit: "DEFESA", color: "heart" },
+  blueTonic: { name: "Tônico Azul", icon: "♥", suit: "VIDA", color: "heart" },
+  longshot: { name: "Mira do Horizonte", icon: "➶", suit: "FERRO", color: "steel" },
+  bentoHourglass: { name: "Ampulheta de Bento", icon: "⌛", suit: "MERCADOR", color: "steel" },
+  bentoLuckyStar: { name: "Estrela da Sorte", icon: "✣", suit: "MERCADOR", color: "heart" },
+  bentoSaddle: { name: "Sela do Relâmpago", icon: "➤", suit: "MERCADOR", color: "fire" },
+  bentoMercyCoin: { name: "Moeda da Misericórdia", icon: "☥", suit: "MERCADOR", color: "heart" },
+  bentoGhostLead: { name: "Chumbo Fantasma", icon: "✧", suit: "MERCADOR", color: "steel" },
+  windwardOath: { name: "Juramento do Vendaval", icon: "◌", suit: "VENTO", color: "fire" },
+  saloonTempest: { name: "Tempestade do Saloon", icon: "✺", suit: "FOGO", color: "steel" },
+  marshfire: { name: "Fogo do Pântano", icon: "♨", suit: "MALDIÇÃO", color: "fire" },
+  railbreaker: { name: "Quebra-Trilhos", icon: "➤", suit: "FERRO", color: "steel" },
+  crowstorm: { name: "Nuvem de Corvos", icon: "✷", suit: "SOMBRA", color: "heart" },
 };
 export function abilityStats(id, level) {
+  if (FRONTIER_CARDS[id]) return frontierCardStats(id, level);
   const extra = Math.max(0, level - 1);
   if (id === "pistol")
     return {
@@ -60,6 +78,21 @@ export function abilityStats(id, level) {
   if (id === "ironCharm") return { armor: 2 * level };
   if (id === "deadeye") return { damage: 4 * level };
   if (id === "bloodOath") return { health: 12 * level, heal: level };
+  if (id === "saltedRounds") return { damage: 3 * level };
+  if (id === "dustWaltz") return { speed: 0.06 * level };
+  if (id === "ironRosary") return { armor: 2 * level };
+  if (id === "blueTonic") return { health: 18 * level, heal: 12 * level };
+  if (id === "longshot") return { range: 2 * level };
+  if (id === "bentoHourglass") return { haste: 0.04 * level };
+  if (id === "bentoLuckyStar") return { fortune: 0.1 * level };
+  if (id === "bentoSaddle") return { speed: 0.05 * level };
+  if (id === "bentoMercyCoin") return { heal: 3 * level };
+  if (id === "bentoGhostLead") return { damage: 2 * level };
+  if (id === "windwardOath") return { speed: 0.08 * level, armor: level };
+  if (id === "saloonTempest") return { damage: 5 * level };
+  if (id === "marshfire") return { damage: 3 * level, heal: level };
+  if (id === "railbreaker") return { damage: 4 * level, range: 2 * level };
+  if (id === "crowstorm") return { crit: 0.05 * level, speed: 0.04 * level };
   return { health: 20 };
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
@@ -87,6 +120,23 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);
 export function enemyStats(type, minute) {
+  const frontier = {
+    ...FRONTIER_ENEMIES,
+    bellRinger:{hp:86,damage:26,armor:6,speed:1.8,xp:38}, dustCoyote:{hp:58,damage:27,armor:3,speed:4.3,xp:34},
+    lanternThief:{hp:77,damage:31,armor:5,speed:2.8,xp:40}, windmillWraith:{hp:105,damage:35,armor:9,speed:2.4,xp:48},
+    mireLeech:{hp:116,damage:38,armor:8,speed:2.2,xp:52}, reedStalker:{hp:92,damage:41,armor:7,speed:3.1,xp:50},
+    drownedProspector:{hp:142,damage:45,armor:13,speed:1.7,xp:58}, swampCrow:{hp:75,damage:35,armor:5,speed:4.4,xp:43},
+    cardsharpGhoul:{hp:155,damage:48,armor:11,speed:2.8,xp:64}, barBanshee:{hp:130,damage:53,armor:9,speed:3.4,xp:65},
+    whiskeyImp:{hp:118,damage:51,armor:7,speed:4.2,xp:61}, pianoCrawler:{hp:205,damage:58,armor:17,speed:1.45,xp:76},
+    railWitch:{hp:220,damage:62,armor:17,speed:2.75,xp:82}, coalMimic:{hp:265,damage:65,armor:21,speed:1.7,xp:87},
+    ironLocust:{hp:136,damage:59,armor:12,speed:4.5,xp:73}, graveRider:{hp:302,damage:71,armor:24,speed:3.2,xp:94},
+    boneCactus:{hp:325,damage:77,armor:28,speed:1.3,xp:102}, sundownBandit:{hp:215,damage:72,armor:16,speed:3.4,xp:89},
+    cinderHawk:{hp:166,damage:79,armor:13,speed:4.8,xp:96}, rattlesnake:{hp:184,damage:83,armor:15,speed:4.6,xp:104},
+  };
+  if(frontier[type]) {
+    const base=frontier[type];
+    return {hp:Math.round(base.hp*(1+minute*0.18)),damage:Math.round(base.damage*(1+minute*0.12)),armor:base.armor+Math.floor(minute/2),speed:base.speed+Math.min(1.3,minute*0.1),xp:base.xp};
+  }
   const base =
     type === "dog"
       ? { hp: 35, damage: 14, armor: 2, speed: 3.5, xp: 20 }

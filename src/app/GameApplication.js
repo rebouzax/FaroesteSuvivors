@@ -168,6 +168,7 @@ export class GameApplication {
     }
     if(action === "arsenal" || action === "bestiary"){
       if(action==="arsenal" && !this.profile.data.completedRuns)return;
+      if(action==="arsenal")this.profile.arsenalJustUnlocked=false;
       this.progressReturn=this.current;
       this.show(action);return;
     }
@@ -291,8 +292,9 @@ export class GameApplication {
         action,
       )
     ) {
+      const returningFromRun = Boolean(this.vm) && action === "select";
       if (this.vm) this.endRun();
-      this.show(action);
+      this.show(returningFromRun ? "map-select" : action);
       return;
     }
     if (action === "character") {

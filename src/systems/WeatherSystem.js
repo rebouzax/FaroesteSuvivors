@@ -15,10 +15,6 @@ export class WeatherSystem {
         run.tornadoes.push({x:Math.max(-114,Math.min(114,run.player.x+Math.cos(a)*17)),z:Math.max(-114,Math.min(114,run.player.z+Math.sin(a)*17)),vx:Math.cos(angle+0.7+i)*2.2,vz:Math.sin(angle+0.7+i)*2.2,age:0,life:21});
       }
     }
-    if(run.time<weather.windEnds && !run.bossEncounter.active){
-      run.player.x=Math.max(-CONFIG.mapHalf+1,Math.min(CONFIG.mapHalf-1,run.player.x+weather.windX*dt));
-      run.player.z=Math.max(-CONFIG.mapHalf+1,Math.min(CONFIG.mapHalf-1,run.player.z+weather.windZ*dt));
-    }
     for(const tornado of run.tornadoes){
       tornado.age+=dt;
       tornado.x+=tornado.vx*dt;

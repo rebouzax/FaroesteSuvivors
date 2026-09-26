@@ -1,20 +1,22 @@
 import { CONFIG, levelCost } from "../config/gameConfig.js";
+import { FRONTIER_CARDS } from "../config/frontierExpansion.js";
 import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { createWorld } from "./WorldModel.js";
 import { temporaryPrice } from "../config/shopConfig.js";
 import { CHARACTERS } from "../config/characterConfig.js";
 import { MAPS } from "../config/mapConfig.js";
 import { CAMPAIGN } from "../config/campaignConfig.js";
-import { DECK_MIN } from "../config/deckConfig.js";
+import { DECK_MIN, STARTER_DECK } from "../config/deckConfig.js";
 export class RunModel {
   constructor(random = Math.random, permanentHealth = 0, bonuses = {}, options = {}) {
     this.random = random;
     this.characterId = CHARACTERS[options.characterId] ? options.characterId : "joao";
     this.mapId = MAPS[options.mapId] ? options.mapId : "desert";
     this.mode = options.mode === "story" ? "story" : "free";
-    this.deck = [...new Set((options.deck || ABILITY_IDS).filter((id) => ABILITY_IDS.includes(id)))];
-    if (this.deck.length < DECK_MIN) this.deck = ABILITY_IDS.slice(0, DECK_MIN);
+    this.deck = [...new Set((options.deck || STARTER_DECK).filter((id) => ABILITY_IDS.includes(id)))];
+    if (this.deck.length < DECK_MIN) this.deck = [...STARTER_DECK];
     this.missionsCompleted = 0;
+    this.completedMissionIds = new Set();
     this.defeatedTypes = new Set();
     this.defeatedBosses = new Set();
     this.encounteredBosses = new Set();
@@ -23,6 +25,7 @@ export class RunModel {
     this.moveSpeed =
       this.hero.speed * (1 + (bonuses.movementRank || 0) * 0.05);
     this.primaryDamage = this.hero.damage + (bonuses.primaryRank || 0) * 2;
+    this.primaryRange = this.hero.range;
     this.playerArmor = (bonuses.armorRank || 0) * 2 + (this.hero.armor || 0);
     this.critBonus = Math.min(.2,(bonuses.critRank||0)*.025);
     this.coinMultiplier = 1 + (bonuses.bountyRank||0)*.08;
@@ -79,6 +82,7 @@ export class RunModel {
     this.difficulty = 0;
     this.attack = null;
     this.cooldown = 0.3;
+    this.boomerangTimer = 0;
     this.levelFlash = 0;
     this.abilities = Object.fromEntries(ABILITY_IDS.map(id => [id, 0]));
     this.pendingChoices = 0;
@@ -160,7 +164,7 @@ export class RunModel {
       this.player.maxHp += 10;
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
     }
-    this.applyBentoCard(id);
+    this.applyCardEffects(id);
     if (!this.pendingChoices || !this.deck.some(card=>this.abilities[card]<4)) {
       this.coins+=this.pendingChoices*12;
       this.pendingChoices=0;
@@ -199,7 +203,7 @@ export class RunModel {
       this.player.maxHp += 10;
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
     }
-    this.applyBentoCard(id);
+    this.applyCardEffects(id);
     this.mission=null;
     this.missionOffers=[];
     this.phase="playing";
@@ -233,7 +237,7 @@ export class RunModel {
         this.player.maxHp += 20;
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + 20);
       }
-      this.applyBentoCard(id);
+      this.applyCardEffects(id);
     }
     return true;
   }
@@ -247,7 +251,33 @@ export class RunModel {
     return this.missionsCompleted >= CAMPAIGN[this.mapId].missions.length &&
       this.bossEncounter.nextBoss >= CAMPAIGN[this.mapId].bosses.length;
   }
-  applyBentoCard(id){
+  applyCardEffects(id){
+    const stats=FRONTIER_CARDS[id]?.stats;
+    if(stats){
+      this.primaryDamage+=stats.damage||0;this.primaryRange+=stats.range||0;
+      this.playerArmor+=stats.armor||0;this.attackRate+=stats.haste||0;
+      this.moveSpeed+=this.hero.speed*(stats.speed||0);this.magnetRadius+=stats.magnet||0;
+      this.coinMultiplier+=stats.fortune||0;this.xpMultiplier+=stats.fortune||0;
+      this.critBonus=Math.min(.7,this.critBonus+(stats.crit||0));
+      this.regenPower=(this.regenPower||0)+(stats.regen||0);
+      this.player.maxHp+=stats.health||0;this.player.hp=Math.min(this.player.maxHp,this.player.hp+(stats.health||0));
+    }
+    const damage={saltedRounds:3,saloonTempest:5,bentoGhostLead:2,railbreaker:4,marshfire:3};
+    const range={longshot:2,railbreaker:2};
+    const speed={dustWaltz:.06,bentoSaddle:.05,windwardOath:.08,crowstorm:.04};
+    const armor={ironRosary:2,windwardOath:1};
+    if(damage[id])this.primaryDamage+=damage[id];
+    if(range[id])this.primaryRange+=range[id];
+    if(speed[id])this.moveSpeed+=this.hero.speed*speed[id];
+    if(armor[id])this.playerArmor+=armor[id];
+    if(id==="blueTonic"){
+      this.player.maxHp+=18;
+      this.player.hp=Math.min(this.player.maxHp,this.player.hp+12);
+    }
+    if(id==="bentoHourglass")this.attackRate+=.04;
+    if(id==="bentoLuckyStar"){this.coinMultiplier+=.1;this.xpMultiplier+=.1;}
+    if(id==="bentoMercyCoin")this.player.hp=Math.min(this.player.maxHp,this.player.hp+3);
+    if(id==="crowstorm")this.critBonus=Math.min(.5,this.critBonus+.05);
     if(id==="ironCharm")this.playerArmor+=2;
     if(id==="deadeye")this.primaryDamage+=4;
     if(id==="bloodOath"){

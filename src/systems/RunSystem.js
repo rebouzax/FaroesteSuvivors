@@ -23,17 +23,16 @@ export class RunSystem {
     run.events.length = 0;
     if (run.phase === "intro") {
       run.introTime = Math.min(CONFIG.intro, run.introTime + dt);
-      run.player.z = 8 * (1 - Math.min(1, run.introTime / 5.6));
-      run.player.moving = run.introTime < 5.6;
-      if (run.player.moving) run.player.walkTime += dt;
+      run.player.moving = false;
       if (run.introTime >= CONFIG.intro) run.phase = "playing";
       return;
     }
     if (run.phase !== "playing") return;
     run.time = Math.min(CONFIG.duration, run.time + dt);
-    if(run.abilities.bloodOath){
+    const regeneration=run.abilities.bloodOath+run.abilities.marshfire+(run.regenPower||0);
+    if(regeneration){
       run.regenTimer+=dt;
-      if(run.regenTimer>=4){run.player.hp=Math.min(run.player.maxHp,run.player.hp+run.abilities.bloodOath);run.regenTimer=0;}
+      if(run.regenTimer>=4){run.player.hp=Math.min(run.player.maxHp,run.player.hp+regeneration);run.regenTimer=0;}
     }
     if (run.time >= CONFIG.duration) {
       run.phase = "victory";
@@ -95,16 +94,16 @@ export class RunSystem {
     this.missions.update(run,killed,dt);
   }
   move(run, dt, input) {
-    const p = run.player,
-      oldX = p.x,
-      oldZ = p.z,
-      length = Math.hypot(input.x, input.z);
-    if (length > 0.12) {
+    const p = run.player, oldX = p.x, oldZ = p.z;
+    const length = Math.hypot(input.x, input.z);
+    const hasInput = length > 0.12;
+    if (hasInput) {
       p.dx = input.x / length;
       p.dz = input.z / length;
     }
-    p.x = clamp(p.x + p.dx * run.moveSpeed * dt);
-    p.z = clamp(p.z + p.dz * run.moveSpeed * dt);
+    const moveX=hasInput?input.x/length:0,moveZ=hasInput?input.z/length:0;
+    p.x = clamp(p.x + moveX * run.moveSpeed * dt);
+    p.z = clamp(p.z + moveZ * run.moveSpeed * dt);
     for (const prop of run.props) {
       const dx = p.x - prop.x,
         dz = p.z - prop.z,

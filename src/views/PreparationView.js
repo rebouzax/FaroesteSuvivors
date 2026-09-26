@@ -1,8 +1,8 @@
 import { CHARACTERS, CHARACTER_IDS } from "../config/characterConfig.js";
 import { MAP_IDS } from "../config/mapConfig.js";
-import { t } from "../services/I18n.js";
+import { t, unlockRequirementText } from "../services/I18n.js";
 import { HERO_PORTRAITS } from "../config/portraitConfig.js";
-import { CAMPAIGN, previousStage, HERO_REWARDS, stageUnlocked, heroUnlocked } from "../config/campaignConfig.js";
+import { CAMPAIGN, previousStage, HERO_REWARDS, MISSION_HERO_REWARDS, stageUnlocked, heroUnlocked } from "../config/campaignConfig.js";
 import { gameIcon } from "./GameIcons.js";
 import { STAGE_ART } from "../config/stageArtConfig.js";
 
@@ -22,7 +22,7 @@ export function preparationMarkup(profile,step,selectedCharacter="joao",selected
   const unlocked=character?heroUnlocked(stats,id):stageUnlocked(stats,id);
   const hero=character?CHARACTERS[id]:null;
   const name=character?(unlocked?hero.name:t(lang,"hiddenHero")):t(lang,"map."+id);
-  const hint=character?t(lang,"clearStage",{stage:t(lang,"map."+HERO_REWARDS[id])}):t(lang,"clearStage",{stage:t(lang,"map."+previousStage(id))});
+  const hint=character?unlockRequirementText(lang,{after:HERO_REWARDS[id],mission:MISSION_HERO_REWARDS[id]}):t(lang,"clearStage",{stage:t(lang,"map."+previousStage(id))});
   const artwork=character
     ? unlocked?`<img src="${HERO_PORTRAITS[id]}" alt="${hero.name}" loading="eager">`:`<span class="carousel-mystery" aria-label="${t(lang,"hiddenHero")}">?</span>`
     : `<span class="carousel-landscape map-${id}"><img src="${STAGE_ART[id]}" alt="" loading="eager">${unlocked?"":'<span class="stage-lock" aria-hidden="true">?</span>'}</span>`;
@@ -37,5 +37,5 @@ export function preparationMarkup(profile,step,selectedCharacter="joao",selected
       <article class="carousel-focus ${unlocked?"":"carousel-locked"}" aria-live="polite"><div class="carousel-art">${artwork}</div><div class="carousel-details"><h3>${name}</h3>${details}</div></article>
       <button class="carousel-arrow" type="button" data-action="cycle:1" aria-label="${t(lang,"continue")}">›</button>
     </div><div class="carousel-dots" aria-hidden="true">${ids.map((_,i)=>`<span class="${i===index?"active":""}"></span>`).join("")}</div>
-    ${character?"":tools}<button class="primary carousel-continue" data-action="${character?"character":"play"}" ${unlocked?"":"disabled"}>${t(lang,character?"continue":"play")} →</button></section>`;
+    ${character?"":tools}${!character&&!stats.completedRuns?`<p class="progression-notice">${t(lang,"arsenalLocked")}</p>`:""}${!character&&profile.arsenalJustUnlocked?`<p class="progression-notice" role="status">${t(lang,"arsenalUnlocked")}</p>`:""}<button class="primary carousel-continue" data-action="${character?"character":"play"}" ${unlocked?"":"disabled"}>${t(lang,character?"continue":"play")} →</button></section>`;
 }

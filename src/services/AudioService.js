@@ -16,10 +16,21 @@ const MUSIC = {
   desert: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
   mine: new URL("../assets/audio/under-the-silver-vein.mp3", import.meta.url),
   town: new URL("../assets/audio/the-devil-at-noon.mp3", import.meta.url),
-  canyon: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
-  cemetery: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
+  canyon: new URL("../assets/audio/heel-and-hardwood.mp3", import.meta.url),
+  cemetery: new URL("../assets/audio/seven-bullets-left.mp3", import.meta.url),
+  bellTown: new URL("../assets/audio/three-steps-west.mp3", import.meta.url),
+  glassMarsh: new URL("../assets/audio/black-powder-prayer.mp3", import.meta.url),
+  midnightSaloon: new URL("../assets/audio/last-drink-for-the-wicked.mp3", import.meta.url),
+  forsakenRail: new URL("../assets/audio/iron-boots-on-wicked-ground.mp3", import.meta.url),
+  crowFortress: new URL("../assets/audio/vengeance-has-a-heavy-heel.mp3", import.meta.url),
 };
-export const GAME_MUSIC_LOOPS = Object.freeze({ desert: {start:5,end:169}, mine: {start:4,end:176}, town: {start:0,end:176}, canyon:{start:5,end:169}, cemetery:{start:5,end:169} });
+export const GAME_MUSIC_LOOPS = Object.freeze({
+  desert:{start:5,end:169}, mine:{start:4,end:176}, town:{start:0,end:176},
+  canyon:{start:0,end:170}, cemetery:{start:0,end:176},
+  bellTown:{start:0,end:176}, glassMarsh:{start:0,end:176},
+  midnightSaloon:{start:0,end:147}, forsakenRail:{start:0,end:176},
+  crowFortress:{start:6,end:175},
+});
 export class AudioService {
   constructor() {
     this.enabled = true;

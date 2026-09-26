@@ -1,5 +1,5 @@
-import { PERMANENT_UPGRADES, temporaryPrice } from "../config/shopConfig.js";
-import { t, localizedCardDescription } from "../services/I18n.js";
+import { PERMANENT_UPGRADES, temporaryPrice, upgradeUnlocked } from "../config/shopConfig.js";
+import { t, localizedCardDescription, unlockRequirementText } from "../services/I18n.js";
 import { gameIcon } from "./GameIcons.js";
 import { BENTO_PORTRAIT } from "../config/portraitConfig.js";
 import { BENTO_CARDS } from "../config/deckConfig.js";
@@ -7,8 +7,8 @@ export function permanentProducts(profile) {
   const lang = profile.data.language;
   return Object.entries(PERMANENT_UPGRADES)
     .map(([id, item]) => {
-      const price = profile.price(id),valid=Number.isSafeInteger(price),locked=item.after&&!profile.data.storyClears[item.after];
-      return `<article class="market-product ${locked?"is-locked":""}" data-kind="upgrades"><span class="product-symbol" aria-hidden="true">${gameIcon(id)}</span><p class="eyebrow">${t(lang, "permanent", { rank: profile.data[item.field] })}</p><h3>${t(lang, "shop." + id)}</h3><p>${locked?t(lang,"clearStage",{stage:t(lang,"map."+item.after)}):t(lang, "shopDesc." + id)}</p><button data-action="buy:${id}" ${!valid || locked || profile.data.coins < price ? "disabled" : ""}>${valid ? t(lang, "buy", { price: price.toLocaleString(lang === "pt" ? "pt-BR" : lang === "es" ? "es-ES" : "en-US") }) : t(lang, "limit")}</button></article>`;
+      const price = profile.price(id),valid=Number.isSafeInteger(price),locked=!upgradeUnlocked(profile.data,id);
+      return `<article class="market-product ${locked?"is-locked":""}" data-kind="upgrades"><span class="product-symbol" aria-hidden="true">${gameIcon(id)}</span><p class="eyebrow">${t(lang, "permanent", { rank: profile.data[item.field] })}</p><h3>${t(lang, "shop." + id)}</h3><p>${locked?unlockRequirementText(lang,item):t(lang, "shopDesc." + id)}</p><button data-action="buy:${id}" ${!valid || locked || profile.data.coins < price ? "disabled" : ""}>${valid ? t(lang, "buy", { price: price.toLocaleString(lang === "pt" ? "pt-BR" : lang === "es" ? "es-ES" : "en-US") }) : t(lang, "limit")}</button></article>`;
     })
     .join("")+Object.entries(BENTO_CARDS).map(([id,item])=>{
       const owned=profile.data.bentoCards.includes(id),locked=!profile.data.storyClears[item.after];
