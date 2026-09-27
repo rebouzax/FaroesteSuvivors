@@ -1,0 +1,57 @@
+<!doctype html><html lang="pt"><meta charset="utf-8"><title>Inspeção dos modelos integrados</title>
+<style>body{margin:0;background:#20252b;color:#eee;font:15px sans-serif}header{padding:12px;display:flex;gap:12px;align-items:center}button,select{padding:8px}#view{height:75vh}#labels,#status{padding:12px;white-space:pre-wrap}canvas{display:block}</style>
+<header><button id="actors">Criaturas</button><button id="heroes">Campeões</button><button id="audit">Verificar os 100 GLBs</button><select id="stage" aria-label="Fase"></select><button id="world">Ver fase no jogo</button><button id="landmark">Ir ao cenário importado</button></header><div id="view"></div><div id="labels"></div><pre id="status"></pre>
+<script type="module">
+import * as THREE from 'three';
+import { SUPPLIED_ASSETS } from './src/config/suppliedAssets.js';
+import { loadActor,loadSupplied } from './src/views/SuppliedAssetLoader.js';
+import { MODEL_KINDS } from './src/config/creatureArt.js';
+import { preloadCowboyAsset } from './src/views/CowboyRig.js';
+import { HERO_MODELS } from './src/config/specialHeroes.js';
+import { GameView } from './src/views/GameView.js';
+import { RunModel } from './src/models/RunModel.js';
+import { CAMPAIGN,ENEMY_STAGE_GROUPS,STAGE_ORDER } from './src/config/campaignConfig.js';
+import { sceneryFor } from './src/config/sceneryPlan.js';
+import { enemyStats } from './src/config/abilityConfig.js';
+import { TreasureSystem } from './src/systems/TreasureSystem.js';
+import { clone } from 'three/addons/utils/SkeletonUtils.js';
+const host=document.querySelector('#view'),status=document.querySelector('#status'),labels=document.querySelector('#labels'),select=document.querySelector('#stage');
+select.innerHTML=STAGE_ORDER.map(s=>`<option>${s}</option>`).join('');
+let renderer,scene,camera,mixers=[],view,run,frame,last=performance.now();
+window.addEventListener('error',e=>status.textContent+='\nERROR '+e.message);
+function clear(){cancelAnimationFrame(frame);view?.dispose();view=null;renderer?.dispose();renderer=null;host.replaceChildren();mixers=[];}
+async function gallery(heroes){
+ clear();renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(host.clientWidth,host.clientHeight);host.append(renderer.domElement);scene=new THREE.Scene();scene.background=new THREE.Color(0x20252b);scene.add(new THREE.HemisphereLight(0xdde9ff,0x72664e,3));const sun=new THREE.DirectionalLight(0xffe1b5,3);sun.position.set(-4,8,6);scene.add(sun);
+ const ids=heroes?Object.keys(HERO_MODELS):Object.keys(SUPPLIED_ASSETS).filter(id=>SUPPLIED_ASSETS[id].role==='actor');
+ const cols=heroes?4:7,rows=Math.ceil(ids.length/cols),span=heroes?5:10;
+ camera=new THREE.PerspectiveCamera(38,host.clientWidth/host.clientHeight,.1,100);camera.position.set(0,heroes?2.8:9,heroes?8.4:20);camera.lookAt(0,.5,0);
+ let successes=0;status.textContent='Carregando…';labels.textContent=ids.join(' · ');
+ for(let i=0;i<ids.length;i++)try{const asset=heroes?await preloadCowboyAsset(ids[i]):await loadActor(ids[i],MODEL_KINDS[ids[i]]||'humanoid');const model=clone(asset.scene);model.position.set((i%cols-(cols-1)/2)*(heroes?2.2:2.5),0,(Math.floor(i/cols)-(rows-1)/2)*3);scene.add(model);const mixer=new THREE.AnimationMixer(model);const clip=asset.animations.find(c=>c.name===(heroes?'Idle':'Walk'))||asset.animations[0];if(clip)mixer.clipAction(clip).play();mixers.push(mixer);successes++;}catch(e){status.textContent+='\n'+ids[i]+': '+e.message;}
+ status.textContent=`${successes}/${ids.length} atores carregados`;
+ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;mixers.forEach(m=>m.update(dt));renderer.render(scene,camera);frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);
+}
+document.querySelector('#actors').onclick=()=>gallery(false);document.querySelector('#heroes').onclick=()=>gallery(true);
+document.querySelector('#audit').onclick=async()=>{let passed=0;const errors=[];for(const id of Object.keys(SUPPLIED_ASSETS)){try{const asset=await loadSupplied(id);const box=new THREE.Box3().setFromObject(asset.scene);if(box.isEmpty()||!Number.isFinite(box.max.y))throw Error('Invalid bounds');passed++;}catch(e){errors.push(id+': '+e.message);}status.textContent=`GLBs verificados: ${passed}/100\n${errors.join('\n')}`;}};
+document.querySelector('#world').onclick=async()=>{clear();run=new RunModel(()=>.5,0,{}, {mapId:select.value,characterId:'viking'});run.phase='playing';run.time=550;run.enemies=ENEMY_STAGE_GROUPS[run.mapId].filter(t=>t!=='vulture').map((type,i)=>({id:i+1,type,...enemyStats(type,0),maxHp:100,x:(i-2)*3,z:1,hitFlash:0}));view=new GameView(host,run,{quality:'high'});await view.suppliedScenery.ready;status.textContent=`${run.mapId}: ${view.suppliedScenery.root.children.length} cenários / falhas ${view.suppliedScenery.failures.length}`;labels.textContent=run.enemies.map(e=>e.type).join(' · ');function tick(){run.visualTime+=.016;view.render(run);frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);};
+document.querySelector('#landmark').onclick=()=>{if(!run)return;const p=sceneryFor(run.mapId)[0];if(p){run.player.x=p.x;run.player.z=p.z+10;}};
+const validate=document.createElement('button');validate.textContent='Validar 15 fases';document.querySelector('header').append(validate);
+validate.onclick=async()=>{
+  clear();const results=[];
+  for(const stage of STAGE_ORDER){
+    const model=new RunModel(()=>.5,0,{}, {mapId:stage,characterId:'pirate'});model.phase='playing';
+    model.enemies=[...ENEMY_STAGE_GROUPS[stage].filter(t=>t!=='vulture').map((type,i)=>({id:i+1,type,...enemyStats(type,0),maxHp:100,x:(i-2)*3,z:0,hitFlash:0})),...CAMPAIGN[stage].bosses.map((b,i)=>({...b,id:100+i,bossId:b.id,maxHp:b.hp,x:(i-1)*6,z:-7,hitFlash:0}))];
+    model.nextId=200;model.time=400;new TreasureSystem().update(model,.01);
+    model.weather.kind='rain';model.weather.remaining=20;model.weather.strikes=[{x:0,z:4,age:1.3,radius:2.2,hit:true}];
+    const game=new GameView(host,model,{quality:'high'});game.render(model);
+    await Promise.all([game.player.userData.ready,game.suppliedScenery.ready,...[...game.enemyViews.values()].map(v=>v.userData.ready)]);
+    model.visualTime=.5;game.render(model);
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+    const failed=[...game.enemyViews.values()].filter(v=>v.userData.loadError||!v.children.length).length+game.suppliedScenery.failures.length+(game.player.children.length?0:1);
+    results.push(`${stage}: ${failed===0?'OK':'FALHAS '+failed} · ${model.enemies.length} criaturas/chefes/tesouro · ${game.suppliedScenery.root.children.length} cenários · ${model.props.length} colisões`);
+    status.textContent=results.join('\n');game.dispose();host.replaceChildren();
+  }
+  labels.textContent='Validação das 15 fases em qualidade alta concluída';
+};
+for(const kind of ['rain','sand','tornado']){const button=document.createElement('button');button.textContent='Clima: '+kind;document.querySelector('header').append(button);button.onclick=()=>{if(!run)return;run.weather.kind=kind;run.weather.remaining=25;run.weather.strikes=kind==='rain'?[{x:run.player.x+3,z:run.player.z-2,age:1.3,radius:2.2,hit:true}]:[];run.tornadoes=kind==='tornado'?[{x:run.player.x+4,z:run.player.z,age:0,life:20}]:[];run.time=400;new TreasureSystem().update(run,.01);};}
+await gallery(true);
+</script></html>

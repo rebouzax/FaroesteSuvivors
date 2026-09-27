@@ -1,0 +1,1683 @@
+{
+  "schema": 1,
+  "authorization": "Explicit user confirmation in this conversation, 2026-09-26",
+  "assets": [
+    {
+      "file": "Aranha(1).glb",
+      "sha256": "acf91e737a33d1a2d8070353ff2520682d97c390279d3afd02e61c42c69a937a",
+      "bytes": 81212,
+      "role": "actor",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 1080,
+      "skins": 0,
+      "animations": [],
+      "id": "aranha-1",
+      "path": "src/assets/supplied/aranha-1.glb"
+    },
+    {
+      "file": "Canyon Scene(1).glb",
+      "sha256": "e34383d0a0c4208a17fa8d23bf6c19ad00f05ec377d26eb03bd7ece4cb27f30d",
+      "bytes": 1297872,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 14864,
+      "skins": 0,
+      "animations": [],
+      "id": "canyon-scene-1",
+      "path": "src/assets/supplied/canyon-scene-1.glb"
+    },
+    {
+      "file": "Cathedral.glb",
+      "sha256": "c1ae5b325d577e773ebbfc50d3eca0165fb9a98ad29ca0fae1cc1e1ca6a7426f",
+      "bytes": 565148,
+      "role": "environment",
+      "destination": "moonMonastery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 9030,
+      "skins": 0,
+      "animations": [],
+      "id": "cathedral",
+      "path": "src/assets/supplied/cathedral.glb"
+    },
+    {
+      "file": "Caveira_voadora.glb",
+      "sha256": "3a05ac7a8fe56832e988285d24f755f2d22db51cc0e70f2bd559077f6324349b",
+      "bytes": 93372,
+      "role": "actor",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 3132,
+      "skins": 0,
+      "animations": [],
+      "id": "caveira-voadora",
+      "path": "src/assets/supplied/caveira-voadora.glb"
+    },
+    {
+      "file": "Cemetery(1).glb",
+      "sha256": "ce463e3790b9aab0392de60cf551a770fe223a447903b5dc6fd47baa6b0cd8ed",
+      "bytes": 3767972,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 2064,
+      "skins": 0,
+      "animations": [],
+      "id": "cemetery-1",
+      "path": "src/assets/supplied/cemetery-1.glb"
+    },
+    {
+      "file": "Clanker.glb",
+      "sha256": "8b4d9ade834656612618b898a94fcaf3ebc1ce8658ca6f725bd6d1b5beba2c6f",
+      "bytes": 459324,
+      "role": "actor",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 12118,
+      "skins": 0,
+      "animations": [],
+      "id": "clanker",
+      "path": "src/assets/supplied/clanker.glb"
+    },
+    {
+      "file": "Cobra.glb",
+      "sha256": "70b4af1088dec939e167b07c0a5e69992a4851beac8bd24a9da1189b65ae101c",
+      "bytes": 216696,
+      "role": "actor",
+      "destination": "canyon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 1618,
+      "skins": 1,
+      "animations": [
+        "SnakeArmature|Snake_Attack",
+        "SnakeArmature|Snake_Idle",
+        "SnakeArmature|Snake_Jump",
+        "SnakeArmature|Snake_Walk"
+      ],
+      "id": "cobra",
+      "path": "src/assets/supplied/cobra.glb"
+    },
+    {
+      "file": "Coffin(1).glb",
+      "sha256": "ebd32fff01f61c1b100fc9eb3479e5dd14ea563a60c9efbc79003c8fc3070291",
+      "bytes": 36200,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 316,
+      "skins": 0,
+      "animations": [],
+      "id": "coffin-1",
+      "path": "src/assets/supplied/coffin-1.glb"
+    },
+    {
+      "file": "Coffin(2).glb",
+      "sha256": "c41600115ead356f5e303f1d9111c56f069324a66081f4fdff569762fd3db59d",
+      "bytes": 96488,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 2064,
+      "skins": 0,
+      "animations": [],
+      "id": "coffin-2",
+      "path": "src/assets/supplied/coffin-2.glb"
+    },
+    {
+      "file": "Crypta(1).glb",
+      "sha256": "725d2c3dc8a89741769312c4ba3a4b3200c6f81e3ed668105252f8c3584ce34c",
+      "bytes": 76508,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 952,
+      "skins": 0,
+      "animations": [],
+      "id": "crypta-1",
+      "path": "src/assets/supplied/crypta-1.glb"
+    },
+    {
+      "file": "Dama_Malvina.glb",
+      "sha256": "39cc1f6b3dac14e3978876050d9ea2e0a04b86a1867f7d453e5eef378ba02476",
+      "bytes": 210400,
+      "role": "actor",
+      "destination": "midnightSaloon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 2984,
+      "skins": 0,
+      "animations": [],
+      "id": "dama-malvina",
+      "path": "src/assets/supplied/dama-malvina.glb"
+    },
+    {
+      "file": "Dead tree(1).glb",
+      "sha256": "abaf1cf785904c8b6fbe855e4c20bbc9ffb3e3c94533fc0f8224a3e594e223e7",
+      "bytes": 24412,
+      "role": "environment",
+      "destination": "saltFlats",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 256,
+      "skins": 0,
+      "animations": [],
+      "id": "dead-tree-1",
+      "path": "src/assets/supplied/dead-tree-1.glb"
+    },
+    {
+      "file": "Esqueleto_sem_cabeça.glb",
+      "sha256": "300878829f3d0c4fd2cf030505405f67682617b08714835c3914c2f63660c43c",
+      "bytes": 662212,
+      "role": "actor",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 11668,
+      "skins": 1,
+      "animations": [
+        "CharacterArmature|CharacterArmature|CharacterArmature|Death|CharacterArmature|Dea",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Duck|CharacterArmature|Duck",
+        "CharacterArmature|CharacterArmature|CharacterArmature|HitReact|CharacterArmature|",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Idle|CharacterArmature|Idle",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Idlea|CharacterArmatur",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Idle|CharacterArmature",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Land|CharacterArmature",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Jump|CharacterArmature|Jump",
+        "CharacterArmature|CharacterArmature|CharacterArmature|No|CharacterArmature|No",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Punch|CharacterArmature|Pun",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Run|CharacterArmature|Run",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Sword|CharacterArmature|Swo",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Walk|CharacterArmature|Walk",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Wave|CharacterArmature|Wave",
+        "CharacterArmature|CharacterArmature|CharacterArmature|Yes|CharacterArmature|Yes"
+      ],
+      "id": "esqueleto-sem-cabeca",
+      "path": "src/assets/supplied/esqueleto-sem-cabeca.glb"
+    },
+    {
+      "file": "Ghoul.glb",
+      "sha256": "6c309754e38b604aa4e50c004574f392cf72c50011cc636438a073158fb73cc3",
+      "bytes": 78296,
+      "role": "actor",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 884,
+      "skins": 0,
+      "animations": [],
+      "id": "ghoul",
+      "path": "src/assets/supplied/ghoul.glb"
+    },
+    {
+      "file": "Gigante.glb",
+      "sha256": "09f2fc7a7d8e9504bea781df0730de0f9e479d04be10af134ae618a158f7abb1",
+      "bytes": 245620,
+      "role": "actor",
+      "destination": "saltFlats",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 3812,
+      "skins": 1,
+      "animations": [
+        "EnemyArmature|EnemyArmature|EnemyArmature|Attack",
+        "EnemyArmature|EnemyArmature|EnemyArmature|Death",
+        "EnemyArmature|EnemyArmature|EnemyArmature|HitRecieve",
+        "EnemyArmature|EnemyArmature|EnemyArmature|Idle",
+        "EnemyArmature|EnemyArmature|EnemyArmature|Jump",
+        "EnemyArmature|EnemyArmature|EnemyArmature|Run",
+        "EnemyArmature|EnemyArmature|EnemyArmature|Walk"
+      ],
+      "id": "gigante",
+      "path": "src/assets/supplied/gigante.glb"
+    },
+    {
+      "file": "Grave(2).glb",
+      "sha256": "77ba77ed17cb30369583c8e47b2589b7d085cf0b55f395c4ec93772603dce263",
+      "bytes": 25844,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 132,
+      "skins": 0,
+      "animations": [],
+      "id": "grave-2",
+      "path": "src/assets/supplied/grave-2.glb"
+    },
+    {
+      "file": "Gravestone(1).glb",
+      "sha256": "5f68f5961740f2d751d24cba05d6a9eab6fecb95416938f1d8f63bfcb9f1cb17",
+      "bytes": 29516,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 271,
+      "skins": 0,
+      "animations": [],
+      "id": "gravestone-1",
+      "path": "src/assets/supplied/gravestone-1.glb"
+    },
+    {
+      "file": "Lobo.glb",
+      "sha256": "761b8106fe5d62cf532508a72522ce222f1de61be70676559d8b48e9684f5495",
+      "bytes": 90988,
+      "role": "actor",
+      "destination": "canyon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 674,
+      "skins": 0,
+      "animations": [],
+      "id": "lobo",
+      "path": "src/assets/supplied/lobo.glb"
+    },
+    {
+      "file": "Morte.glb",
+      "sha256": "f3a5a33713c64b428643674c2d93cb037f3f27883df52e60c5364dfecfb1cbbd",
+      "bytes": 673664,
+      "role": "actor",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 9548,
+      "skins": 0,
+      "animations": [],
+      "id": "morte",
+      "path": "src/assets/supplied/morte.glb"
+    },
+    {
+      "file": "Poste(1).glb",
+      "sha256": "655b90f7d5e753c59aa41980c1c24e5cbd0d1bc94e417530b49112c39be6d0fb",
+      "bytes": 48288,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 776,
+      "skins": 0,
+      "animations": [],
+      "id": "poste-1",
+      "path": "src/assets/supplied/poste-1.glb"
+    },
+    {
+      "file": "Saloon.glb",
+      "sha256": "f69657acfbc1c6128f3c5c6ba7145e9c8bcd835482702754f9749e1889b70325",
+      "bytes": 3652788,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 1964,
+      "skins": 0,
+      "animations": [],
+      "id": "saloon",
+      "path": "src/assets/supplied/saloon.glb"
+    },
+    {
+      "file": "Scropiao.glb",
+      "sha256": "8441e59580af9d4ef0b06220f951f963fddb73bacc580257172dab93cacce068",
+      "bytes": 41088,
+      "role": "actor",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 742,
+      "skins": 0,
+      "animations": [],
+      "id": "scropiao",
+      "path": "src/assets/supplied/scropiao.glb"
+    },
+    {
+      "file": "Tree Dead.glb",
+      "sha256": "8fdadc368a6d8d0e5c6155a28dc2df4ae4e77e5d17c62f52fb673be0d87f582b",
+      "bytes": 66888,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 1496,
+      "skins": 0,
+      "animations": [],
+      "id": "tree-dead",
+      "path": "src/assets/supplied/tree-dead.glb"
+    },
+    {
+      "file": "Viking(1).glb",
+      "sha256": "58de1e70896e61b89bcede1152135e3c5a0de9a59e2af05d1abd1f714779dedb",
+      "bytes": 289972,
+      "role": "actor",
+      "destination": "merchant",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 3782,
+      "skins": 0,
+      "animations": [],
+      "id": "viking-1",
+      "path": "src/assets/supplied/viking-1.glb"
+    },
+    {
+      "file": "Zombie(1).glb",
+      "sha256": "c2116656a558b32b32884cd1f103a79ffa0d402fd0c783bd5b85e19d54c49803",
+      "bytes": 175856,
+      "role": "actor",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 2231,
+      "skins": 0,
+      "animations": [],
+      "id": "zombie-1",
+      "path": "src/assets/supplied/zombie-1.glb"
+    },
+    {
+      "file": "bare-tree-01.glb",
+      "sha256": "757d049bc6cdffa73c52e3cb64b0cfb5c2fd738c4f8365539d9164210645b2ba",
+      "bytes": 44960,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 6238,
+      "skins": 0,
+      "animations": [],
+      "id": "bare-tree-01",
+      "path": "src/assets/supplied/bare-tree-01.glb"
+    },
+    {
+      "file": "bats-01.glb",
+      "sha256": "11d9e2fb9db5e71f94ace3a53310b06f5afddb1cd3d071d18ff8f2fdf5769a9f",
+      "bytes": 13872,
+      "role": "actor",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1900,
+      "skins": 0,
+      "animations": [],
+      "id": "bats-01",
+      "path": "src/assets/supplied/bats-01.glb"
+    },
+    {
+      "file": "bld-general-store-01.glb",
+      "sha256": "9abd69020bfe126c439d8caf7ea5ad3b794fcfaf9558f85a52a4457ccbe62fb0",
+      "bytes": 6716,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1028,
+      "skins": 0,
+      "animations": [],
+      "id": "bld-general-store-01",
+      "path": "src/assets/supplied/bld-general-store-01.glb"
+    },
+    {
+      "file": "campfire.glb",
+      "sha256": "bc04a42b1be47a32475aad40fbd800f2fe16eaacb31de2c60e60df6defb10fd1",
+      "bytes": 46448,
+      "role": "environment",
+      "destination": "bellTown",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 7142,
+      "skins": 0,
+      "animations": [],
+      "id": "campfire",
+      "path": "src/assets/supplied/campfire.glb"
+    },
+    {
+      "file": "centuriao_romano.glb",
+      "sha256": "a78e3e80df248af4a291772a50f4c794d7d7e20d8fa99fb362d6da258c5cf9f8",
+      "bytes": 212456,
+      "role": "actor",
+      "destination": "merchant",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 2876,
+      "skins": 0,
+      "animations": [],
+      "id": "centuriao-romano",
+      "path": "src/assets/supplied/centuriao-romano.glb"
+    },
+    {
+      "file": "countryside-grass-tile.glb",
+      "sha256": "41ae8b6b08269740d7857b59f05f74519f38df943d77b5680b7599bab3ce1af1",
+      "bytes": 7684,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1172,
+      "skins": 0,
+      "animations": [],
+      "id": "countryside-grass-tile",
+      "path": "src/assets/supplied/countryside-grass-tile.glb"
+    },
+    {
+      "file": "crossing-keeper-hut.glb",
+      "sha256": "e36326fdebb6bd8d956e671d1531d90f7e32b97a84592794db84a1ae99493927",
+      "bytes": 5056,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 826,
+      "skins": 0,
+      "animations": [],
+      "id": "crossing-keeper-hut",
+      "path": "src/assets/supplied/crossing-keeper-hut.glb"
+    },
+    {
+      "file": "cypress-knee-cluster.glb",
+      "sha256": "9c46f9271a5889aaa78c245ace085a7070a202c6cab466df17c173dd8067dee8",
+      "bytes": 5624,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 382,
+      "skins": 0,
+      "animations": [],
+      "id": "cypress-knee-cluster",
+      "path": "src/assets/supplied/cypress-knee-cluster.glb"
+    },
+    {
+      "file": "cypress-tree.glb",
+      "sha256": "cc1cd3c2d7cfce011a3971209136137d50519947c7524441d28967ae68dadba9",
+      "bytes": 7988,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 612,
+      "skins": 0,
+      "animations": [],
+      "id": "cypress-tree",
+      "path": "src/assets/supplied/cypress-tree.glb"
+    },
+    {
+      "file": "dirt-path-ground.glb",
+      "sha256": "0fe4c983d0b99de39c38ce04ff25cc8824a467cc8a47f13a72853ee5b4dbb637",
+      "bytes": 3988,
+      "role": "environment",
+      "destination": "canyon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 348,
+      "skins": 0,
+      "animations": [],
+      "id": "dirt-path-ground",
+      "path": "src/assets/supplied/dirt-path-ground.glb"
+    },
+    {
+      "file": "driftwood-snag.glb",
+      "sha256": "600fcd3439b57235d140b2d27e2a0f17c63e01e381af85af2df6e7b77d538c90",
+      "bytes": 5600,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 544,
+      "skins": 0,
+      "animations": [],
+      "id": "driftwood-snag",
+      "path": "src/assets/supplied/driftwood-snag.glb"
+    },
+    {
+      "file": "dry-hummock-tile.glb",
+      "sha256": "68c0c0d17c3095ff59e3d27139df729ca2d7e0598cd22ef1768dfbdffe96cd62",
+      "bytes": 6828,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 740,
+      "skins": 0,
+      "animations": [],
+      "id": "dry-hummock-tile",
+      "path": "src/assets/supplied/dry-hummock-tile.glb"
+    },
+    {
+      "file": "dun-ale-barrel.glb",
+      "sha256": "651a6a9543403a152ef34920359992118f64b79260bf32a587ce29f4ff04a2e3",
+      "bytes": 11904,
+      "role": "environment",
+      "destination": "midnightSaloon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1556,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-ale-barrel",
+      "path": "src/assets/supplied/dun-ale-barrel.glb"
+    },
+    {
+      "file": "dun-arch-doorway.glb",
+      "sha256": "3617e46aedb0dc6a3535c1c742c10fbb7eeefeca6fb77cbd68cfa3077ef489b2",
+      "bytes": 73084,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 9716,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-arch-doorway",
+      "path": "src/assets/supplied/dun-arch-doorway.glb"
+    },
+    {
+      "file": "dun-cell-bar-door.glb",
+      "sha256": "b1fc9e4c51aa046fa81f7a0068f5bb6df9d1c1bd31995939d5b0ea2fd739a15c",
+      "bytes": 34948,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 5422,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-cell-bar-door",
+      "path": "src/assets/supplied/dun-cell-bar-door.glb"
+    },
+    {
+      "file": "dun-corridor-4way.glb",
+      "sha256": "bdc9cb50d42b6b42cbff428edaaf214b535d20e9d4f2a281b7cc5437acc8b870",
+      "bytes": 45852,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 6224,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-corridor-4way",
+      "path": "src/assets/supplied/dun-corridor-4way.glb"
+    },
+    {
+      "file": "dun-corridor-corner.glb",
+      "sha256": "1dd31ec13eed5b6a0ae1aa2738715ab07878c69c431671837fa8e0142f72ecff",
+      "bytes": 67372,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 8652,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-corridor-corner",
+      "path": "src/assets/supplied/dun-corridor-corner.glb"
+    },
+    {
+      "file": "dun-corridor-straight.glb",
+      "sha256": "3b6c17e69a55b1607f70d3a95b9e4033b3e0db4f97d54da555f1799f28088a74",
+      "bytes": 60664,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 7744,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-corridor-straight",
+      "path": "src/assets/supplied/dun-corridor-straight.glb"
+    },
+    {
+      "file": "dun-floor-candles.glb",
+      "sha256": "ee8f803aa828958bc54d29e2ab354e873cfaff9fceee139f00e095422072b8fa",
+      "bytes": 33656,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4672,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-floor-candles",
+      "path": "src/assets/supplied/dun-floor-candles.glb"
+    },
+    {
+      "file": "dun-rat.glb",
+      "sha256": "b0ad330385e6d9141e2d229bdce4856602caa2193450d47ad0b5286bec95ac1b",
+      "bytes": 9068,
+      "role": "actor",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1416,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-rat",
+      "path": "src/assets/supplied/dun-rat.glb"
+    },
+    {
+      "file": "dun-skeleton.glb",
+      "sha256": "a04c01886bc3068500fa63056628e9f163f75f99b46603f1d4d70c44907dba36",
+      "bytes": 23628,
+      "role": "actor",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 3770,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-skeleton",
+      "path": "src/assets/supplied/dun-skeleton.glb"
+    },
+    {
+      "file": "dun-treasure-chest.glb",
+      "sha256": "c22386460fe144492cf7c4a67250b2501fc1a4faeb4d3a785b532bd73b29d678",
+      "bytes": 30152,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4976,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-treasure-chest",
+      "path": "src/assets/supplied/dun-treasure-chest.glb"
+    },
+    {
+      "file": "dun-vaulted-ceiling.glb",
+      "sha256": "f586005de3a44935f0fef446a21e8ecf15372e333708ebe38c01ac60d5c56fcc",
+      "bytes": 13496,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2184,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-vaulted-ceiling",
+      "path": "src/assets/supplied/dun-vaulted-ceiling.glb"
+    },
+    {
+      "file": "dun-wall-manacles.glb",
+      "sha256": "8348f1e8b70821adff34b9f34052aceb7dc6a572ca77d4d66557ae5f4f02cc26",
+      "bytes": 12776,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2096,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-wall-manacles",
+      "path": "src/assets/supplied/dun-wall-manacles.glb"
+    },
+    {
+      "file": "dun-wall-torch.glb",
+      "sha256": "4fed60faefd3c56b779859258c6794d74c9ab95f09c73942348158ccc9ced8e8",
+      "bytes": 8404,
+      "role": "environment",
+      "destination": "crowFortress",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1282,
+      "skins": 0,
+      "animations": [],
+      "id": "dun-wall-torch",
+      "path": "src/assets/supplied/dun-wall-torch.glb"
+    },
+    {
+      "file": "dune-slope-corner-tile.glb",
+      "sha256": "eeefcc442b0ff5c7435702eb65073c82985b58988de66d489af0128f7295f4ae",
+      "bytes": 5708,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 518,
+      "skins": 0,
+      "animations": [],
+      "id": "dune-slope-corner-tile",
+      "path": "src/assets/supplied/dune-slope-corner-tile.glb"
+    },
+    {
+      "file": "dune-tile.glb",
+      "sha256": "2c69c92c739724ee79fa6896181107f3ceb8267bb1d2b2a3b3a5845f964e7239",
+      "bytes": 6748,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 630,
+      "skins": 0,
+      "animations": [],
+      "id": "dune-tile",
+      "path": "src/assets/supplied/dune-tile.glb"
+    },
+    {
+      "file": "farm-gate-sign.glb",
+      "sha256": "a47c8274d1899ac23604a6edf49cba51729746d84f561200885604b3483912ee",
+      "bytes": 4168,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 460,
+      "skins": 0,
+      "animations": [],
+      "id": "farm-gate-sign",
+      "path": "src/assets/supplied/farm-gate-sign.glb"
+    },
+    {
+      "file": "farm-gate.glb",
+      "sha256": "79979e9d5aaf8fee6ced835ba2eba74e8b4ec84bc4b58880a1c2c57b6d239a53",
+      "bytes": 5580,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 488,
+      "skins": 0,
+      "animations": [],
+      "id": "farm-gate",
+      "path": "src/assets/supplied/farm-gate.glb"
+    },
+    {
+      "file": "farmhouse.glb",
+      "sha256": "a217afe0a72a6d8a8dc94e6ab30390f672eeb99316ffcd1682e8c0f41aeb1efa",
+      "bytes": 8400,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1506,
+      "skins": 0,
+      "animations": [],
+      "id": "farmhouse",
+      "path": "src/assets/supplied/farmhouse.glb"
+    },
+    {
+      "file": "freight-van.glb",
+      "sha256": "f356aea034e0133697eb2ceea5b0fa546274337ec7ca6d858f97e8e3ab760a1f",
+      "bytes": 13628,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 3144,
+      "skins": 0,
+      "animations": [],
+      "id": "freight-van",
+      "path": "src/assets/supplied/freight-van.glb"
+    },
+    {
+      "file": "garden-shed.glb",
+      "sha256": "45e6fdba675a88d5b62a1fd8ed8d0bcc5333d2603dda3f50bf9a1af82d8bfd2d",
+      "bytes": 7812,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1136,
+      "skins": 0,
+      "animations": [],
+      "id": "garden-shed",
+      "path": "src/assets/supplied/garden-shed.glb"
+    },
+    {
+      "file": "general-store.glb",
+      "sha256": "504e8c932c51c00a403fedd0e0226f4459369c14072e7be8c43a74536edd59ab",
+      "bytes": 27432,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 3780,
+      "skins": 0,
+      "animations": [],
+      "id": "general-store",
+      "path": "src/assets/supplied/general-store.glb"
+    },
+    {
+      "file": "ghost.glb",
+      "sha256": "20ca83d7329cda8a01776bb5e30096a899105a0c46f81199e8ea654ab165e104",
+      "bytes": 253680,
+      "role": "actor",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ],
+      "triangles": 4440,
+      "skins": 0,
+      "animations": [],
+      "id": "ghost",
+      "path": "src/assets/supplied/ghost.glb"
+    },
+    {
+      "file": "ghost_2.glb",
+      "sha256": "ed12d263677913c8e5122cf32aef4cfa9d1b18984c9017a0ddd71e0b899c9b39",
+      "bytes": 30212,
+      "role": "actor",
+      "destination": "midnightSaloon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_mesh_quantization"
+      ],
+      "triangles": 592,
+      "skins": 0,
+      "animations": [],
+      "id": "ghost-2",
+      "path": "src/assets/supplied/ghost-2.glb"
+    },
+    {
+      "file": "goods-shed.glb",
+      "sha256": "c9115c318cb456f6638635eade1b059528d7cae343e9dda5c47b3e79133e5527",
+      "bytes": 7992,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1780,
+      "skins": 0,
+      "animations": [],
+      "id": "goods-shed",
+      "path": "src/assets/supplied/goods-shed.glb"
+    },
+    {
+      "file": "grass-verge-01.glb",
+      "sha256": "73da499661f12101ccb1dfa03a406ce30a74adda64050d67c07adbe984e766e8",
+      "bytes": 37156,
+      "role": "environment",
+      "destination": "bellTown",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4256,
+      "skins": 0,
+      "animations": [],
+      "id": "grass-verge-01",
+      "path": "src/assets/supplied/grass-verge-01.glb"
+    },
+    {
+      "file": "jack-o-lantern-01.glb",
+      "sha256": "11616ee0f8db0f4682446780fbec9edc04f6c8227de7cdca82f77e155c3d5322",
+      "bytes": 16104,
+      "role": "environment",
+      "destination": "midnightSaloon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2002,
+      "skins": 0,
+      "animations": [],
+      "id": "jack-o-lantern-01",
+      "path": "src/assets/supplied/jack-o-lantern-01.glb"
+    },
+    {
+      "file": "model_western.glb",
+      "sha256": "2459215692b9afad3bc08542fee93a62323b3ceb650e4470d9bd0821e4a81da0",
+      "bytes": 1391952,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ],
+      "triangles": 39814,
+      "skins": 0,
+      "animations": [],
+      "id": "model-western",
+      "path": "src/assets/supplied/model-western.glb"
+    },
+    {
+      "file": "mooring-post.glb",
+      "sha256": "2d1ef6dab5151c606275ee9ce3b0711972eb99be2f16d93e1247c795d78bc5ad",
+      "bytes": 3384,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 376,
+      "skins": 0,
+      "animations": [],
+      "id": "mooring-post",
+      "path": "src/assets/supplied/mooring-post.glb"
+    },
+    {
+      "file": "moraine-boulder.glb",
+      "sha256": "f1cf0faa3d7c673681b4c30d12ad9f31a1a2e5754cb56a4979755f555bca07b9",
+      "bytes": 9308,
+      "role": "environment",
+      "destination": "canyon",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 880,
+      "skins": 0,
+      "animations": [],
+      "id": "moraine-boulder",
+      "path": "src/assets/supplied/moraine-boulder.glb"
+    },
+    {
+      "file": "mossy-boulder.glb",
+      "sha256": "7d8d581471274f5e02a84a3b8f20b96f3bd8bf0f127d6b0f39b9ad66f905e53a",
+      "bytes": 4944,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 388,
+      "skins": 0,
+      "animations": [],
+      "id": "mossy-boulder",
+      "path": "src/assets/supplied/mossy-boulder.glb"
+    },
+    {
+      "file": "mudbrick-house.glb",
+      "sha256": "77d60fd564439fd06b15e9e3bfdb36e1094f22ff4a0fe0a8356b27987f6ccf9a",
+      "bytes": 7912,
+      "role": "environment",
+      "destination": "bellTown",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1548,
+      "skins": 0,
+      "animations": [],
+      "id": "mudbrick-house",
+      "path": "src/assets/supplied/mudbrick-house.glb"
+    },
+    {
+      "file": "obelisk.glb",
+      "sha256": "8d3185bfa5994586068ca611995959f40631b839a4bc05abbc8dc35f3342e9e9",
+      "bytes": 4520,
+      "role": "environment",
+      "destination": "lastDawn",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 776,
+      "skins": 0,
+      "animations": [],
+      "id": "obelisk",
+      "path": "src/assets/supplied/obelisk.glb"
+    },
+    {
+      "file": "oil-drum-stack.glb",
+      "sha256": "0264014d5ef91f68cdfb3180f8faa62837bf1b030535fc763fac45f282649fb4",
+      "bytes": 12556,
+      "role": "environment",
+      "destination": "emberFoundry",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1732,
+      "skins": 0,
+      "animations": [],
+      "id": "oil-drum-stack",
+      "path": "src/assets/supplied/oil-drum-stack.glb"
+    },
+    {
+      "file": "oil-drum.glb",
+      "sha256": "083a08f158b69d19784af7e1764981a42c0992648fdf5d558f2b0df3f61b92ea",
+      "bytes": 3560,
+      "role": "environment",
+      "destination": "emberFoundry",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 338,
+      "skins": 0,
+      "animations": [],
+      "id": "oil-drum",
+      "path": "src/assets/supplied/oil-drum.glb"
+    },
+    {
+      "file": "open-coal-wagon.glb",
+      "sha256": "4c6cc50968744871dc521b71bdfc1419d389a37207024de2aeee48de2b80929f",
+      "bytes": 15212,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2896,
+      "skins": 0,
+      "animations": [],
+      "id": "open-coal-wagon",
+      "path": "src/assets/supplied/open-coal-wagon.glb"
+    },
+    {
+      "file": "pirata.glb",
+      "sha256": "06cfa3b34b6c879c8383bca5dff7051ee80dfd053222f964bdba55290476baea",
+      "bytes": 247772,
+      "role": "actor",
+      "destination": "campaignReward",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [],
+      "triangles": 3233,
+      "skins": 0,
+      "animations": [],
+      "id": "pirata",
+      "path": "src/assets/supplied/pirata.glb"
+    },
+    {
+      "file": "railway-boulder.glb",
+      "sha256": "b250e597799060f470fa46492919ddde2fe1596c031c71b497f620a85297313f",
+      "bytes": 3040,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 180,
+      "skins": 0,
+      "animations": [],
+      "id": "railway-boulder",
+      "path": "src/assets/supplied/railway-boulder.glb"
+    },
+    {
+      "file": "road-dirt-4way.glb",
+      "sha256": "c383a0bda2d5718c191f03c92a521f9abce2d5296615ae70d63450a168199e0e",
+      "bytes": 5500,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 524,
+      "skins": 0,
+      "animations": [],
+      "id": "road-dirt-4way",
+      "path": "src/assets/supplied/road-dirt-4way.glb"
+    },
+    {
+      "file": "road-dirt-corner.glb",
+      "sha256": "28ab3d7282433f976d96205cbee822b01af919f2b9a44e619eaf22ef9d5394d8",
+      "bytes": 5104,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 508,
+      "skins": 0,
+      "animations": [],
+      "id": "road-dirt-corner",
+      "path": "src/assets/supplied/road-dirt-corner.glb"
+    },
+    {
+      "file": "road-dirt-straight.glb",
+      "sha256": "deed6c4a9a98ab72846c27f81aabc793657223323d6e5aa6e8c75997d70a2010",
+      "bytes": 3092,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 240,
+      "skins": 0,
+      "animations": [],
+      "id": "road-dirt-straight",
+      "path": "src/assets/supplied/road-dirt-straight.glb"
+    },
+    {
+      "file": "road-sand-corner.glb",
+      "sha256": "b754023d9fe8a1e50a605c7932b2f04ebb9f803ba04b3cb296bb04b48382536a",
+      "bytes": 16172,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1416,
+      "skins": 0,
+      "animations": [],
+      "id": "road-sand-corner",
+      "path": "src/assets/supplied/road-sand-corner.glb"
+    },
+    {
+      "file": "road-sand-straight.glb",
+      "sha256": "7053a3e0d29e7e6885e9c0054896a2db85cda71703b9a649f3d1a5febc599330",
+      "bytes": 6776,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 728,
+      "skins": 0,
+      "animations": [],
+      "id": "road-sand-straight",
+      "path": "src/assets/supplied/road-sand-straight.glb"
+    },
+    {
+      "file": "rockfall-debris.glb",
+      "sha256": "84d10bbb710bccdb03fc3aa8de644face28532bbdcd6767f9534e68b1bacaee5",
+      "bytes": 9948,
+      "role": "environment",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1232,
+      "skins": 0,
+      "animations": [],
+      "id": "rockfall-debris",
+      "path": "src/assets/supplied/rockfall-debris.glb"
+    },
+    {
+      "file": "ruined-house-shell.glb",
+      "sha256": "5728afc1f625b0b50821781878600be37ee02b6c4abf1f0d23822d88967cb182",
+      "bytes": 241720,
+      "role": "environment",
+      "destination": "lastDawn",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 38746,
+      "skins": 0,
+      "animations": [],
+      "id": "ruined-house-shell",
+      "path": "src/assets/supplied/ruined-house-shell.glb"
+    },
+    {
+      "file": "runestone.glb",
+      "sha256": "24de6bc269b1c01bba21c4815c04e3efebfb3747b054f01d167c9db7b81fb3e3",
+      "bytes": 6500,
+      "role": "environment",
+      "destination": "moonMonastery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 908,
+      "skins": 0,
+      "animations": [],
+      "id": "runestone",
+      "path": "src/assets/supplied/runestone.glb"
+    },
+    {
+      "file": "sand-tile.glb",
+      "sha256": "fb9717f0608a356ca631a0714a5df7ad16b99985fdd89bb0cdc963b5518fcebe",
+      "bytes": 3524,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 384,
+      "skins": 0,
+      "animations": [],
+      "id": "sand-tile",
+      "path": "src/assets/supplied/sand-tile.glb"
+    },
+    {
+      "file": "scarecrow-01.glb",
+      "sha256": "bc42a659f6c32d70ae0fffe8aca47d6bfe26d6085bfb8f2af8bd1d1bb9af9832",
+      "bytes": 32544,
+      "role": "environment",
+      "destination": "thornGarden",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4810,
+      "skins": 0,
+      "animations": [],
+      "id": "scarecrow-01",
+      "path": "src/assets/supplied/scarecrow-01.glb"
+    },
+    {
+      "file": "scrap-metal-shelter.glb",
+      "sha256": "783c388fb734941e428a67b2b0032a02c438570684d3bdd44646b377fd3a13e1",
+      "bytes": 226876,
+      "role": "environment",
+      "destination": "emberFoundry",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 46984,
+      "skins": 0,
+      "animations": [],
+      "id": "scrap-metal-shelter",
+      "path": "src/assets/supplied/scrap-metal-shelter.glb"
+    },
+    {
+      "file": "scree-rock-cluster.glb",
+      "sha256": "ac76a4093ff699d491b4952f56d5e286b4cc22d786c764e092fca3cd51351d58",
+      "bytes": 16592,
+      "role": "environment",
+      "destination": "mine",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1684,
+      "skins": 0,
+      "animations": [],
+      "id": "scree-rock-cluster",
+      "path": "src/assets/supplied/scree-rock-cluster.glb"
+    },
+    {
+      "file": "shack.glb",
+      "sha256": "a3363717b0d6dd8a4fbd0f92dfab03688699d830ae1509bec53d7932d10df124",
+      "bytes": 143104,
+      "role": "environment",
+      "destination": "glassMarsh",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 26380,
+      "skins": 0,
+      "animations": [],
+      "id": "shack",
+      "path": "src/assets/supplied/shack.glb"
+    },
+    {
+      "file": "shell-pebble-scatter.glb",
+      "sha256": "cc814fd7604fdf2f5be92c613d9cb7db70c7c6bfaa61e1a3cfd55999629d6c20",
+      "bytes": 3720,
+      "role": "environment",
+      "destination": "saltFlats",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 358,
+      "skins": 0,
+      "animations": [],
+      "id": "shell-pebble-scatter",
+      "path": "src/assets/supplied/shell-pebble-scatter.glb"
+    },
+    {
+      "file": "shop-hanging-sign-01.glb",
+      "sha256": "c304f247cd7884dece8dbc67dbc3483c151c4e28d2c9197af1e1fd91ac6900d3",
+      "bytes": 3308,
+      "role": "environment",
+      "destination": "town",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 340,
+      "skins": 0,
+      "animations": [],
+      "id": "shop-hanging-sign-01",
+      "path": "src/assets/supplied/shop-hanging-sign-01.glb"
+    },
+    {
+      "file": "skeleton-01.glb",
+      "sha256": "6dccb2790f4e19fedb59c79a8c14e045933a0c34169dc4b1302977fa388a846d",
+      "bytes": 50876,
+      "role": "actor",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 9564,
+      "skins": 0,
+      "animations": [],
+      "id": "skeleton-01",
+      "path": "src/assets/supplied/skeleton-01.glb"
+    },
+    {
+      "file": "square-hay-bale-01.glb",
+      "sha256": "73bd742c2009e2c3efedfef998e17d905baa47c6d1162422ce8cf4deef5389d3",
+      "bytes": 31864,
+      "role": "environment",
+      "destination": "bellTown",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4008,
+      "skins": 0,
+      "animations": [],
+      "id": "square-hay-bale-01",
+      "path": "src/assets/supplied/square-hay-bale-01.glb"
+    },
+    {
+      "file": "tombstone-01.glb",
+      "sha256": "ad52d272483315b5ac4e9e3c450ba7773eeb443f0adad5510d7c4e52a5b3ce6b",
+      "bytes": 19308,
+      "role": "environment",
+      "destination": "cemetery",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2614,
+      "skins": 0,
+      "animations": [],
+      "id": "tombstone-01",
+      "path": "src/assets/supplied/tombstone-01.glb"
+    },
+    {
+      "file": "track-curve-wide-tile.glb",
+      "sha256": "503ee6cc9328c637fab14bdc808abe425e2dee244e241cf2c9bbde968de6ebc2",
+      "bytes": 12996,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2060,
+      "skins": 0,
+      "animations": [],
+      "id": "track-curve-wide-tile",
+      "path": "src/assets/supplied/track-curve-wide-tile.glb"
+    },
+    {
+      "file": "track-diamond-crossing-tile.glb",
+      "sha256": "9c0a0bce608e97bc26e395106d79becbbbf542dfaad595edd403c5af30e67804",
+      "bytes": 7540,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1456,
+      "skins": 0,
+      "animations": [],
+      "id": "track-diamond-crossing-tile",
+      "path": "src/assets/supplied/track-diamond-crossing-tile.glb"
+    },
+    {
+      "file": "track-double-curve-tile.glb",
+      "sha256": "9d3d83e20a3bb283b53e220a0be5c890f35fe03ef9effc051c480c2163fe09cf",
+      "bytes": 23928,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 4216,
+      "skins": 0,
+      "animations": [],
+      "id": "track-double-curve-tile",
+      "path": "src/assets/supplied/track-double-curve-tile.glb"
+    },
+    {
+      "file": "track-double-straight-tile.glb",
+      "sha256": "47f6278f4cc8599d53f6d24c61eb743cb8b42b43d53e959415eac5a9f58990f4",
+      "bytes": 11380,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 2216,
+      "skins": 0,
+      "animations": [],
+      "id": "track-double-straight-tile",
+      "path": "src/assets/supplied/track-double-straight-tile.glb"
+    },
+    {
+      "file": "track-end-stub-tile.glb",
+      "sha256": "dcecec295fd6fc66b79a223093108f6e69fcfd7705c4ae5771e93576f75434d5",
+      "bytes": 9840,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1454,
+      "skins": 0,
+      "animations": [],
+      "id": "track-end-stub-tile",
+      "path": "src/assets/supplied/track-end-stub-tile.glb"
+    },
+    {
+      "file": "track-points-left-t-tile.glb",
+      "sha256": "e593305a5791ff9debc568cf0acfbadf7eeeb6856c9ce74d18ab6f040436d188",
+      "bytes": 19820,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 3660,
+      "skins": 0,
+      "animations": [],
+      "id": "track-points-left-t-tile",
+      "path": "src/assets/supplied/track-points-left-t-tile.glb"
+    },
+    {
+      "file": "track-straight-tile.glb",
+      "sha256": "3fbc3f335055ab9fc1d3a4885cf8c99c7084399be18d5365d6b27dab0693584f",
+      "bytes": 6944,
+      "role": "environment",
+      "destination": "forsakenRail",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 1092,
+      "skins": 0,
+      "animations": [],
+      "id": "track-straight-tile",
+      "path": "src/assets/supplied/track-straight-tile.glb"
+    },
+    {
+      "file": "waypost.glb",
+      "sha256": "e3d63b6e741604a2e30d5a0ef2f77dc71ce00f2ab0e4be56c275800163a03710",
+      "bytes": 5352,
+      "role": "environment",
+      "destination": "desert",
+      "license": "User supplied; user confirms unrestricted game use on 2026-09-26. No independent license document supplied.",
+      "admission": "accepted by user",
+      "requiredExtensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "triangles": 460,
+      "skins": 0,
+      "animations": [],
+      "id": "waypost",
+      "path": "src/assets/supplied/waypost.glb"
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import { FRONTIER_STAGES, FRONTIER_HERO_REWARDS, FRONTIER_CAMPAIGN, FRONTIER_ENEMIES, FRONTIER_GROUPS, FRONTIER_CARDS } from "./frontierExpansion.js";
+import { EARLY_ENEMIES, EARLY_GROUPS } from "./earlyEnemies.js";
+import { specialHeroUnlocked } from './specialHeroes.js';
 // Time is measured in seconds of active play. Campaign difficulty rises by stage.
 export const STAGE_ORDER = Object.freeze([
   "desert", "mine", "town", "canyon", "cemetery",
@@ -21,7 +23,7 @@ export const CAMPAIGN = Object.freeze({
     ],
   },
   mine: {
-    missions: [{at:80,kind:"dog",target:8,duration:145},{at:325,kind:"crate",target:2,duration:155},{at:550,kind:"miner",target:8,duration:165}],
+    missions: [{at:80,kind:"mineSpider",target:8,duration:145},{at:325,kind:"crate",target:2,duration:155},{at:550,kind:"miner",target:8,duration:165}],
     bosses: [
       {at:300,id:"shovelMiner",type:"boss",hp:3500,damage:29,armor:10,speed:1.55,xp:450,weakness:"lantern",counter:"ada",pattern:"lunge",flame:9},
       {at:480,id:"giantMoth",type:"boss",hp:5000,damage:33,armor:6,speed:1.85,xp:560,weakness:"silverRain",counter:"maria",pattern:"dash",flame:10},
@@ -29,7 +31,7 @@ export const CAMPAIGN = Object.freeze({
     ],
   },
   town: {
-    missions: [{at:75,kind:"dog",target:9,duration:150},{at:350,kind:"bat",target:20,duration:145},{at:560,kind:"skeleton",target:10,duration:155},{at:760,kind:"crate",target:2,duration:110}],
+    missions: [{at:75,kind:"townGhoul",target:9,duration:150},{at:350,kind:"townZombie",target:20,duration:145},{at:560,kind:"headlessOutlaw",target:10,duration:155},{at:760,kind:"crate",target:2,duration:110}],
     bosses: [
       {at:300,id:"boneHound",type:"boss",hp:6000,damage:35,armor:12,speed:1.65,xp:570,weakness:"boneStorm",counter:"ada",pattern:"lunge",flame:10},
       {at:490,id:"boneSinger",type:"boss",hp:8000,damage:41,armor:9,speed:1.85,xp:710,weakness:"requiem",counter:"joao",pattern:"summonSkeleton",flame:11},
@@ -37,7 +39,7 @@ export const CAMPAIGN = Object.freeze({
     ],
   },
   canyon: {
-    missions: [{at:60,kind:"vulture",target:8,duration:140},{at:260,kind:"dog",target:11,duration:165},{at:500,kind:"wraith",target:9,duration:170},{at:735,kind:"crate",target:2,duration:135}],
+    missions: [{at:60,kind:"crow",target:8,duration:140},{at:260,kind:"ridgeWolf",target:11,duration:165},{at:500,kind:"canyonViper",target:9,duration:170},{at:735,kind:"crate",target:2,duration:135}],
     bosses: [
       {at:240,id:"ashSerpent",type:"boss",hp:6600,damage:38,armor:14,speed:1.9,xp:650,weakness:"inferno",counter:"ada",pattern:"fireMark",flame:11},
       {at:480,id:"stormVulture",type:"boss",hp:9000,damage:42,armor:12,speed:2.35,xp:800,weakness:"silverRain",counter:"teo",pattern:"dash",flame:12},
@@ -45,7 +47,7 @@ export const CAMPAIGN = Object.freeze({
     ],
   },
   cemetery: {
-    missions: [{at:50,kind:"crow",target:9,duration:160},{at:230,kind:"skeleton",target:11,duration:165},{at:420,kind:"wraith",target:11,duration:165},{at:600,kind:"crate",target:2,duration:155},{at:770,kind:"miner",target:6,duration:110}],
+    missions: [{at:50,kind:"cryptSpider",target:9,duration:160},{at:230,kind:"graveSkeleton",target:11,duration:165},{at:420,kind:"deathWisp",target:11,duration:165},{at:600,kind:"crate",target:2,duration:155},{at:770,kind:"graveZombie",target:6,duration:110}],
     bosses: [
       {at:240,id:"cryptMother",type:"boss",hp:8400,damage:44,armor:17,speed:1.9,xp:730,weakness:"molotov",counter:"ruth",pattern:"summonMiner",flame:12},
       {at:500,id:"deadPreacher",type:"boss",hp:11500,damage:52,armor:20,speed:2.05,xp:910,weakness:"requiem",counter:"joao",pattern:"summonSkeleton",flame:13},
@@ -77,6 +79,7 @@ export const CAMPAIGN = Object.freeze({
     missions: [{at:55,kind:"railWitch",target:12,duration:145},{at:270,kind:"coalMimic",target:13,duration:150},{at:495,kind:"ironLocust",target:15,duration:160},{at:720,kind:"graveRider",target:12,duration:155}],
     bosses: [
       {at:330,id:"ironLocomotive",type:"boss",hp:46500,damage:110,armor:42,speed:2.0,xp:3250,weakness:"boneStorm",counter:"benicio",pattern:"lunge",flame:25},
+      {at:530,id:"clanker",type:"boss",hp:49000,damage:105,armor:45,speed:1.7,xp:3500,weakness:"silverRain",counter:"ada",pattern:"crossfire",flame:25},
       {at:720,id:"railWitchQueen",type:"marshal",hp:56000,damage:121,armor:46,speed:2.55,xp:3900,weakness:"silverStorm",counter:"valeria",pattern:"summonSkeleton",flame:26},
     ],
   },
@@ -96,10 +99,10 @@ export const ENEMY_IDS = Object.freeze([
   "cardsharpGhoul","barBanshee","whiskeyImp","pianoCrawler",
   "railWitch","coalMimic","ironLocust","graveRider",
   "boneCactus","sundownBandit","cinderHawk","rattlesnake",
-  ...Object.keys(FRONTIER_ENEMIES),
+  ...Object.keys(FRONTIER_ENEMIES), ...Object.keys(EARLY_ENEMIES),
 ]);
 export const ENEMY_STAGE_GROUPS = Object.freeze({
-  ...FRONTIER_GROUPS,
+  ...FRONTIER_GROUPS, ...EARLY_GROUPS,
   bellTown:["bellRinger","dustCoyote","lanternThief","windmillWraith"],
   glassMarsh:["mireLeech","reedStalker","drownedProspector","swampCrow"],
   midnightSaloon:["cardsharpGhoul","barBanshee","whiskeyImp","pianoCrawler"],
@@ -113,6 +116,7 @@ export const GAMEPLAY_CARD_UNLOCKS = Object.freeze({
   blueTonic:"forsakenRail", longshot:"crowFortress",
 });
 export const ENEMY_WEAKNESSES = Object.freeze({
+  ...Object.fromEntries(Object.entries(EARLY_ENEMIES).map(([id,s])=>[id,s.weakness])),
   ...Object.fromEntries(Object.entries(FRONTIER_ENEMIES).map(([id,s])=>[id,s.weakness])),
   bat:"silverRain",dog:"horseshoe",vulture:"ghostShot",skeleton:"molotov",miner:"requiem",wraith:"lantern",crow:"silverRain",
   bellRinger:"ghostShot",dustCoyote:"horseshoe",lanternThief:"silverRain",windmillWraith:"lantern",
@@ -125,6 +129,7 @@ export const previousStage = (id) => STAGE_ORDER[STAGE_ORDER.indexOf(id)-1];
 export const stageUnlocked = (profile,id) => id === "desert" || Boolean(profile.storyClears?.[previousStage(id)]);
 export const MISSION_HERO_REWARDS = Object.freeze({ maria:"desert:1", labuta:"desert:2", indigo:"desert:3" });
 export const MISSION_CARD_REWARDS = Object.freeze({
+  pirateBomb:'glassMarsh:4',
   returningBlade:"saltFlats:1",
   ghostShot:"desert:1", ironWill:"desert:2", lantern:"desert:3",
   silverRain:"mine:1", soulHarvest:"mine:2", boneStorm:"town:1", lastStand:"town:2",
@@ -138,6 +143,7 @@ export const requirementMet = (profile, rule) => Boolean(rule) &&
   (!rule.after || Boolean(profile.storyClears?.[rule.after])) &&
   (!rule.mission || missionUnlocked(profile, rule.mission));
 export const heroUnlocked = (profile,id) => id === "joao" ||
+  specialHeroUnlocked(profile,id) ||
   Boolean(profile.legacyProgression && ["maria","indigo","labuta"].includes(id)) ||
   Boolean(MISSION_HERO_REWARDS[id] && missionUnlocked(profile, MISSION_HERO_REWARDS[id])) ||
   Boolean(HERO_REWARDS[id] && profile.storyClears?.[HERO_REWARDS[id]]);

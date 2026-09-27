@@ -1,5 +1,7 @@
 // Símbolos vetoriais locais. Compartilhados por cartas, loja, HUD e bússola.
 // SVG inline evita fonte de ícones externa e mantém as bordas nítidas no celular.
+import { ABILITIES } from "../config/abilityConfig.js";
+
 const drawings = {
   returningBlade: '<path d="M12 43c5 12 30 12 40-1 7-9 2-21-8-24-8-2-14 3-15 8 7-7 16-2 14 5-2 7-11 7-16 2-5-5-13-2-15 4z"/><path d="m15 38 9-4m-1 11 9-4m5 8 5-4"/>',
   lunarReturn: '<path d="M11 43c6 13 30 13 41-1 7-9 2-21-8-24-8-2-14 3-15 8 7-7 16-2 14 5-2 7-11 7-16 2-5-5-13-2-16 4z"/><circle cx="32" cy="32" r="27" stroke-dasharray="3 7"/>',
@@ -67,6 +69,8 @@ const shopNames = {
   bounty:"coins",
 };
 export function gameIcon(name, className = "") {
-  const paths = drawings[shopNames[name] ?? name] ?? drawings.fortune;
+  const glyph=ABILITIES[name]?.icon;
+  const medallion=`<circle cx="32" cy="32" r="24"/><circle cx="32" cy="32" r="17" stroke-dasharray="2 4"/><path d="M32 3v7m0 44v7M3 32h7m44 0h7"/><text x="32" y="40" text-anchor="middle" fill="currentColor" stroke="none" font-size="23" font-family="Georgia,serif">${glyph}</text>`;
+  const paths = drawings[shopNames[name] ?? name] ?? (glyph?medallion:drawings.fortune);
   return `<svg class="game-icon ${className}" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
 }

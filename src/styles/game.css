@@ -155,6 +155,8 @@ button:disabled {
 .settings-panel p {
   line-height: 1.7;
 }
+.settings-panel .setting-help { margin: -5px 0 8px; color: #c5b6a1; font-size: 13px; line-height: 1.35; }
+.settings-panel select[data-setting="graphics"] { min-width: 128px; padding: 8px 10px; color: #201c2c; background: #f4e0bb; border: 1px solid #a88b69; border-radius: 4px; font: inherit; }
 #app.playing-screen {
   position: fixed;
   inset: 0;

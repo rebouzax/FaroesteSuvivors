@@ -34,6 +34,7 @@ export class CombatSystem {
     this.whip(run, dt);
     this.primaryProjectiles(run,dt);
     this.returningCards(run,dt);
+    this.pirateBomb(run,dt);
     this.pistol(run, dt);
     this.molotov(run, dt);
     this.horseshoes(run, dt);
@@ -54,6 +55,15 @@ export class CombatSystem {
     const p=run.player,angle=Math.atan2(target.z-p.z,target.x-p.x),distance=Math.min(stats.range,Math.hypot(target.x-p.x,target.z-p.z)),flight=Math.max(.38,distance/16);
     run.primaryShots.push({x:p.x,z:p.z,startX:p.x,startZ:p.z,vx:Math.cos(angle)*distance/flight,vz:Math.sin(angle)*distance/flight,age:0,flight,returnAge:0,returnLeg:false,damage:stats.damage,pierce:99,hit:new Set(),kind:"boomerang"});
     run.boomerangTimer=Math.max(.8,stats.cooldown/this.rate(run));run.primaryFlash=.2;run.throwFlash=.65;run.events.push("throw");
+  }
+  pirateBomb(run,dt){
+    if(!run.abilities.pirateBomb)return;
+    run.pirateBombTimer-=dt;if(run.pirateBombTimer>0)return;
+    const stats=abilityStats('pirateBomb',run.abilities.pirateBomb),target=this.closest(run,stats.range);
+    if(!target){run.pirateBombTimer=.25;return;}
+    const dx=target.x-run.player.x,dz=target.z-run.player.z,flight=Math.max(.3,Math.hypot(dx,dz)/15);
+    run.primaryShots.push({x:run.player.x,z:run.player.z,vx:dx/flight,vz:dz/flight,age:0,flight,damage:stats.damage*this.multiplier(run,'pirateBomb'),pierce:1,hit:new Set(),kind:'dynamite'});
+    run.pirateBombTimer=stats.cooldown/this.rate(run);run.throwFlash=.65;run.events.push('throw');
   }
   whip(run, dt) {
     if(run.characterId!=="joao"){
@@ -114,6 +124,15 @@ export class CombatSystem {
       attack.hit=true;
       const p=run.player;
       const count=hero.pellets || (run.characterId === "rosa" || run.characterId === "silas" ? 2 : run.characterId==="maria"&&run.abilities.boneStorm>2?2:1);
+      if(hero.primary==='sword'){
+        for(const enemy of run.enemies){
+          const dx=enemy.x-p.x,dz=enemy.z-p.z,distance=Math.hypot(dx,dz);
+          if(enemy.hp>0&&distance<=run.primaryRange&&(dx*Math.cos(attack.angle)+dz*Math.sin(attack.angle))/Math.max(.001,distance)>.15){
+            this.damage(enemy,run.primaryDamage+run.whipRank*3,run.characterId);run.impacts.push({x:enemy.x,z:enemy.z,age:0});
+          }
+        }
+        run.primaryFlash=.25;run.events.push('whip');return;
+      }
       if(hero.primary==="boomerang"){
         const target=this.closest(run,run.primaryRange),distance=target?Math.min(run.primaryRange,Math.hypot(target.x-p.x,target.z-p.z)):Math.min(11,run.primaryRange*.75),flight=Math.max(.38,distance/16);
         run.primaryShots.push({x:p.x,z:p.z,startX:p.x,startZ:p.z,vx:Math.cos(attack.angle)*distance/flight,vz:Math.sin(attack.angle)*distance/flight,age:0,flight,returnAge:0,returnLeg:false,damage:run.primaryDamage*1.15,pierce:99,hit:new Set(),kind:"boomerang"});

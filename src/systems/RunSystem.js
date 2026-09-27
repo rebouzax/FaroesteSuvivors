@@ -1,4 +1,6 @@
 import { CONFIG } from "../config/gameConfig.js";
+import { pushOut } from './SceneryCollision.js';
+import { TreasureSystem } from './TreasureSystem.js';
 import { EnemySystem } from "./EnemySystem.js";
 import { CombatSystem } from "./CombatSystem.js";
 import { MerchantSystem } from "./MerchantSystem.js";
@@ -17,6 +19,7 @@ export class RunSystem {
     this.boss = new BossSystem();
     this.crates = new CrateSystem();
     this.weather = new WeatherSystem();
+    this.treasure = new TreasureSystem();
     this.missions = new MissionSystem();
   }
   update(run, dt, input) {
@@ -28,7 +31,9 @@ export class RunSystem {
       return;
     }
     if (run.phase !== "playing") return;
-    run.time = Math.min(CONFIG.duration, run.time + dt);
+    run.visualTime = (run.visualTime ?? run.time) + dt;
+    if (!run.bossEncounter.active)
+      run.time = Math.min(CONFIG.duration, run.time + dt);
     const regeneration=run.abilities.bloodOath+run.abilities.marshfire+(run.regenPower||0);
     if(regeneration){
       run.regenTimer+=dt;
@@ -43,6 +48,7 @@ export class RunSystem {
     run.levelFlash = Math.max(0, run.levelFlash - dt);
     this.move(run, dt, input);
     this.weather.update(run, dt);
+    this.treasure.update(run,dt);
     if(run.phase==="defeat")return;
     this.crates.update(run, dt, (x, z, type, value) => this.drop(run, x, z, type, value));
     if (!run.bossEncounter.active) this.merchant.update(run);
@@ -57,6 +63,7 @@ export class RunSystem {
     run.enemies = run.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;
       run.kills++;
+      if(enemy.treasure){this.treasure.defeated(run,enemy,(...args)=>this.drop(run,...args));return false;}
       killed.push(enemy.type);
       if (enemy.bossId) run.defeatedBosses.add(enemy.bossId);
       else run.defeatedTypes.add(enemy.type);
@@ -75,6 +82,7 @@ export class RunSystem {
     });
     if(run.clearSummons){run.enemies=run.enemies.filter(e=>!e.summoned);run.clearSummons=false;}
     for (const enemy of run.enemies) {
+      if(enemy.treasure)continue;
       if (enemy.warning > 0) continue;
       if (
         Math.hypot(enemy.x - p.x, enemy.z - p.z) <
@@ -102,17 +110,10 @@ export class RunSystem {
       p.dz = input.z / length;
     }
     const moveX=hasInput?input.x/length:0,moveZ=hasInput?input.z/length:0;
-    p.x = clamp(p.x + moveX * run.moveSpeed * dt);
-    p.z = clamp(p.z + moveZ * run.moveSpeed * dt);
-    for (const prop of run.props) {
-      const dx = p.x - prop.x,
-        dz = p.z - prop.z,
-        distance = Math.hypot(dx, dz),
-        radius = prop.radius + 0.4;
-      if (distance < radius) {
-        p.x = clamp(prop.x + (distance ? dx / distance : 1) * radius);
-        p.z = clamp(prop.z + (distance ? dz / distance : 0) * radius);
-      }
+    const steps=Math.max(1,Math.ceil(run.moveSpeed*dt/.25));
+    for(let i=0;i<steps;i++){
+      p.x=clamp(p.x+moveX*run.moveSpeed*dt/steps);p.z=clamp(p.z+moveZ*run.moveSpeed*dt/steps);
+      for(let pass=0;pass<3;pass++)for(const prop of run.props)pushOut(p,prop,.4);
     }
     p.moving = Math.hypot(p.x - oldX, p.z - oldZ) > 0.001;
     if (p.moving) p.walkTime += dt;
@@ -137,7 +138,7 @@ export class RunSystem {
       if (distance < 0.6 || (item.attracted && distance < 15 * dt)) {
         if (item.type === "xp") run.addXp(Math.ceil(item.value*run.xpMultiplier));
         else if(item.type==="bandage") p.hp=Math.min(p.maxHp,p.hp+item.value);
-        else run.coins += Math.max(1,Math.ceil(item.value*run.coinMultiplier));
+        else run.coins += item.type==='treasureCoin'?item.value:Math.max(1,Math.ceil(item.value*run.coinMultiplier));
         return false;
       }
       if (item.attracted) {

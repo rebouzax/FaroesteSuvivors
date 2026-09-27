@@ -1,4 +1,5 @@
 import { FRONTIER_STAGES } from "../config/frontierExpansion.js";
+import { sceneryFor,sceneryColliders } from '../config/sceneryPlan.js';
 
 const landmarkStages=new Set(Object.keys(FRONTIER_STAGES));
 export function createWorld(mapId = "desert") {
@@ -27,13 +28,12 @@ export function createWorld(mapId = "desert") {
       radius: type === "rock" ? size * 0.9 : size * 0.3,
     });
   }
-  if (mapId === "town") for (let i = -4; i <= 4; i++) {
-    const z = i * 23;
-    for (const side of [-1,1]) props.push({x:side*9,z,type:"building",size:1,radius:3});
+  const landmarks=sceneryFor(mapId);
+  for(const prop of props)prop.radius=prop.type==='rock'?prop.size*1.1:prop.size*.9;
+  if(mapId==='desert'){
+    for(const [x,z] of [[15,-6],[-20,18],[38,24],[-45,-34]])props.push({x:x+2.25,z,halfX:2.4,halfZ:.12,radius:2.41,type:'visual-collider'});
+    for(const [x,z] of [[-15,-4],[16,19],[-22,29],[24,-17],[-33,1],[38,35],[-8,21],[20,11],[-25,-15],[7,-27],[33,-8]])props.push({x,z,radius:.35,type:'visual-collider'});
+    for(const [x,z,rotation] of [[-15,19,.38],[19,-13,-.43],[-37,-29,.2]])props.push({x,z,rotation,halfX:2.2,halfZ:1.1,radius:2.46,type:'visual-collider'});
   }
-  if (mapId === "mine") for(let i=0;i<20;i++) {
-    const z=-105+i*11;
-    for (const side of [-1,1]) props.push({x:side*22,z,type:"support",size:1,radius:0.65});
-  }
-  return props;
+  return props.filter(prop=>prop.type==='visual-collider'||!landmarks.some(p=>Math.hypot(prop.x-p.x,prop.z-p.z)<p.width*.65+prop.radius+1)).concat(sceneryColliders(mapId));
 }

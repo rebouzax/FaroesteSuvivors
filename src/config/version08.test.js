@@ -29,10 +29,10 @@ describe("campanha e meta de conteúdo 1.0", () => {
       "crowFortress",
     ]);
     expect(STAGE_ORDER.slice(10)).toEqual(["saltFlats","emberFoundry","moonMonastery","thornGarden","lastDawn"]);
-    expect(Object.keys(CHARACTERS)).toHaveLength(22);
-    expect(ENEMY_IDS).toHaveLength(60);
-    expect(BOSS_IDS).toHaveLength(35);
-    for (const id of STAGE_ORDER.slice(5)) expect(CAMPAIGN[id].bosses).toHaveLength(2);
+    expect(Object.keys(CHARACTERS)).toHaveLength(26);
+    expect(ENEMY_IDS).toHaveLength(73);
+    expect(BOSS_IDS).toHaveLength(36);
+    for (const id of STAGE_ORDER.slice(5)) expect(CAMPAIGN[id].bosses).toHaveLength(id==='forsakenRail'?3:2);
   });
 
   it("libera fases, campeões e cartas somente após o clear da fase correta", () => {

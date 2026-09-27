@@ -119,9 +119,10 @@ export function cardDescription(id, nextLevel, attackRate = 1) {
   return "+20 de vida máxima e recupera 20 de vida nesta partida.";
 }
 export const shopHealthPrice = (rank) => Math.ceil(25 * 1.55 ** rank);
+import { EARLY_ENEMIES } from "./earlyEnemies.js";
 export function enemyStats(type, minute) {
   const frontier = {
-    ...FRONTIER_ENEMIES,
+    ...FRONTIER_ENEMIES, ...EARLY_ENEMIES,
     bellRinger:{hp:86,damage:26,armor:6,speed:1.8,xp:38}, dustCoyote:{hp:58,damage:27,armor:3,speed:4.3,xp:34},
     lanternThief:{hp:77,damage:31,armor:5,speed:2.8,xp:40}, windmillWraith:{hp:105,damage:35,armor:9,speed:2.4,xp:48},
     mireLeech:{hp:116,damage:38,armor:8,speed:2.2,xp:52}, reedStalker:{hp:92,damage:41,armor:7,speed:3.1,xp:50},

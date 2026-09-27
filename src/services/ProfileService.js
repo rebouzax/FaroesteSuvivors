@@ -4,6 +4,7 @@ import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { FUSIONS, BENTO_CARDS, STARTER_CARDS, STARTER_DECK, DECK_MIN, DECK_MAX, fusionUnlocked } from "../config/deckConfig.js";
 import { CAMPAIGN, BOSS_IDS, ENEMY_IDS, MISSION_IDS, unlockedGameplayCards } from "../config/campaignConfig.js";
 const KEY = "faroeste:profile:v2";
+import { MERCHANT_HEROES } from '../config/specialHeroes.js';
 export class ProfileService {
   constructor(storage) {
     this.data = {
@@ -11,6 +12,7 @@ export class ProfileService {
       sound: true,
       music: true,
       wind: true,
+      graphics: "normal",
       language: "en",
       healthRank: 0,
       attackRank: 0,
@@ -30,6 +32,7 @@ export class ProfileService {
       discoveries: { enemies: [], bosses: [], encounteredBosses: [] },
       forgedCards: [],
       bentoCards: [],
+      ownedHeroes: [],
       deck: [...STARTER_DECK],
     };
     this.available = true;
@@ -56,6 +59,8 @@ export class ProfileService {
             this.data[key] = saved[key];
         for (const key of ["wind", "sound", "music"])
           if (typeof saved[key] === "boolean") this.data[key] = saved[key];
+        if (["normal", "high"].includes(saved.graphics))
+          this.data.graphics = saved.graphics;
         if (["en","es","pt"].includes(saved.language))this.data.language=saved.language;
         if (Number.isSafeInteger(saved.completedRuns) && saved.completedRuns >= 0)
           this.data.completedRuns = saved.completedRuns;
@@ -70,6 +75,7 @@ export class ProfileService {
           this.data.forgedCards = [...new Set(saved.forgedCards.filter((id) => id in FUSIONS))];
         if (Array.isArray(saved.bentoCards))
           this.data.bentoCards=[...new Set(saved.bentoCards.filter(id=>id in BENTO_CARDS))];
+        if(Array.isArray(saved.ownedHeroes))this.data.ownedHeroes=[...new Set(saved.ownedHeroes.filter(id=>Object.hasOwn(MERCHANT_HEROES,id)))];
         this.data.legacyProgression = saved.legacyProgression === true ||
           (!saved.progressionVersion && (this.data.completedRuns > 0 || this.data.coins > 0 ||
             Object.keys(this.data.storyClears).length > 0 ||
@@ -180,5 +186,10 @@ export class ProfileService {
     this.data.coins-=item.price;
     this.data.bentoCards.push(id);
     this.save();return true;
+  }
+  buyHero(id){
+    const item=MERCHANT_HEROES[id];
+    if(!item||!this.data.storyClears[item.after]||this.data.ownedHeroes.includes(id)||this.data.coins<item.price)return false;
+    this.data.coins-=item.price;this.data.ownedHeroes.push(id);this.save();return true;
   }
 }

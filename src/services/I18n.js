@@ -56,6 +56,12 @@ const dictionary={en,es,pt};
 Object.assign(en,{tutorialTitle:'How to play',tutorialMove:'Use WASD or arrow keys. On a touchscreen, touch and drag anywhere in the play area; the joystick appears under your finger. Your hero walks forward automatically.',tutorialAttack:'Attacks fire automatically. Collect XP to choose one of three cards.',tutorialLoot:'Walk through crates to find bandages or coins. Nearby loot is attracted to you.',tutorialShop:'Bento sells permanent upgrades on the menu and temporary cards during a run. Press Esc to pause.',abilitiesTitle:'Abilities',missionCrate:'Find crates'});
 Object.assign(es,{tutorialTitle:'Cómo jugar',tutorialMove:'Usa WASD o las flechas. En pantallas táctiles, toca y arrastra en cualquier parte del mapa; el control aparece bajo el dedo. El personaje avanza solo.',tutorialAttack:'Los ataques son automáticos. Recoge XP y elige una de las tres cartas.',tutorialLoot:'Pasa por las cajas para encontrar vendas o monedas. Los objetos cercanos se acercan solos.',tutorialShop:'Bento vende mejoras permanentes en el menú y temporales en partida. Esc pausa.',abilitiesTitle:'Habilidades',missionCrate:'Encuentra cajas'});
 Object.assign(pt,{tutorialTitle:'Como jogar',tutorialMove:'Use WASD ou as setas. No celular, toque e arraste em qualquer área da partida; o controle aparece sob o dedo. O personagem avança sozinho.',tutorialAttack:'Os ataques são automáticos. Colete XP e escolha uma entre três cartas.',tutorialLoot:'Passe por cima das caixas para achar bandagens ou moedas. Itens próximos são atraídos.',tutorialShop:'Bento vende melhorias permanentes no menu e temporárias na partida. Esc pausa.',abilitiesTitle:'Habilidades',missionCrate:'Encontre caixas'});
+Object.assign(en,{graphicsQuality:'Graphics quality',graphicsNormal:'Normal',graphicsHigh:'High',graphicsNormalHelp:'Current game visuals with a lighter render load.',graphicsHighHelp:'Higher detail, softer shadows and richer stage and ability effects. Best for powerful devices.',graphicsApplyNextRun:'Applies to your next run.'});
+Object.assign(es,{graphicsQuality:'Calidad gráfica',graphicsNormal:'Normal',graphicsHigh:'Alta',graphicsNormalHelp:'Gráficos actuales del juego con menor carga de renderizado.',graphicsHighHelp:'Más detalle, sombras suaves y efectos de fases y habilidades más ricos. Recomendado para dispositivos potentes.',graphicsApplyNextRun:'Se aplica en la próxima partida.'});
+Object.assign(pt,{graphicsQuality:'Qualidade gráfica',graphicsNormal:'Normal',graphicsHigh:'Alta',graphicsNormalHelp:'Gráficos atuais do jogo com uma renderização mais leve.',graphicsHighHelp:'Mais detalhes, sombras suaves e efeitos de fases e habilidades mais ricos. Recomendado para aparelhos potentes.',graphicsApplyNextRun:'Aplicado na próxima partida.'});
+Object.assign(en,{fusionPageCount:'Recipes {page}/{total} · {count} total',previousPage:'Previous',nextPage:'Next'});
+Object.assign(es,{fusionPageCount:'Recetas {page}/{total} · {count} en total',previousPage:'Anterior',nextPage:'Siguiente'});
+Object.assign(pt,{fusionPageCount:'Receitas {page}/{total} · {count} no total',previousPage:'Anterior',nextPage:'Próxima'});
 Object.assign(en,{tutorialCards:'Alternate cards on level up to build a short damage combo; repeat a card to reset the combo.'});
 Object.assign(es,{tutorialCards:'Alterna cartas al subir de nivel para aumentar el combo de daño; repetir una carta reinicia el combo.'});
 Object.assign(pt,{tutorialCards:'Alterne cartas ao evoluir para acumular um bônus temporário de dano; repetir a carta reinicia a sequência.'});
@@ -268,6 +274,7 @@ Object.assign(pt, {
   winTitle:'Você sobreviveu!',
   storyClear:'Fase concluída! Recompensas permanentes liberadas. Consulte os mapas, campeões e o mercador.',
   storyIncomplete:'Fase ainda não concluída: {missions}/{total} missões e {bosses}/{all} chefes nesta partida. Para avançar, sobreviva 15 minutos e conclua todos os objetivos na mesma partida. Missões concluídas ficam registradas mesmo na derrota.',
+  bossClockPaused:'CHEFE · TEMPO PARADO',
 });
 Object.assign(en, {
   'map.desert':'Desert of the Condemned',
@@ -277,6 +284,7 @@ Object.assign(en, {
   winTitle:'You survived!',
   storyClear:'Stage cleared! Permanent rewards unlocked. Check the maps, heroes and merchant.',
   storyIncomplete:'Stage not cleared: {missions}/{total} missions and {bosses}/{all} bosses this run. Survive 15 minutes and complete all objectives in one run to advance. Completed missions remain recorded even after defeat.',
+  bossClockPaused:'BOSS · CLOCK PAUSED',
 });
 Object.assign(es, {
   'map.desert':'Desierto de los Condenados',
@@ -286,6 +294,7 @@ Object.assign(es, {
   winTitle:'¡Sobreviviste!',
   storyClear:'¡Fase completada! Recompensas permanentes desbloqueadas. Revisa mapas, héroes y mercader.',
   storyIncomplete:'Fase sin completar: {missions}/{total} misiones y {bosses}/{all} jefes en esta partida. Sobrevive 15 minutos y completa todos los objetivos en una partida para avanzar. Las misiones completadas se guardan incluso al morir.',
+  bossClockPaused:'JEFE · TIEMPO DETENIDO',
 });
 const addedTranslations={
   en:{
@@ -341,14 +350,34 @@ for(const language of ["en","es","pt"]){
   }
   const cardNames=language==="pt"?Object.values(FRONTIER_CARDS).map(c=>c.name):expansionCards[language];
   for(const [index,[id,card]] of Object.entries(FRONTIER_CARDS).entries()){
-    dict[`ability.${id}`]=cardNames[index];dict[`${id}Desc`]=card.description;
-    if(card.price)dict[`bentoDesc.${id}`]=expansionBentoDescriptions[language][index-6];
+    dict[`ability.${id}`]=card.names?.[language]??cardNames[index]??card.name;
+    dict[`${id}Desc`]=card.descriptions?.[language]??card.description;
+    if(card.price)dict[`bentoDesc.${id}`]=card.shopDescriptions?.[language]??expansionBentoDescriptions[language][index-6];
   }
+}
+import { EARLY_ENEMIES } from "../config/earlyEnemies.js";
+const earlyNames = {
+  en:["Gallery Spider","Coal Skull","Blind Rat","Saloon Zombie","Outlaw Ghoul","Headless Gunslinger","Canyon Viper","Red Scorpion","Ridge Wolf","Grave Skeleton","Crypt Spider","Mourning Soul","Undead Gravedigger"],
+  es:["Araña de las Galerías","Calavera de Carbón","Rata Ciega","Zombi del Saloon","Necrófago Forajido","Pistolero sin Cabeza","Víbora del Cañón","Escorpión Rojo","Lobo de las Cumbres","Osamenta del Cementerio","Araña de la Cripta","Alma Enlutada","Sepulturero Reanimado"],
+};
+for(const language of ["pt","en","es"]){
+  Object.entries(EARLY_ENEMIES).forEach(([id,enemy],index)=>{
+    const dict={pt,en,es}[language],name=earlyNames[language]?.[index]||enemy.name;
+    dict[`enemy.${id}`]=name;
+    dict[`mission${id[0].toUpperCase()+id.slice(1)}`]=`${language==="pt"?"Derrote":language==="es"?"Derrota":"Defeat"} ${name}`;
+    dict[`lore.${id}`]=`${name} · ${dict[`map.${enemy.stage}`]}.`;
+  });
 }
 export function t(language,key,params={}) {
   const template=key.startsWith('suit.')?(suits[language]?.[key.slice(5)]??key.slice(5)):(audioTexts[language]?.[key]??audioTexts.en[key]??dictionary[language]?.[key]??en[key]??key);
   return template.replace(/\{(\w+)\}/g,(_,field)=>String(params[field]??''));
 }
+const specialTexts={
+ pt:{specialChampion:'Campeão exclusivo','hero.clanker':'Robô recuperado da Ferrovia. Lança quatro fragmentos de ferro perfurantes.','hero.viking':'Viking Errante: arremessa machados giratórios que atravessam inimigos.','hero.centurion':'Centurião de Ferro: golpes de espada em arco e 10 de armadura base.','hero.pirate':'Capitão Pavio: sabre rápido e carta Bomba de Dinamite desde o início.','heroLock.clanker':'Derrote Clanker na Ferrovia dos Condenados.','heroLock.pirate':'Contrato do Corsário: conclua a missão 4 da Cidade Fantasma e a missão 4 do Pântano de Vidro.','merchantHeroLock':'À venda no mercador após concluir {stage}.','boss.clanker':'Clanker, o Ferro-Velho','lore.clanker':'Um autômato preso aos trilhos. Depois de vencido, torna-se um campeão que arremessa sucata.'},
+ en:{specialChampion:'Exclusive champion','hero.clanker':'Recovered railway robot. Fires four piercing iron fragments.','hero.viking':'Wandering Viking: throws spinning axes through enemies.','hero.centurion':'Iron Centurion: sword arcs and 10 base armor.','hero.pirate':'Captain Fuse: quick cutlass strikes and a starting Dynamite Bomb card.','heroLock.clanker':'Defeat Clanker on the Forsaken Railway.','heroLock.pirate':'Corsair Contract: complete mission 4 in Ghost Town and mission 4 in Glass Marsh.','merchantHeroLock':'Sold by the merchant after clearing {stage}.','boss.clanker':'Clanker, the Scrapper','lore.clanker':'A railway automaton. Defeat it to recruit a champion that throws scrap metal.'},
+ es:{specialChampion:'Campeón exclusivo','hero.clanker':'Robot recuperado del ferrocarril. Dispara cuatro fragmentos de hierro perforantes.','hero.viking':'Vikingo Errante: lanza hachas giratorias que atraviesan enemigos.','hero.centurion':'Centurión de Hierro: espadazos en arco y 10 de armadura base.','hero.pirate':'Capitán Mecha: sable rápido y carta Bomba de Dinamita desde el inicio.','heroLock.clanker':'Derrota a Clanker en el Ferrocarril de los Condenados.','heroLock.pirate':'Contrato del Corsario: completa la misión 4 de Ciudad Fantasma y la misión 4 del Pantano de Cristal.','merchantHeroLock':'En venta en el mercader tras completar {stage}.','boss.clanker':'Clanker, el Chatarrero','lore.clanker':'Autómata del ferrocarril. Derrótalo para reclutar un campeón que lanza chatarra.'},
+};
+for(const language of ['pt','en','es'])Object.assign({pt,en,es}[language],specialTexts[language]);
 export function localizedCardDescription(language,id,level,attackRate=1){
   const stats=abilityStats(id,level);
   const values={...stats,damage:stats.damage,attack:Math.round((stats.attack||0)*100),

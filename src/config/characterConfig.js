@@ -1,4 +1,5 @@
 import { FRONTIER_HEROES } from "./frontierExpansion.js";
+import { SPECIAL_HEROES } from './specialHeroes.js';
 export const CHARACTERS = Object.freeze({
   joao: { name: "João Vaqueiro", primary: "whip", hp: 100, damage: 10, cooldown: 1.05, range: 5, speed: 5, armor: 1, magnet: 0.4, icon: "~" },
   maria: { name: "Maria Bonita", primary: "revolver", hp: 90, damage: 14, cooldown: 1.25, range: 19, speed: 5.25, crit: 0.12, icon: "✦" },
@@ -17,5 +18,6 @@ export const CHARACTERS = Object.freeze({
   ines: { name: "Inês Corvo", primary: "bow", hp: 88, damage: 20, cooldown: 1.45, range: 23, speed: 5.6, crit: 0.1, xp: 0.05, icon: "➶" },
   dynamite: { name: "Neco Pavio", primary: "dynamite", hp: 108, damage: 25, cooldown: 1.7, range: 16, speed: 5.0, armor: 1, icon: "✹" },
   ...FRONTIER_HEROES,
+  ...SPECIAL_HEROES,
 });
 export const CHARACTER_IDS = Object.keys(CHARACTERS);

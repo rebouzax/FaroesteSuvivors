@@ -133,6 +133,9 @@ body { background:#111b29; }
 .settings-panel select { max-width:100%; color:#201c2c; background:#f4e0bb; }
 .settings-panel button,.farewell button { display:inline-flex; margin:5px 8px 5px 0; color:#f5e2c4; background:#303447; border:1px solid #b99a74; border-radius:5px; }
 .settings-panel button:hover,.farewell button:hover { background:#4c4a57; }
+#app[data-graphics="high"] .upgrade-dialog .upgrade-card { border-color:#dfbd83; box-shadow:inset 0 0 0 1px #e8c9892c,0 3px 14px #05070b8c; }
+#app[data-graphics="high"] .upgrade-dialog .card-icon { border-color:#dfbd83a8; box-shadow:inset 0 0 18px #ffe0a533,0 0 13px #ffc96930; }
+#app[data-graphics="high"] .upgrade-dialog .card-icon .game-icon { filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 2px 2px #18141d); }
 .mode-panel { background:#172439f3; color:#f1e6d3; border-color:#ad906d; border-radius:9px; box-shadow:0 16px 48px #060c1abf; }
 .mode-panel .text-button { background:transparent; color:#ead9b9; border:none; }
 .mode-card { color:#f1e5d0; background:linear-gradient(155deg,#293649,#1d2a3d); border-color:#b19070; box-shadow:inset 0 0 0 1px #d5b38038; }
@@ -197,3 +200,7 @@ body { background:#111b29; }
   .bestiary-list-image { width:40px; height:37px; }
   .bestiary-card .bestiary-glyph { display:none; }
 }
+.fusion-pagination { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:8px 0 14px; }
+.fusion-pagination button { color:#f5e2c4; background:#303447; border:1px solid #b99a74; border-radius:5px; padding:8px 12px; }
+.fusion-pagination button:disabled { opacity:.48; }
+#app[data-graphics="high"] .fusion-card .arsenal-icon .game-icon { filter:drop-shadow(0 0 4px currentColor); }

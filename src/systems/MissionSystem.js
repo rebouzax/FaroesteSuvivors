@@ -5,7 +5,7 @@ export class MissionSystem {
     if (run.phase !== "playing") return;
     // Keep objective timers fair while normal waves are paused for a boss.
     if (run.bossEncounter.active) {
-      if (run.mission) run.mission.expiresAt += dt;
+      // RunSystem already freezes run.time, including the objective deadline.
       return;
     }
     const missions = CAMPAIGN[run.mapId].missions;

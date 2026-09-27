@@ -9,6 +9,9 @@ import { ABILITY_IDS } from "./abilityConfig.js";
 import { STARTER_CARDS, STARTER_DECK, FUSIONS, BENTO_CARDS, fusionUnlocked } from "./deckConfig.js";
 import { PERMANENT_UPGRADES, upgradeUnlocked } from "./shopConfig.js";
 import { meshFor } from "../views/EnemyAssetView.js";
+import { SPECIAL_HEROES,MERCHANT_HEROES } from './specialHeroes.js';
+import { SUPPLIED_ASSETS } from './suppliedAssets.js';
+import { SPECIAL_ART } from './creatureArt.js';
 import { GameApplication } from "../app/GameApplication.js";
 import { preparationMarkup } from "../views/PreparationView.js";
 import { permanentProducts } from "../views/ShopView.js";
@@ -87,6 +90,11 @@ describe("progressão de novos jogadores", () => {
     r.time = 899.99;
     r.bossEncounter.active = true;
     new RunSystem().update(r,.02,{x:0,z:0});
+    expect(r.time).toBe(899.99);
+    expect(r.visualTime).toBeGreaterThan(0);
+    expect(r.phase).toBe("playing");
+    r.bossEncounter.active = false;
+    new RunSystem().update(r,.02,{x:0,z:0});
     expect(r.phase).toBe("victory");
     p.recordRun(r);
     expect(stageUnlocked(p.data,"mine")).toBe(false);
@@ -129,21 +137,24 @@ describe("progressão de novos jogadores", () => {
 
   it("cobre todo conteúdo com regra explícita e todas as recompensas são alcançáveis", () => {
     expect(new Set([...STARTER_CARDS,...Object.keys(GAMEPLAY_CARD_UNLOCKS),...Object.keys(MISSION_CARD_REWARDS),...Object.keys(FUSIONS),...Object.keys(BENTO_CARDS)])).toEqual(new Set(ABILITY_IDS));
-    expect(new Set(["joao",...Object.keys(HERO_REWARDS),...Object.keys(MISSION_HERO_REWARDS)])).toEqual(new Set(Object.keys(CHARACTERS)));
+    expect(new Set(["joao",...Object.keys(HERO_REWARDS),...Object.keys(MISSION_HERO_REWARDS),...Object.keys(SPECIAL_HEROES)])).toEqual(new Set(Object.keys(CHARACTERS)));
     const p=fresh();
     p.data.missionClears=[...MISSION_IDS];
     p.data.storyClears=Object.fromEntries(Object.keys(CAMPAIGN).map(id=>[id,true]));
+    p.data.ownedHeroes=Object.keys(MERCHANT_HEROES);p.data.discoveries.bosses=['clanker'];
     expect(Object.keys(CHARACTERS).every(id=>heroUnlocked(p.data,id))).toBe(true);
     expect(Object.keys(PERMANENT_UPGRADES).every(id=>upgradeUnlocked(p.data,id))).toBe(true);
     expect(Object.keys(FUSIONS).every(id=>fusionUnlocked(p.data,id))).toBe(true);
   });
 
   it("resolve modelos de todos os inimigos e chefes, incluindo espectros", () => {
-    const models=["bat","dog","vulture","skeleton","miner","boss","marshal"];
+    const models=["bat","dog","vulture","skeleton","miner","boss","marshal","spider","snake","scorpion","rat","ghost","skull",...Object.keys(SUPPLIED_ASSETS).map(id=>'supplied:'+id),...Object.values(SPECIAL_ART).map(id=>'special:'+id)];
     for(const id of ENEMY_IDS) expect(models).toContain(meshFor(id));
     for(const stage of Object.values(CAMPAIGN)) for(const boss of stage.bosses) expect(models).toContain(meshFor(boss.type,boss.id));
-    expect(meshFor("marshal","damaMalvina")).toBe("miner");
-    expect(meshFor("barBanshee")).toBe("miner");
+    expect(meshFor("marshal","damaMalvina")).toBe("supplied:dama-malvina");
+    expect(meshFor("barBanshee")).toBe("supplied:ghost-2");
+    expect(meshFor("boss","ashSerpent")).toBe("supplied:cobra");
+    expect(meshFor("boss","ashSerpent")).not.toBe(meshFor("boss","fireChupacabra"));
   });
 
   it("volta da partida para o mapa, exibindo o aviso do Arsenal liberado", () => {

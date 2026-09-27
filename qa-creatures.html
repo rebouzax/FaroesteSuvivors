@@ -1,0 +1,19 @@
+<!doctype html><html lang="pt"><meta charset="utf-8"><title>Inspeção de criaturas</title>
+<style>body{margin:0;background:#182126;color:#eee;font:16px sans-serif}canvas{width:100%;height:75vh;display:block}#labels{display:flex;justify-content:space-around}pre{margin:24px}</style>
+<canvas></canvas><div id="labels"></div><pre id="audio">Verificando duração das músicas…</pre>
+<script type="module">
+import * as THREE from 'three';
+import {CREATURE_SHAPES,createCreatureAsset} from '/src/views/CreatureGeometry.js';
+const renderer=new THREE.WebGLRenderer({canvas:document.querySelector('canvas'),antialias:true});
+renderer.setSize(innerWidth,innerHeight*.75);renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x182126);
+const camera=new THREE.PerspectiveCamera(35,innerWidth/(innerHeight*.75),.1,100);camera.position.set(0,7,16);camera.lookAt(0,.3,0);
+scene.add(new THREE.HemisphereLight(0xe1e9ff,0x64513b,3));const sun=new THREE.DirectionalLight(0xffdec6,3);sun.position.set(4,6,7);scene.add(sun);
+const mixers=[];
+CREATURE_SHAPES.forEach((shape,i)=>{const asset=createCreatureAsset(shape);asset.scene.position.x=(i-2.5)*2.45;scene.add(asset.scene);const mixer=new THREE.AnimationMixer(asset.scene);mixer.clipAction(asset.animations[0]).play();mixers.push(mixer);});
+document.querySelector('#labels').textContent='Aranha · Serpente · Escorpião · Rato · Espectro · Caveira';
+const tracks=[['Salinas','the-unholy-march.mp3',147],['Fundição','iron-shod-ritual.mp3',168],['Mosteiro','the-revolvers-prayer.mp3',177],['Jardim','brass-at-the-gallows.mp3',169]];
+const results=await Promise.all(tracks.map(([name,file,end])=>new Promise(resolve=>{const audio=new Audio(import.meta.env.BASE_URL+'src/assets/audio/'+file);audio.preload='metadata';audio.onloadedmetadata=()=>resolve(`${name}: ${audio.duration.toFixed(2)} s / loop até ${end} s — ${audio.duration>=end?'OK':'DURAÇÃO INSUFICIENTE'}`);audio.onerror=()=>resolve(name+': erro');})));
+document.querySelector('#audio').textContent=results.join('\n');
+let last=performance.now();renderer.setAnimationLoop(now=>{const dt=Math.min(.05,(now-last)/1000);last=now;mixers.forEach(m=>m.update(dt));renderer.render(scene,camera);});
+</script></html>

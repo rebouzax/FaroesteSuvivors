@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 // Geometria compartilhada e instâncias mantêm o deserto amplo com poucas chamadas de desenho.
-export function buildDesertWorld(scene, props, detailed = true) {
+export function buildDesertWorld(scene, props, detailed = true, highQuality = false) {
   const sand = new THREE.PlaneGeometry(240, 240, detailed ? 90 : 55, detailed ? 90 : 55);
   const colors = [];
   const base = new THREE.Color(0x74788b);
@@ -20,7 +20,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
   sand.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   sand.rotateX(-Math.PI / 2);
   sand.computeVertexNormals();
-  const ground = new THREE.Mesh(sand, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1 }));
+  const ground = new THREE.Mesh(sand, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: !highQuality, roughness: 1 }));
   ground.receiveShadow = true;
   scene.add(ground);
 
@@ -41,8 +41,8 @@ export function buildDesertWorld(scene, props, detailed = true) {
   scene.add(streaks);
 
   const dummy = new THREE.Object3D();
-  const rockMat = new THREE.MeshStandardMaterial({ color: 0x777180, flatShading: true, roughness: 1 });
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x6a6a7a, flatShading: true, roughness: 1 });
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x777180, flatShading: !highQuality, roughness: 1 });
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x6a6a7a, flatShading: !highQuality, roughness: 1 });
   const cactusMat = new THREE.MeshStandardMaterial({ color: 0x405e55, flatShading: true, roughness: 1 });
   const paleMat = new THREE.MeshStandardMaterial({ color: 0xc0b9b5, roughness: 1 });
   const woodMat = new THREE.MeshStandardMaterial({ color: 0x5f5057, roughness: 1 });
@@ -51,6 +51,8 @@ export function buildDesertWorld(scene, props, detailed = true) {
     const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
     for (let i = 0; i < matrices.length; i++) mesh.setMatrixAt(i, matrices[i]);
     mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = highQuality;
+    mesh.receiveShadow = highQuality;
     scene.add(mesh);
   }
   function transform(x,y,z,sx,sy,sz,ry=0,rz=0) {
@@ -75,7 +77,7 @@ export function buildDesertWorld(scene, props, detailed = true) {
       rocks.push(transform(x,0.65*size,z,size,size*1.25,size*0.86,x));
       shadows.push(groundShadow(x+size*0.42,z+size*0.22,size*1.1,size*0.65));
       if (size > 0.8) rocks.push(transform(x+size*0.5,0.18*size,z+size*0.4,size*0.4,size*0.38,size*0.32,x+2));
-    } else {
+    } else if(prop.type==='cactus') {
       stems.push(transform(x,1.2*size,z,0.26*size,1.2*size,0.26*size,x));
       shadows.push(groundShadow(x+size*0.35,z+size*0.16,size*0.62,size*0.35));
       for (const sign of [-1,1]) {
@@ -134,11 +136,12 @@ export function buildDesertWorld(scene, props, detailed = true) {
     graveMarkers.push(transform(x,.44,z,.2,.88,.18));
     graveMarkers.push(transform(x,.82,z,.48,.13,.2));
   }
-  instanced(new THREE.DodecahedronGeometry(1,0),rockMat,rocks);
+  const rockGeometry=highQuality?new THREE.IcosahedronGeometry(1,2):new THREE.DodecahedronGeometry(1,0);
+  instanced(rockGeometry,rockMat,rocks);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,stems);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,arms);
   instanced(new THREE.CylinderGeometry(1,1,2,7),cactusMat,cactusTips);
-  instanced(new THREE.DodecahedronGeometry(1,0),stoneMat,walls);
+  instanced(rockGeometry,stoneMat,walls);
   instanced(new THREE.SphereGeometry(1,10,5),new THREE.MeshStandardMaterial({color:0x888497,roughness:1}),dunes);
   instanced(new THREE.ConeGeometry(1,2,5),woodMat,scrub);
   instanced(new THREE.CylinderGeometry(1,1,2,5),paleMat,bones);

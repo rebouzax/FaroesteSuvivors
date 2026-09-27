@@ -1,5 +1,9 @@
 import * as THREE from "three";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
+import { HighQualityCharacterAnimation } from "./HighQualityCharacterAnimation.js";
+import { HERO_MODELS } from '../config/specialHeroes.js';
+import { loadActor } from './SuppliedAssetLoader.js';
+import { equipChampion } from './ChampionEquipment.js';
 import joaoUrl from "../assets/models/joao.glb?url";
 import mariaUrl from "../assets/models/maria.glb?url";
 import indigoUrl from "../assets/models/indigo.glb?url";
@@ -25,6 +29,10 @@ import amaraUrl from "../assets/models/amara.glb?url";
 const URLs = { joao: joaoUrl, maria: mariaUrl, indigo: indigoUrl, labuta: labutaUrl, rosa: rosaUrl, elias: eliasUrl, silas: silasUrl, ada: adaUrl, ruth: ruthUrl, teo: teoUrl, valeria:valeriaUrl, tomas:tomasUrl, luzia:luziaUrl, benicio:benicioUrl, ines:inesUrl, dynamite:dynamiteUrl,jacinto:jacintoUrl,aurora:auroraUrl,gaspar:gasparUrl,celeste:celesteUrl,severino:severinoUrl,amara:amaraUrl };
 const cache = new Map();
 export function preloadCowboyAsset(id = "joao") {
+  if(HERO_MODELS[id]){
+    if(!cache.has(id))cache.set(id,loadActor(HERO_MODELS[id]).then(source=>equipChampion({scene:cloneSkinned(source.scene),animations:source.animations},id)).catch(error=>{cache.delete(id);throw error;}));
+    return cache.get(id);
+  }
   if (!URLs[id]) throw new Error("Personagem desconhecido: " + id);
   if (!cache.has(id)) {
     cache.set(
@@ -132,9 +140,11 @@ function playCombat(rig, name) {
 export function animateCowboyPreview(root, dt) {
   root.userData.rig?.mixer.update(dt);
 }
-export function animateCowboy(root, run, dt) {
+export function animateCowboy(root, run, dt, highQuality = false) {
   const p = run.player,
-    direction = Math.atan2(p.dx, p.dz);
+    direction = highQuality && run.attack
+      ? Math.atan2(Math.cos(run.attack.angle), Math.sin(run.attack.angle))
+      : Math.atan2(p.dx, p.dz);
   const difference = Math.atan2(
     Math.sin(direction - root.rotation.y),
     Math.cos(direction - root.rotation.y),
@@ -147,6 +157,9 @@ export function animateCowboy(root, run, dt) {
   );
   const rig = root.userData.rig;
   if (!rig) return;
+  if (highQuality && !rig.highAnimation)
+    rig.highAnimation = new HighQualityCharacterAnimation(root.children[0], run.hero.primary);
+  rig.highAnimation?.restore();
   const desired = p.moving ? "Walk" : "Idle";
   if (rig.locomotion !== desired) {
     rig.actions[rig.locomotion].fadeOut(0.16);
@@ -159,7 +172,7 @@ export function animateCowboy(root, run, dt) {
   rig.attacking = attacking;
   const shooting = run.shotFlash > 0.15 || run.primaryFlash > 0.15;
   if (shooting && !rig.shooting) {
-    const action=run.characterId==="joao"?"Shot":["dynamite","boomerang"].includes(run.hero.primary)?"Throw":["pistol","dual"].includes(run.hero.primary)?"Shot":"Primary";
+    const action=run.characterId==="joao"?"Shot":["dynamite","boomerang","axe"].includes(run.hero.primary)?"Throw":["pistol","dual"].includes(run.hero.primary)?"Shot":"Primary";
     playCombat(rig,action);
     if(run.hero.primary==="bow")rig.bowHold=.64;
   }
@@ -178,7 +191,10 @@ export function animateCowboy(root, run, dt) {
   const hurt = p.invulnerable > 0.84 && p.invulnerable <= 0.9;
   if (hurt && !rig.hurt) playCombat(rig, "Hurt");
   rig.hurt = hurt;
+  if (highQuality && rig.actions.Walk)
+    rig.actions.Walk.setEffectiveTimeScale(Math.max(.8, Math.min(1.4, run.moveSpeed / 5)));
   rig.mixer.update(dt);
+  if (highQuality) rig.highAnimation.update(root, run, dt);
 }
 export function disposeCowboyRig(root) {
   root.userData.disposed = true;

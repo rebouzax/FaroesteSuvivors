@@ -21,12 +21,15 @@ import {
   permanentProducts,
   runShopMarkup,
 } from "../views/ShopView.js";
+import { FUSIONS } from "../config/deckConfig.js";
+import { CharacterPreview } from '../views/CharacterPreview.js';
 
 export class GameApplication {
   constructor(root, canvas) {
     this.root = root;
     this.canvas = canvas;
     this.profile = new ProfileService();
+    this.root.dataset.graphics = this.profile.data.graphics;
     this.audio = new AudioService();
     this.screen = new ScreenView(
       root,
@@ -40,6 +43,7 @@ export class GameApplication {
     this.current = "menu";
     this.shopReturn = "menu";
     this.progressReturn = "select";
+    this.fusionPage = 0;
     this.controller = new AbortController();
     this.audio.setPreferences(this.profile.data.sound, this.profile.data.music);
     const activateAudio = () => this.audio.unlock();
@@ -99,6 +103,7 @@ export class GameApplication {
     this.root.querySelector(`[data-action="cycle:${direction}"]`)?.focus({preventScroll:true});
   }
   show(name) {
+    this.heroPreview?.dispose();this.heroPreview=null;
     const lang = this.profile.data.language;
     document.documentElement.lang =
       lang === "pt" ? "pt-BR" : lang === "es" ? "es" : "en";
@@ -125,9 +130,11 @@ export class GameApplication {
         this.mapId,
         this.mode,
       );
+      const host=this.root.querySelector('#special-hero-preview');
+      if(host)this.heroPreview=new CharacterPreview(host,this.characterId);
     } else if (name === "arsenal" || name === "bestiary") {
       this.root.className = "selection-screen progression-screen";
-      this.root.innerHTML = name === "arsenal" ? arsenalMarkup(this.profile,this.progressReturn) : bestiaryMarkup(this.profile,this.progressReturn);
+      this.root.innerHTML = name === "arsenal" ? arsenalMarkup(this.profile,this.progressReturn,this.fusionPage) : bestiaryMarkup(this.profile,this.progressReturn);
     } else if (name === "shop") {
       this.root.className = "shop-screen";
       this.root.innerHTML = permanentShopMarkup(this.profile, this.shopReturn);
@@ -180,6 +187,12 @@ export class GameApplication {
       if (ok) this.show("arsenal");
       return;
     }
+    if(action.startsWith("fusion-page:")&&this.current==="arsenal"){
+      const pages=Math.ceil(Object.keys(FUSIONS).length/30);
+      this.fusionPage=Math.max(0,Math.min(pages-1,this.fusionPage+Number(action.slice(12))));
+      this.show("arsenal");
+      return;
+    }
     if (action.startsWith("choose-character:")) {
       const id = action.slice(17);
       if (this.current === "select" && CHARACTERS[id] && heroUnlocked(this.profile.data,id)) {
@@ -227,10 +240,14 @@ export class GameApplication {
       if(this.profile.buyBentoCard(action.slice(9)))this.refreshShop(action);
       return;
     }
+    if(action.startsWith('buy-hero:')){
+      if(this.current==='shop'&&this.profile.buyHero(action.slice(9)))this.refreshShop(action);
+      return;
+    }
     if(action.startsWith("shop-filter:")){
       if(this.current!=="shop")return;
       const filter=action.slice(12);
-      if(["all","upgrades","cards"].includes(filter)){
+      if(["all","upgrades","cards","heroes"].includes(filter)){
         this.shopFilter=filter;this.applyShopFilter();
         this.root.querySelector("#permanent-products").scrollTop=0;
       }
@@ -347,6 +364,19 @@ export class GameApplication {
       this.show(this.current);
       return;
     }
+    if (key === "graphics") {
+      if (!["normal", "high"].includes(value)) return;
+      this.profile.data.graphics = value;
+      this.root.dataset.graphics = value;
+      this.profile.save();
+      const help = this.root.querySelector(".setting-help");
+      if (help) help.textContent = t(this.profile.data.language, value === "high" ? "graphicsHighHelp" : "graphicsNormalHelp");
+      const status = this.root.querySelector("#save-status");
+      if (status) status.textContent = this.profile.available
+        ? t(this.profile.data.language, "saved")
+        : t(this.profile.data.language, "saveFailed");
+      return;
+    }
     if (!["sound", "wind", "music"].includes(key)) return;
     this.profile.data[key] = value;
     this.profile.save();
@@ -380,7 +410,9 @@ export class GameApplication {
       this.profile.data.language,
     );
     try {
-      this.gameView = new GameView(elements.host, this.vm.model);
+      this.gameView = new GameView(elements.host, this.vm.model, {
+        quality: this.profile.data.graphics,
+      });
     } catch (error) {
       this.vm = null;
       this.show("select");

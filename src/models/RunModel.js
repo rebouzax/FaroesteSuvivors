@@ -41,6 +41,7 @@ export class RunModel {
     this.phase = "intro";
     this.introTime = 0;
     this.time = 0;
+    this.visualTime = 0;
     const maxHp = this.hero.hp + permanentHealth;
     this.player = {
       x: 0,
@@ -85,6 +86,8 @@ export class RunModel {
     this.boomerangTimer = 0;
     this.levelFlash = 0;
     this.abilities = Object.fromEntries(ABILITY_IDS.map(id => [id, 0]));
+    if(this.hero.startingCard)this.abilities[this.hero.startingCard]=1;
+    this.pirateBombTimer=1;
     this.pendingChoices = 0;
     this.cardOffers = [];
     this.lastCard = null;
@@ -260,6 +263,7 @@ export class RunModel {
       this.coinMultiplier+=stats.fortune||0;this.xpMultiplier+=stats.fortune||0;
       this.critBonus=Math.min(.7,this.critBonus+(stats.crit||0));
       this.regenPower=(this.regenPower||0)+(stats.regen||0);
+      this.player.hp=Math.min(this.player.maxHp,this.player.hp+(stats.heal||0));
       this.player.maxHp+=stats.health||0;this.player.hp=Math.min(this.player.maxHp,this.player.hp+(stats.health||0));
     }
     const damage={saltedRounds:3,saloonTempest:5,bentoGhostLead:2,railbreaker:4,marshfire:3};

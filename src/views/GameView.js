@@ -12,40 +12,49 @@ import {
 } from "./CowboyRig.js";
 import { AbilityEffectsView } from "./AbilityEffectsView.js";
 import { EnemyAssetView, enemyAppearance } from "./EnemyAssetView.js";
+import { resetBossHigh, animateBossHigh } from "./HighQualityBossAnimation.js";
+import { resetEnemyHigh, animateEnemyHigh } from "./HighQualityEnemyAnimation.js";
 import { MapMerchantView } from "./MapMerchantView.js";
 import { buildDesertWorld } from "./DesertWorldView.js";
 import { buildOtherWorld } from "./OtherWorldView.js";
+import { SuppliedSceneryView } from './SuppliedSceneryView.js';
 import { WorldEventsView } from "./WorldEventsView.js";
 import { MAPS } from "../config/mapConfig.js";
 import { FRONTIER_ENEMIES,FRONTIER_BOSSES } from "../config/frontierExpansion.js";
+import { AtmosphereView } from "./AtmosphereView.js";
 
 export class GameView {
-  constructor(host, run) {
+  constructor(host, run, options = {}) {
     this.host = host;
     this.run = run;
+    this.quality = options.quality === "high" ? "high" : "normal";
+    this.highQuality = this.quality === "high";
     this.enemyViews = new Map();
     this.enemyPools = new Map();
     this.enemyAssets = new EnemyAssetView();
     this.dummy = new THREE.Object3D();
     this.coarsePointer = matchMedia("(pointer: coarse)").matches;
-    this.maxPixelRatio = Math.min(
-      devicePixelRatio || 1,
-      this.coarsePointer ? 1 : innerWidth < 960 ? 1.15 : 1.3,
-    );
+    this.maxPixelRatio = this.highQuality
+      ? Math.min(devicePixelRatio || 1, this.coarsePointer ? 1.3 : 1.85)
+      : Math.min(
+          devicePixelRatio || 1,
+          this.coarsePointer ? 1 : innerWidth < 960 ? 1.15 : 1.3,
+        );
     this.pixelRatio = this.maxPixelRatio;
     run.maxEnemies = this.coarsePointer ? 110 : CONFIG.maxBats;
     this.sampleFrames = 0;
     this.sampleDuration = 0;
     this.renderer = new THREE.WebGLRenderer({
-      antialias: !this.coarsePointer,
+      antialias: this.highQuality || !this.coarsePointer,
       powerPreference: "high-performance",
     });
     this.desertEffects = run.mapId === "desert";
-    this.renderer.shadowMap.enabled = this.desertEffects && !this.coarsePointer;
+    const shadowsEnabled = this.highQuality || (this.desertEffects && !this.coarsePointer);
+    this.renderer.shadowMap.enabled = shadowsEnabled;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = run.mapId === "desert" ? 0.84 : 1;
+    this.renderer.toneMappingExposure = (run.mapId === "desert" ? 0.84 : 1) * (this.highQuality ? 1.06 : 1);
     const palette = MAPS[run.mapId];
     this.renderer.setClearColor(palette.sky);
     host.prepend(this.renderer.domElement);
@@ -70,12 +79,13 @@ export class GameView {
     );
     sun.position.set(-15, 30, 10);
     this.scene.add(sun);
-    if (this.desertEffects) {
+    if (this.desertEffects || this.highQuality) {
       // A compact shadow frustum follows the player instead of wasting
       // resolution on the full 240-metre desert. Touch devices keep decals.
-      if (!this.coarsePointer) {
+      if (shadowsEnabled) {
         sun.castShadow = true;
-        sun.shadow.mapSize.set(1024, 1024);
+        const shadowResolution = this.highQuality ? (this.coarsePointer ? 512 : 1536) : 1024;
+        sun.shadow.mapSize.set(shadowResolution, shadowResolution);
         sun.shadow.camera.left = sun.shadow.camera.bottom = -12;
         sun.shadow.camera.right = sun.shadow.camera.top = 12;
         sun.shadow.camera.near = 1;
@@ -98,24 +108,30 @@ export class GameView {
       this.player.traverse((part) => { if (part.isMesh && silhouette.has(part.name)) part.castShadow = true; });
     });
     if (this.desertEffects) {
-      const count = this.coarsePointer ? 48 : 104;
+      const count = this.highQuality ? (this.coarsePointer ? 96 : 176) : this.coarsePointer ? 48 : 104;
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
-      this.desertDust = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xe2c598, size: 0.11, transparent: true, opacity: 0.46, depthWrite: false, sizeAttenuation: true }));
+      this.desertDust = new THREE.Points(geometry, new THREE.PointsMaterial({ color: this.highQuality ? palette.warm : 0xe2c598, size: this.highQuality ? .14 : .11, transparent: true, opacity: 0.46, depthWrite: false, sizeAttenuation: true }));
       this.desertDust.frustumCulled = false;
       this.scene.add(this.desertDust);
     }
     // Bloom is restrained to bright highlights and disabled after sustained
     // slow frames. Mobile uses the lighter direct WebGL path.
-    if (this.desertEffects && !this.coarsePointer) {
+    if ((this.desertEffects || this.highQuality) && !this.coarsePointer) {
       this.composer = new EffectComposer(this.renderer);
       this.composer.addPass(new RenderPass(this.scene, this.camera));
-      this.composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.24, 0.25, 0.97));
+      this.composer.addPass(new UnrealBloomPass(
+        new THREE.Vector2(1, 1),
+        this.highQuality ? 0.34 : 0.24,
+        this.highQuality ? 0.32 : 0.25,
+        0.97,
+      ));
       this.composer.addPass(new OutputPass());
       this.bloomEnabled = true;
     }
     this.mapMerchant = new MapMerchantView(this.scene);
-    this.worldEvents = new WorldEventsView(this.scene);
+    this.atmosphere = new AtmosphereView(this.scene, run.mapId, this.quality, this.coarsePointer);
+    this.worldEvents = new WorldEventsView(this.scene, this.quality);
     const warnings = new THREE.BufferGeometry();
     warnings.setAttribute(
       "position",
@@ -131,7 +147,7 @@ export class GameView {
     );
     this.chargeWarnings.frustumCulled = false;
     this.scene.add(this.chargeWarnings);
-    this.effects = new AbilityEffectsView(this.scene);
+    this.effects = new AbilityEffectsView(this.scene, this.quality);
     this.arenaRing = new THREE.Mesh(
       new THREE.RingGeometry(0.955, 1, 96),
       new THREE.MeshBasicMaterial({
@@ -182,7 +198,9 @@ export class GameView {
       }),
     );
     this.shadow.rotation.x = -Math.PI / 2;
+    this.shadow.visible = !this.highQuality;
     this.scene.add(this.shadow);
+    if(this.highQuality)this.buildContactShadows();
     const whipGeometry = new THREE.BufferGeometry();
     whipGeometry.setAttribute(
       "position",
@@ -259,19 +277,22 @@ export class GameView {
     const dynamite = run.hero.primary === "dynamite";
     const boomerang = run.hero.primary === "boomerang";
     const knives = run.hero.primary === "knives";
+    const axe=run.hero.primary==='axe',scrap=run.hero.primary==='scrap';
     const pellets = ["shotgun","sawedoff"].includes(run.hero.primary);
     this.primaryBody = new THREE.InstancedMesh(
-      boomerang ? new THREE.TorusGeometry(.23,.055,5,9,Math.PI*1.55) : dynamite ? new THREE.BoxGeometry(.17,.42,.18) : arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
+      axe?new THREE.CylinderGeometry(.028,.035,.65,8):scrap?new THREE.TetrahedronGeometry(.18):boomerang ? new THREE.TorusGeometry(.23,.055,5,9,Math.PI*1.55) : dynamite ? new THREE.BoxGeometry(.17,.42,.18) : arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
       new THREE.MeshStandardMaterial({color: boomerang ? 0xb37a32 : dynamite ? 0x8f2923 : arrow ? 0x805034 : knives ? 0x8d969a : 0xe6ad49, metalness: arrow ? 0 : 0.55, roughness: 0.36}), 64,
     );
     this.primaryTip = new THREE.InstancedMesh(
-      dynamite ? new THREE.ConeGeometry(.09,.2,5) : arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
+      axe?new THREE.CylinderGeometry(.19,.19,.05,10,1,false,0,Math.PI).rotateZ(Math.PI/2):scrap?new THREE.OctahedronGeometry(.07):dynamite ? new THREE.ConeGeometry(.09,.2,5) : arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
       new THREE.MeshStandardMaterial({color: dynamite ? 0xffaa39 : arrow || knives ? 0xc4d1ce : 0xffe6a2, metalness: dynamite ? 0 : 0.7, roughness: 0.24, emissive: dynamite ? 0xd74711 : arrow || knives ? 0x163331 : 0x754614}), 64,
     );
     this.primaryFletch = arrow ? new THREE.InstancedMesh(
       new THREE.ConeGeometry(0.16, 0.27, 4),
       new THREE.MeshStandardMaterial({color: 0x58a8a4, side: THREE.DoubleSide, flatShading: true}), 64,
     ) : null;
+    this.bombBody=new THREE.InstancedMesh(new THREE.CapsuleGeometry(.12,.27,3,8),new THREE.MeshStandardMaterial({color:0x922923,roughness:.65}),64);
+    this.bombTip=new THREE.InstancedMesh(new THREE.ConeGeometry(.055,.17,6),new THREE.MeshBasicMaterial({color:0xffc250}),64);
     for (const mesh of [
       this.bullets,
       this.bulletGlows,
@@ -282,6 +303,7 @@ export class GameView {
       this.bandageMarkB,
       this.primaryBody,
       this.primaryTip,
+      this.bombBody,this.bombTip,
       ...(this.primaryFletch ? [this.primaryFletch] : []),
     ]) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -296,9 +318,13 @@ export class GameView {
     this.resize();
   }
   buildWorld() {
+    // Rebuilding graphics settings must not duplicate procedural collision bodies.
+    if(this.run.mapId!=='desert')this.run.props=this.run.props.filter(p=>p.type!=='visual-collider');
+    const props=this.run.props.filter(p=>!p.assetId);
     if (this.run.mapId === "desert")
-      buildDesertWorld(this.scene, this.run.props, !this.coarsePointer);
-    else buildOtherWorld(this.scene, this.run.props, this.run.mapId);
+      buildDesertWorld(this.scene, props, this.highQuality || !this.coarsePointer, this.highQuality);
+    else buildOtherWorld(this.scene, props, this.run.mapId, this.quality, this.run.props);
+    this.suppliedScenery=new SuppliedSceneryView(this.scene,this.run.mapId,this.highQuality);
   }
   resize() {
     const width = this.host.clientWidth || innerWidth,
@@ -316,7 +342,7 @@ export class GameView {
   }
   render(run) {
     const p = run.player,
-      time = run.time + run.introTime;
+      time = (run.visualTime ?? run.time) + run.introTime;
     const delta = Math.max(0, Math.min(0.1, time - this.renderTime));
     this.renderTime = time;
     if (run.phase === "playing" && delta > 0) {
@@ -342,7 +368,8 @@ export class GameView {
         this.sampleDuration = 0;
       }
     }
-    animateCowboy(this.player, run, delta);
+    animateCowboy(this.player, run, delta, this.highQuality);
+    this.atmosphere.update(run, time);
     this.player.visible =
       p.invulnerable <= 0 || Math.floor(p.invulnerable * 15) % 2 === 0;
     this.playerRing.position.set(p.x, 0.08, p.z);
@@ -379,6 +406,12 @@ export class GameView {
         view = pool.pop() || this.enemyAssets.create(enemy.type,enemy.bossId);
         view.userData.seed = enemy.id;
         view.userData.species = species;
+        view.userData.attacking=false;
+        if(view.userData.highEnemyAnimation){
+          view.userData.highEnemyAnimation.lastX=null;
+          view.userData.highEnemyAnimation.lastZ=null;
+          view.userData.highEnemyAnimation.move=0;
+        }
         this.scene.add(view);
         this.enemyViews.set(enemy.id, view);
       }
@@ -391,7 +424,7 @@ export class GameView {
           bellRinger:0xc7b473,dustCoyote:0xc58c67,lanternThief:0xa79366,windmillWraith:0xa998bb,mireLeech:0x638f72,reedStalker:0x6c9d87,drownedProspector:0x797f70,swampCrow:0x667d83,
           cardsharpGhoul:0x887195,barBanshee:0xb794aa,whiskeyImp:0x9b633f,pianoCrawler:0x51465a,railWitch:0x87669b,coalMimic:0x61564f,ironLocust:0x9b8d45,graveRider:0x776754,
           boneCactus:0xa58b69,sundownBandit:0xb26c4f,cinderHawk:0xb66a51,rattlesnake:0x997a48 }[enemy.bossId||enemy.type];
-        if (shade) view.traverse((part) => {
+        if (shade && !view.userData.imported) view.traverse((part) => {
           if (!part.isMesh || !part.material?.color) return;
           part.userData.baseColor ??= part.material.color.clone();
           part.material.color.copy(part.userData.baseColor).multiply(new THREE.Color(shade));
@@ -399,8 +432,8 @@ export class GameView {
         view.userData.bossId = enemy.bossId||enemy.type;
         view.userData.tinted = view.children.length > 0;
       }
-      view.scale.setScalar((enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.12 : 1));
-      const airborne = ["bat","vulture","crow","swampCrow","cinderHawk","ironLocust"].includes(enemy.type) || ["giantBat","giantMoth","stormVulture","windmillWidow","crowKing"].includes(enemy.bossId);
+      view.scale.setScalar((enemy.treasure?1.8:enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.12 : 1));
+      const airborne = view.userData.airborne || ["bat","vulture","crow","swampCrow","cinderHawk","ironLocust"].includes(enemy.type) || ["giantBat","giantMoth","stormVulture","windmillWidow","crowKing"].includes(enemy.bossId);
       view.position.set(
         enemy.x,
         airborne
@@ -410,21 +443,47 @@ export class GameView {
             : 0,
         enemy.z,
       );
-      view.rotation.y =
-        enemy.type === "vulture"
-          ? Math.atan2(enemy.vx, enemy.vz)
-          : Math.atan2(p.x - enemy.x, p.z - enemy.z);
+      view.rotation.y = enemy.treasure ? (enemy.facing||0) : enemy.type === "vulture"
+        ? Math.atan2(enemy.vx, enemy.vz)
+        : this.highQuality&&enemy.charge&&enemy.charge.warning<=0
+          ? Math.atan2(enemy.charge.vx,enemy.charge.vz)
+          : Math.atan2(p.x - enemy.x,p.z - enemy.z);
       if (
-        enemy.attackFlash > 0.45 &&
+        (this.highQuality&&enemy.bossId?enemy.releaseFlash>0.25:enemy.attackFlash>0.45) &&
         !view.userData.attacking &&
         view.userData.attackAction
       ) {
         view.userData.attackAction.stop();
         view.userData.attackAction.reset().play();
         view.userData.attacking = true;
-      } else if (enemy.attackFlash <= 0.45) view.userData.attacking = false;
-      if (Math.hypot(enemy.x - p.x, enemy.z - p.z) < (this.coarsePointer ? 27 : 34))
+      } else if ((this.highQuality&&enemy.bossId?enemy.releaseFlash<=0.25:enemy.attackFlash<=0.45)) view.userData.attacking = false;
+      if(this.highQuality&&enemy.bossId)resetBossHigh(view);
+      if(this.highQuality&&!enemy.bossId)resetEnemyHigh(view);
+      const nearPlayer=Math.hypot(enemy.x-p.x,enemy.z-p.z)<(this.coarsePointer?27:34);
+      if (nearPlayer)
         view.userData.mixer?.update(delta);
+      if(this.highQuality&&enemy.bossId)
+        animateBossHigh(view,enemy,run.bossTelegraph,time,delta);
+      else if(this.highQuality&&nearPlayer)
+        animateEnemyHigh(view,enemy,time,delta);
+    }
+    if(this.contactShadows){
+      let index=0;
+      for(const enemy of run.enemies){
+        this.dummy.position.set(enemy.x,.042+index*.00001,enemy.z);
+        this.dummy.rotation.set(-Math.PI/2,0,enemy.id*.13);
+        const radius=enemy.bossId?1.75:enemy.type==="dog"?.48:.66;
+        this.dummy.scale.set(radius*1.35,radius,1);
+        this.dummy.updateMatrix();
+        this.contactShadows.setMatrixAt(index++,this.dummy.matrix);
+      }
+      this.dummy.position.set(p.x,.041,p.z);
+      this.dummy.rotation.set(-Math.PI/2,0,0);
+      this.dummy.scale.set(.96,.72,1);
+      this.dummy.updateMatrix();
+      this.contactShadows.setMatrixAt(index++,this.dummy.matrix);
+      this.contactShadows.count=index;
+      this.contactShadows.instanceMatrix.needsUpdate=true;
     }
     this.drawBossArena(run, time);
     this.drawWhip(run);
@@ -435,29 +494,44 @@ export class GameView {
     this.mapMerchant.render(run, delta);
     let warningCount = 0;
     const positions = this.chargeWarnings.geometry.attributes.position;
+    const warnings={vulture:0,charge:0,aim:0};
     for (const enemy of run.enemies) {
-      if (enemy.type !== "vulture" || enemy.warning <= 0 || warningCount >= 12)
-        continue;
-      positions.setXYZ(warningCount * 2, enemy.x, 0.09, enemy.z);
-      positions.setXYZ(
-        warningCount * 2 + 1,
-        enemy.x + enemy.vx * 5.2,
-        0.09,
-        enemy.z + enemy.vz * 5.2,
-      );
+      if(warningCount>=24)break;
+      const kind=enemy.type==="vulture"&&enemy.warning>0?"vulture"
+        :enemy.charge?.warning>0?"charge":enemy.aimTimer>0?"aim":null;
+      if(!kind||warnings[kind]>=8||Math.hypot(enemy.x-p.x,enemy.z-p.z)>25)continue;
+      warnings[kind]++;
+      positions.setXYZ(warningCount*2,enemy.x,.09,enemy.z);
+      const endX=kind==="vulture"?enemy.x+enemy.vx*5.2
+        :kind==="charge"?enemy.x+enemy.charge.vx*enemy.charge.left:enemy.aimX;
+      const endZ=kind==="vulture"?enemy.z+enemy.vz*5.2
+        :kind==="charge"?enemy.z+enemy.charge.vz*enemy.charge.left:enemy.aimZ;
+      positions.setXYZ(warningCount*2+1,endX,.09,endZ);
       warningCount++;
     }
     const warning=run.bossTelegraph;
     if(warning){
-      if(["dash","lunge","shotgun","volley"].includes(warning.pattern)){
-        positions.setXYZ(warningCount*2,warning.fromX,0.12,warning.fromZ);
-        positions.setXYZ(warningCount*2+1,warning.x,0.12,warning.z);
-        warningCount++;
+      if(["dash","lunge","shotgun","volley","crossfire"].includes(warning.pattern)){
+        const length=["dash","lunge"].includes(warning.pattern)
+          ? (warning.pattern==="dash" ? 10.45 : 8.4)
+          : Math.max(8,Math.hypot(warning.x-warning.fromX,warning.z-warning.fromZ));
+        const spread=warning.pattern==="crossfire" ? .55
+          : warning.pattern==="shotgun" ? .2
+          : warning.pattern==="volley" ? .34 : 0;
+        for(const offset of spread?[-spread,0,spread]:[0]){
+          if(warningCount>=24)break;
+          const angle=warning.angle+offset;
+          positions.setXYZ(warningCount*2,warning.fromX,0.12,warning.fromZ);
+          positions.setXYZ(warningCount*2+1,warning.fromX+Math.cos(angle)*length,0.12,warning.fromZ+Math.sin(angle)*length);
+          warningCount++;
+        }
       }else{
         for(let i=0;i<9&&warningCount<24;i++){
           const a=i*Math.PI*2/9,b=(i+1)*Math.PI*2/9;
-          positions.setXYZ(warningCount*2,warning.x+Math.cos(a)*warning.radius,.13,warning.z+Math.sin(a)*warning.radius);
-          positions.setXYZ(warningCount*2+1,warning.x+Math.cos(b)*warning.radius,.13,warning.z+Math.sin(b)*warning.radius);
+          const centerX=["ringGap","pulse","summonMiner","summonSkeleton"].includes(warning.pattern)?warning.fromX:warning.x;
+          const centerZ=["ringGap","pulse","summonMiner","summonSkeleton"].includes(warning.pattern)?warning.fromZ:warning.z;
+          positions.setXYZ(warningCount*2,centerX+Math.cos(a)*warning.radius,.13,centerZ+Math.sin(a)*warning.radius);
+          positions.setXYZ(warningCount*2+1,centerX+Math.cos(b)*warning.radius,.13,centerZ+Math.sin(b)*warning.radius);
           warningCount++;
         }
       }
@@ -525,7 +599,33 @@ export class GameView {
     }
     this.arenaFlames.instanceMatrix.needsUpdate = true;
   }
+  buildContactShadows(){
+    const canvas=document.createElement("canvas");
+    canvas.width=canvas.height=64;
+    const context=canvas.getContext("2d");
+    const gradient=context.createRadialGradient(32,32,2,32,32,31);
+    gradient.addColorStop(0,"rgba(16,19,29,.52)");
+    gradient.addColorStop(.48,"rgba(22,25,36,.32)");
+    gradient.addColorStop(1,"rgba(22,25,36,0)");
+    context.fillStyle=gradient;
+    context.fillRect(0,0,64,64);
+    const texture=new THREE.CanvasTexture(canvas);
+    this.contactShadows=new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(1,1),
+      new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.82,depthWrite:false,side:THREE.DoubleSide}),
+      Math.max(128,this.run.maxEnemies+1),
+    );
+    this.contactShadows.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.contactShadows.frustumCulled=false;
+    this.contactShadows.count=0;
+    this.scene.add(this.contactShadows);
+  }
   drawWhip(run) {
+    if(run.hero.primary==='sword'){
+      this.whip.visible=false;this.trail.visible=Boolean(run.attack);
+      if(run.attack){this.trail.position.set(run.player.x,.5,run.player.z);this.trail.rotation.z=-run.attack.angle;this.trail.scale.setScalar(run.primaryRange/CONFIG.whipRange);this.trail.material.opacity=Math.sin(Math.min(1,run.attack.age/.4)*Math.PI)*.45;}
+      return;
+    }
     if (run.characterId !== "joao") {
       this.whip.visible = false;
       this.trail.visible = false;
@@ -559,29 +659,32 @@ export class GameView {
     this.trail.material.opacity = Math.sin(progress * Math.PI) * 0.15;
   }
   drawPrimary(run) {
-    let count = 0;
+    let count = 0,bombs=0;
     const arrow = Boolean(this.primaryFletch);
     for (const shot of run.primaryShots) {
       if (count >= 64) break;
+      const bomb=shot.kind==='dynamite',index=bomb?bombs:count;
       this.projectileHeading.set(shot.vx, 0, shot.vz).normalize();
       this.dummy.quaternion.setFromUnitVectors(this.projectileAxis, this.projectileHeading);
       if(shot.kind==="boomerang")this.dummy.rotateOnWorldAxis(this.projectileAxis,(shot.age+(shot.returnAge||0))*13*(shot.returnLeg?-1:1));
+      if(shot.kind==='viking'||shot.kind==='clanker')this.dummy.rotateOnWorldAxis(this.projectileAxis,shot.age*15);
       const flightProgress=shot.kind==="dynamite"?Math.min(1,shot.age/shot.flight):0;
       const flightHeight=shot.kind==="dynamite"?Math.sin(flightProgress*Math.PI)*1.15:0;
       this.dummy.position.set(shot.x, 0.96+flightHeight, shot.z);
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
-      this.primaryBody.setMatrixAt(count, this.dummy.matrix);
+      (bomb?this.bombBody:this.primaryBody).setMatrixAt(index, this.dummy.matrix);
       this.dummy.position.addScaledVector(this.projectileHeading, ["dynamite","boomerang"].includes(shot.kind)?.13:arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
       this.dummy.updateMatrix();
-      this.primaryTip.setMatrixAt(count, this.dummy.matrix);
-      if (arrow) {
+      (bomb?this.bombTip:this.primaryTip).setMatrixAt(index, this.dummy.matrix);
+      if (arrow&&!bomb) {
         this.dummy.position.addScaledVector(this.projectileHeading, -1.04);
         this.dummy.updateMatrix();
         this.primaryFletch.setMatrixAt(count, this.dummy.matrix);
       }
-      count++;
+      if(bomb)bombs++;else count++;
     }
+    for(const mesh of [this.bombBody,this.bombTip]){mesh.count=bombs;mesh.instanceMatrix.needsUpdate=true;}
     for (const mesh of [this.primaryBody, this.primaryTip, this.primaryFletch]) {
       if (!mesh) continue;
       mesh.count = count;
@@ -606,7 +709,7 @@ export class GameView {
       this.dummy.rotation.set(0, 0, Math.PI / 5);
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
-      if (item.type === "coin") {
+      if (item.type === "coin" || item.type === 'treasureCoin') {
         this.coins.setMatrixAt(coins++, this.dummy.matrix);
         continue;
       }
@@ -649,6 +752,7 @@ export class GameView {
       mesh.instanceMatrix.needsUpdate = true;
   }
   dispose() {
+    this.suppliedScenery?.dispose();
     this.controller.abort();
     disposeCowboyRig(this.player);
     this.mapMerchant.dispose();

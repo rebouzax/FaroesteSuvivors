@@ -7,15 +7,17 @@ import { t, unlockRequirementText } from "../services/I18n.js";
 import { gameIcon } from "./GameIcons.js";
 import { FRONTIER_ENEMIES, FRONTIER_BOSSES } from "../config/frontierExpansion.js";
 
-export function arsenalMarkup(profile,back="select") {
+export function arsenalMarkup(profile,back="select",fusionPage=0) {
   const {deck,forgedCards,bentoCards,completedRuns,storyClears}=profile.data,lang=profile.data.language;
   const available=[...STARTER_CARDS,...unlockedGameplayCards(profile.data),...forgedCards,...bentoCards];
+  const fusionEntries=Object.entries(FUSIONS),pageSize=30,pageCount=Math.ceil(fusionEntries.length/pageSize);
+  const visibleFusions=fusionEntries.slice(fusionPage*pageSize,(fusionPage+1)*pageSize);
   return `<section class="progression-panel"><button class="text-button" data-action="${back}">← ${t(lang,"back")}</button><h2>${t(lang,"arsenal")}</h2>
     <p>${t(lang,"deckCount",{count:deck.length,max:DECK_MAX})} · ${t(lang,"deckHint",{min:DECK_MIN})}</p>
     <div class="arsenal-grid">${[...new Set(available)].map(id=>{
       const active=deck.includes(id);
       return `<button class="arsenal-card ${active?"selected":""}" data-action="deck:${id}" aria-pressed="${active}" ${active&&deck.length<=DECK_MIN||!active&&deck.length>=DECK_MAX?"disabled":""}><span class="arsenal-status ${active?"is-equipped":""}">${active?"✓ "+t(lang,"equipped"):"+ "+t(lang,"equip")}</span><span class="arsenal-icon">${gameIcon(id)}</span><strong>${t(lang,"ability."+id)}</strong></button>`;
-    }).join("")}</div><h3>${t(lang,"forge")}</h3><div class="fusion-grid">${Object.entries(FUSIONS).map(([id,recipe])=>{
+    }).join("")}</div><h3>${t(lang,"forge")}</h3><p>${t(lang,"fusionPageCount",{page:fusionPage+1,total:pageCount,count:fusionEntries.length})}</p><nav class="fusion-pagination" aria-label="${t(lang,"forge")}"><button data-action="fusion-page:-1" ${fusionPage<=0?"disabled":""}>← ${t(lang,"previousPage")}</button><button data-action="fusion-page:1" ${fusionPage>=pageCount-1?"disabled":""}>${t(lang,"nextPage")} →</button></nav><div class="fusion-grid">${visibleFusions.map(([id,recipe])=>{
       const forged=forgedCards.includes(id),open=fusionUnlocked(profile.data,id),ready=recipe.ingredients.every(item=>deck.includes(item));
       const status=forged?t(lang,"forged"):!open?unlockRequirementText(lang,recipe):!ready?t(lang,"equipIngredients"):t(lang,"combine");
       return `<button class="fusion-card" data-action="forge:${id}" ${forged||!open||!ready||completedRuns<1?"disabled":""}><span class="arsenal-icon">${gameIcon(id)}</span><strong>${t(lang,"ability."+id)}</strong><small>${recipe.ingredients.map(item=>t(lang,"ability."+item)).join(" + ")}</small><span>${status}</span></button>`;

@@ -1,11 +1,13 @@
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { MAPS } from "../config/mapConfig.js";
 
 // A cena permanece plana para manter a colisão 2.5D; postes, galerias e fachadas
 // são batched por material/forma, evitando centenas de draw calls.
-export function buildOtherWorld(scene, props, mapId) {
+export function buildOtherWorld(scene, props, mapId, quality = "normal", colliders = []) {
+  const high = quality === "high";
   const config = MAPS[mapId];
-  const ground = new THREE.PlaneGeometry(240, 240, 60, 60);
+  const ground = new THREE.PlaneGeometry(240, 240, high ? 108 : 60, high ? 108 : 60);
   const colors=[], positions=ground.attributes.position;
   const base=new THREE.Color(config.ground);
   for(let i=0;i<positions.count;i++) {
@@ -16,20 +18,28 @@ export function buildOtherWorld(scene, props, mapId) {
   }
   ground.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
   ground.rotateX(-Math.PI/2);
-  scene.add(new THREE.Mesh(ground,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1})));
+  const groundMesh = new THREE.Mesh(ground,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1}));
+  groundMesh.receiveShadow = high;
+  scene.add(groundMesh);
   const dummy=new THREE.Object3D(), groups=new Map(), glows=[];
   function collect(key, geometry, material, x,y,z,sx,sy,sz,rotation=0) {
+    if(key!=='rock'&&y-sy*.5<1.3&&y+sy*.5>.25){
+      geometry.computeBoundingBox();const b=geometry.boundingBox;
+      const halfX=Math.max(Math.abs(b.min.x),Math.abs(b.max.x))*sx,halfZ=Math.max(Math.abs(b.min.z),Math.abs(b.max.z))*sz;
+      colliders.push({x,z,halfX,halfZ,rotation,radius:Math.hypot(halfX,halfZ),type:'visual-collider'});
+    }
     if(!groups.has(key))groups.set(key,{geometry,material,transforms:[]});
     dummy.position.set(x,y,z);dummy.scale.set(sx,sy,sz);dummy.rotation.set(0,rotation,0);dummy.updateMatrix();
     groups.get(key).transforms.push(dummy.matrix.clone());
   }
-  const box=new THREE.BoxGeometry(1,1,1),rock=new THREE.DodecahedronGeometry(1,0);
+  const box=high?new RoundedBoxGeometry(1,1,1,3,.075):new THREE.BoxGeometry(1,1,1);
+  const rock=high?new THREE.IcosahedronGeometry(1,2):new THREE.DodecahedronGeometry(1,0);
   const rustColor={cemetery:0x262b31,glassMarsh:0x263b39,midnightSaloon:0x34262d,crowFortress:0x282837,forsakenRail:0x3c3335}[mapId]||0x4b3933;
   const woodColor={cemetery:0x4c534e,mine:0x493b38,midnightSaloon:0x644136,glassMarsh:0x46574b,crowFortress:0x393747,forsakenRail:0x51413c,bellTown:0x57453f}[mapId]||0x784b3e;
   const wallColor={cemetery:0x879086,canyon:0xcc8060,mine:0x77625a,glassMarsh:0x627c70,midnightSaloon:0x8c634d,crowFortress:0x777187,forsakenRail:0x74625a,bellTown:0x9b8067}[mapId]||0xae8064;
-  const rust=new THREE.MeshStandardMaterial({color:rustColor,roughness:1,flatShading:true});
-  const wood=new THREE.MeshStandardMaterial({color:woodColor,roughness:1,flatShading:true});
-  const wall=new THREE.MeshStandardMaterial({color:wallColor,roughness:1,flatShading:true});
+  const rust=new THREE.MeshStandardMaterial({color:rustColor,roughness:1,flatShading:!high});
+  const wood=new THREE.MeshStandardMaterial({color:woodColor,roughness:1,flatShading:!high});
+  const wall=new THREE.MeshStandardMaterial({color:wallColor,roughness:1,flatShading:!high});
   const lamp=new THREE.MeshBasicMaterial({color:mapId==='cemetery'||mapId==='glassMarsh'||mapId==='crowFortress'?0x9bd7ed:0xffd887});
   const salt=new THREE.MeshStandardMaterial({color:0xc8d1d0,roughness:.72,metalness:.08,flatShading:true});
   const ember=new THREE.MeshBasicMaterial({color:0xff7141});
@@ -38,7 +48,7 @@ export function buildOtherWorld(scene, props, mapId) {
   for(const prop of props) if(prop.type==='rock')
     collect('rock',rock,rust,prop.x,prop.size*0.55,prop.z,prop.size,prop.size*0.75,prop.size,prop.x);
   if(mapId==='saltFlats'){
-    const crystal=new THREE.ConeGeometry(1,1,5);
+    const crystal=new THREE.ConeGeometry(1,1,high?9:5,high?2:1);
     for(let i=-13;i<=13;i++)for(const side of [-1,1]){
       const z=i*8,x=side*(13+(i%4)*2);
       collect('saltSpire',crystal,salt,x,1.8,z,.8,3.6,.8,i*.3);
@@ -68,7 +78,7 @@ export function buildOtherWorld(scene, props, mapId) {
       if(i%2===0)collect('thornBloom',rock,lamp,x-side*2,.6,z+2,.8,1,.8);
     }
   }else if(mapId==='lastDawn'){
-    const obelisk=new THREE.ConeGeometry(1,1,5);
+    const obelisk=new THREE.ConeGeometry(1,1,high?9:5,high?2:1);
     for(let i=-8;i<=8;i++)for(const side of [-1,1]){
       const z=i*14,x=side*(18+(i%3)*2);
       collect('dawnObelisk',obelisk,wall,x,4.2,z,1.5,8.4,1.5,i*.18);
@@ -170,19 +180,9 @@ export function buildOtherWorld(scene, props, mapId) {
   }else if(mapId==='forsakenRail'){
     for(let i=-20;i<=20;i++){
       const z=i*6;
-      collect('tie',box,wood,0,.05,z,6,.12,.55);
       if(i%3===0)for(const side of [-1,1]){
         collect('telegraph',box,rust,side*16,4.2,z,2,8.4,2);
         collect('wire',box,wood,side*10,8.4,z,12,.12,.12);
-      }
-    }
-    for(const side of [-1,1]){
-      collect('rail',box,wall,side*2.1,.12,0,.22,.2,240);
-      for(let i=-9;i<=9;i++){
-        const z=i*13;
-        collect('wagon',box,wood,side*24,2.1,z,11,4.2,12);
-        collect('wagonRoof',box,rust,side*24,4.3,z,12,.5,13);
-        for(const end of [-1,1])collect('wheel',rock,rust,side*24+end*4,.8,z+4,1.1,1.1,1.1);
       }
     }
   }else if(mapId==='crowFortress'){
@@ -200,6 +200,13 @@ export function buildOtherWorld(scene, props, mapId) {
       }
     }
     for(let i=-12;i<=12;i++)collect('ironGate',box,rust,i*2,3.6,-103,.18,7.2,.7);
+  }else if(mapId==='town'){
+    // Supplied storefronts replace the former box buildings. The street stays open.
+    for(let i=-5;i<=5;i++)for(const side of [-1,1]){
+      collect('lampPost',box,wood,side*6,1.55,i*21,.14,3.1,.14);
+      collect('light',box,lamp,side*6,3.2,i*21,.3,.3,.3);
+      if(i%2===0)glows.push([side*6,i*21,2]);
+    }
   }else{
     // Rua central transitável ladeada por fachadas, marquises e placas.
     for(let i=-5;i<=5;i++) {
@@ -236,7 +243,32 @@ export function buildOtherWorld(scene, props, mapId) {
     const mesh=new THREE.InstancedMesh(geometry,material,transforms.length);
     transforms.forEach((matrix,i)=>mesh.setMatrixAt(i,matrix));
     mesh.instanceMatrix.needsUpdate=true;
+    mesh.castShadow=high;
+    mesh.receiveShadow=high;
     scene.add(mesh);
+  }
+  if(high){
+    // Fine, low-contrast gravel catches the stage light without changing the
+    // open combat lane. One instanced batch keeps the extra detail inexpensive.
+    const detailGeometry=new THREE.IcosahedronGeometry(.5,1);
+    const detailMaterial=new THREE.MeshStandardMaterial({
+      color:new THREE.Color(config.ground).lerp(new THREE.Color(config.warm),.12),
+      roughness:.96,
+      flatShading:false,
+    });
+    const details=new THREE.InstancedMesh(detailGeometry,detailMaterial,520);
+    for(let i=0;i<520;i++){
+      const x=Math.sin(i*91.71)*116,z=Math.cos(i*53.17)*116;
+      dummy.position.set(x,.035+(i%4)*.005,z);
+      dummy.rotation.set(i*.17,i*2.39996,i*.31);
+      const scale=.12+(i%7)*.035;
+      dummy.scale.set(scale,.035+(i%3)*.012,scale*(.7+(i%5)*.08));
+      dummy.updateMatrix();
+      details.setMatrixAt(i,dummy.matrix);
+    }
+    details.instanceMatrix.needsUpdate=true;
+    details.receiveShadow=true;
+    scene.add(details);
   }
   // Um único decalque instanciado dá calor às lâmpadas sem adicionar luzes
   // dinâmicas e sem aumentar o custo conforme o jogador atravessa o cenário.

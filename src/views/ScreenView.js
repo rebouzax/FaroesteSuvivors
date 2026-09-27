@@ -47,7 +47,7 @@ export class ScreenView {
     const lang = profile.data.language;
     this.root.className = "selection-screen";
     const expandTutorial = matchMedia("(min-width: 651px) and (min-height: 650px)").matches;
-    this.root.innerHTML = `<section class="settings-panel"><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><details class="tutorial-settings" ${expandTutorial ? "open" : ""}><summary>${t(lang, "tutorialTitle")}</summary><ul><li>${t(lang, "tutorialMove")}</li><li>${t(lang, "tutorialAttack")}</li><li>${t(lang, "tutorialLoot")}</li><li>${t(lang, "tutorialShop")}</li><li>${t(lang, "tutorialCards")}</li></ul></details><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
+    this.root.innerHTML = `<section class="settings-panel"><h2>${t(lang, "settingsTitle")}</h2>${this.languageSelect(lang)}<label class="setting">${t(lang, "graphicsQuality")}<select data-setting="graphics" aria-label="${t(lang, "graphicsQuality")}"><option value="normal" ${profile.data.graphics === "normal" ? "selected" : ""}>${t(lang, "graphicsNormal")}</option><option value="high" ${profile.data.graphics === "high" ? "selected" : ""}>${t(lang, "graphicsHigh")}</option></select></label><p class="setting-help">${t(lang, profile.data.graphics === "high" ? "graphicsHighHelp" : "graphicsNormalHelp")}</p><p class="setting-help">${t(lang, "graphicsApplyNextRun")}</p><label class="setting">${t(lang, "wind")}<input type="checkbox" data-setting="wind" ${profile.data.wind ? "checked" : ""}></label><label class="setting">${t(lang, "sound")}<input type="checkbox" data-setting="sound" ${profile.data.sound ? "checked" : ""}></label><label class="setting">${t(lang, "music")}<input type="checkbox" data-setting="music" ${profile.data.music ? "checked" : ""}></label><details class="tutorial-settings" ${expandTutorial ? "open" : ""}><summary>${t(lang, "tutorialTitle")}</summary><ul><li>${t(lang, "tutorialMove")}</li><li>${t(lang, "tutorialAttack")}</li><li>${t(lang, "tutorialLoot")}</li><li>${t(lang, "tutorialShop")}</li><li>${t(lang, "tutorialCards")}</li></ul></details><p id="save-status" role="status"></p><button data-action="menu">${t(lang, "backMenu")}</button></section>`;
   }
   audioSettings(lang = "en") {
     this.root
@@ -63,7 +63,7 @@ export class ScreenView {
   }
   game(run, lang = "en") {
     this.root.className = "playing-screen";
-    this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small>${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar" aria-label="${t(lang, "abilitiesTitle")}"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" aria-hidden="true"><i></i></div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
+    this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small id="timer-caption">${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar" aria-label="${t(lang, "abilitiesTitle")}"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" aria-hidden="true"><i></i></div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
     if (run.mode === "story")
       this.root.querySelector(".hud-stats").insertAdjacentHTML("beforeend", '<span id="story-progress"></span>');
     this.abilityKey = "";
@@ -73,6 +73,7 @@ export class ScreenView {
       "hp-fill",
       "hp-label",
       "timer",
+      "timer-caption",
       "level",
       "xp-label",
       "kills",
@@ -142,11 +143,17 @@ export class ScreenView {
     const weather = this.root.querySelector("#weather-hud");
     weather.hidden = !(run.time < run.weather.alertUntil);
     if (!weather.hidden)
-      weather.textContent = t(
+      weather.textContent = ({
+        pt:{rain:'⛈ Chuva elétrica: saia dos círculos antes dos raios!',sand:'🌪 Tempestade de areia à vista!',tornado:'🌪 Tornados se aproximando!',treasure:'💰 Criatura do tesouro! Persiga-a antes que fuja!'},
+        en:{rain:'⛈ Thunderstorm: leave the circles before lightning strikes!',sand:'🌪 Sandstorm incoming!',tornado:'🌪 Tornadoes incoming!',treasure:'💰 Treasure creature! Catch it before it escapes!'},
+        es:{rain:'⛈ ¡Sal de los círculos antes de los rayos!',sand:'🌪 ¡Tormenta de arena!',tornado:'🌪 ¡Se acercan tornados!',treasure:'💰 ¡Persigue a la criatura del tesoro!'},
+      }[lang]||{} )[run.weather.alert] || t(
         lang,
         run.weather.alert === "wind" ? "stormWarning" : "missionFailed",
       );
-    this.hud.timer.textContent = `${minutes}:${seconds}`;
+    this.hud.timer.textContent = `${run.bossEncounter.active ? "⏸ " : ""}${minutes}:${seconds}`;
+    this.hud["timer-caption"].textContent = run.bossEncounter.active
+      ? t(lang,"bossClockPaused") : t(lang,"map."+run.mapId);
     this.hud["hp-label"].textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.hud["hp-fill"].style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
     this.hud["xp-fill"].style.width = `${(p.xp / run.requiredXp) * 100}%`;

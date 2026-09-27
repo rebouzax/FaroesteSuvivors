@@ -12,6 +12,10 @@ const FILES = {
   hurt: new URL("../assets/audio/hurt.wav", import.meta.url),
 };
 const MUSIC = {
+  saltFlats: new URL("../assets/audio/the-unholy-march.mp3", import.meta.url),
+  emberFoundry: new URL("../assets/audio/iron-shod-ritual.mp3", import.meta.url),
+  moonMonastery: new URL("../assets/audio/the-revolvers-prayer.mp3", import.meta.url),
+  thornGarden: new URL("../assets/audio/brass-at-the-gallows.mp3", import.meta.url),
   menu: new URL("../assets/audio/the-unmarked-cabin.mp3", import.meta.url),
   desert: new URL("../assets/audio/seven-black-graves.mp3", import.meta.url),
   mine: new URL("../assets/audio/under-the-silver-vein.mp3", import.meta.url),
@@ -25,6 +29,8 @@ const MUSIC = {
   crowFortress: new URL("../assets/audio/vengeance-has-a-heavy-heel.mp3", import.meta.url),
 };
 export const GAME_MUSIC_LOOPS = Object.freeze({
+  saltFlats:{start:0,end:147}, emberFoundry:{start:0,end:168},
+  moonMonastery:{start:0,end:177}, thornGarden:{start:8,end:169},
   desert:{start:5,end:169}, mine:{start:4,end:176}, town:{start:0,end:176},
   canyon:{start:0,end:170}, cemetery:{start:0,end:176},
   bellTown:{start:0,end:176}, glassMarsh:{start:0,end:176},
