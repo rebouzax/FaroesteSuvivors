@@ -10,7 +10,7 @@ const loader=new GLTFLoader().setDRACOLoader(draco),cache=new Map(),actors=new M
 // Authored forward axes, verified in an orthographic top view: the wolf faces
 // -X/-Z and the scorpion +X. Gameplay and procedural rigs use +Z as forward.
 // Apply this before skinning so legs, head and equipment share the same frame.
-const ACTOR_FORWARD_YAW={lobo:Math.PI*3/4,scropiao:-Math.PI/2};
+const ACTOR_FORWARD_YAW={lobo:Math.PI*3/4,scropiao:-Math.PI/2,'aranha-1':Math.PI/2,morte:-Math.PI/2};
 export function loadSupplied(id){
   if(!SUPPLIED_ASSETS[id])return Promise.reject(new Error('Unknown supplied asset: '+id));
   if(!cache.has(id))cache.set(id,loader.loadAsync(SUPPLIED_ASSETS[id].url).catch(error=>{cache.delete(id);throw error;}));

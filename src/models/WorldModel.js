@@ -14,7 +14,8 @@ export function createWorld(mapId = "desert") {
     { x: 9, z: 5, type: "cactus", size: 1.4, radius: 0.42 },
   ] : [];
   const sparseLandmarks=landmarkStages.has(mapId);
-  for (let i = 0; i < (mapId === "desert" ? 220 : sparseLandmarks ? 28 : 110); i++) {
+  const enclosed=['mine','midnightSaloon','crowFortress','emberFoundry','moonMonastery'].includes(mapId);
+  for (let i = 0; i < (enclosed ? 0 : mapId === "desert" ? 220 : sparseLandmarks ? 28 : 110); i++) {
     const x = (random() - 0.5) * 225,
       z = (random() - 0.5) * 225;
     if (Math.hypot(x, z) < (sparseLandmarks ? 27 : 14)) continue;

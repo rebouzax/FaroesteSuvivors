@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/gameConfig.js";
+import { AXE_THROWERS } from '../config/enemyWeapons.js';
 import { pushOut } from './SceneryCollision.js';
 import { FRONTIER_ENEMIES } from "../config/frontierExpansion.js";
 import { enemyStats } from "../config/abilityConfig.js";
@@ -171,6 +172,7 @@ export class EnemySystem {
     }
     for (const enemy of run.enemies) {
       if(enemy.treasure)continue;
+      enemy.throwRelease=Math.max(0,(enemy.throwRelease||0)-dt);
       if (enemy.type === "vulture") {
         enemy.age += dt;
         enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
@@ -259,7 +261,9 @@ export class EnemySystem {
             const ax=enemy.aimX-enemy.x,az=enemy.aimZ-enemy.z,aimLength=Math.hypot(ax,az);
             if(run.enemyShots.length<40&&aimLength>.01){
               const speed=enemy.type==="skeleton"?8:9;
-              run.enemyShots.push({x:enemy.x,z:enemy.z,vx:ax/aimLength*speed,vz:az/aimLength*speed,age:0,damage:enemy.type==="skeleton"?enemy.damage:Math.ceil(enemy.damage*.55)});
+              const kind=AXE_THROWERS.has(enemy.type)?'axe':'orb';
+              run.enemyShots.push({x:enemy.x,z:enemy.z,vx:ax/aimLength*speed,vz:az/aimLength*speed,age:0,kind,damage:enemy.type==="skeleton"?enemy.damage:Math.ceil(enemy.damage*.55)});
+              if(kind==='axe')enemy.throwRelease=.3;
             }
             enemy.attackFlash=.58;
           }
@@ -270,6 +274,7 @@ export class EnemySystem {
             enemy.aimX=run.player.x+run.player.dx*lead;
             enemy.aimZ=run.player.z+run.player.dz*lead;
             enemy.aimTimer=.42+(enemy.id%3)*.06;
+            enemy.aimDuration=enemy.aimTimer;
             enemy.shotTimer=enemy.type==="skeleton"?2.7:3.2;
             enemy.attackFlash=.58;
           }

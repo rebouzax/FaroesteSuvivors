@@ -6,6 +6,7 @@ export const CREATURE_ART={
   giantBat:'bats-01',minerGeneral:'gigante',boneSinger:'skeleton-01',zombieDeputy:'zombie-1',ashSerpent:'cobra',cryptMother:'aranha-1',deadPreacher:'morte',lastConductor:'esqueleto-sem-cabeca',bellTowerKeeper:'gigante',windmillWidow:'ghost',mudKing:'gigante',drownedBride:'ghost',bottleBaron:'zombie-1',damaMalvina:'dama-malvina',railWitchQueen:'morte',clanker:'clanker',saltColossus:'gigante',mirageQueen:'dama-malvina',chainForeman:'gigante',eclipseAbbot:'morte',briarMatriarch:'ghoul',lastEclipse:'morte',
 };
 export const MODEL_KINDS={
+ 'morte':'spectral',
  'bats-01':'bird','caveira-voadora':'spectral','aranha-1':'arthropod','dun-rat':'quadruped','lobo':'quadruped','cobra':'quadruped','scropiao':'arthropod','ghost':'spectral','ghost-2':'spectral',
 };
 export const SPECIAL_ART={

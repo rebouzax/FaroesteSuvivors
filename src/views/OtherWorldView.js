@@ -123,7 +123,7 @@ export function buildOtherWorld(scene, props, mapId, quality = "normal", collide
     }
     for(let i=-14;i<=14;i++)for(const side of [-1,1]){
       collect('fence',box,wood,side*10,.7,i*8,.12,1.4,.13);
-      collect('rail',box,wood,side*10,.85,i*8, .16,.15,7.6);
+      if(i%3!==0)collect('rail',box,wood,side*10,.85,i*8, .16,.15,7.6);
     }
   }else if(mapId==='cemetery'){
     for(let i=-10;i<=10;i++)for(const side of [-1,1]){
@@ -131,7 +131,7 @@ export function buildOtherWorld(scene, props, mapId, quality = "normal", collide
       collect('grave',box,wall,x,.58,z,.9,1.16,.3);
       collect('cross',box,wood,x,1.27,z,1,.17,.25);
       collect('fence',box,rust,side*7,.82,z,.12,1.64,.12);
-      collect('rail',box,rust,side*7,.8,z,.12,.12,9.7);
+      if(i%3!==0)collect('rail',box,rust,side*7,.8,z,.12,.12,9.7);
       if(i%4===0){collect('obelisk',rock,wall,x+side*5,2,z,1.25,3.5,1.25);collect('light',box,lamp,side*6,1.9,z,.23,.36,.23);glows.push([side*6,z,3]);}
     }
     for(let i=0;i<18;i++){

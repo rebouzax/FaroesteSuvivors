@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import {enemyAxeGeometry} from './EnemyAxeGeometry.js';
 import { ABILITIES, abilityStats } from "../config/abilityConfig.js";
 import { FRONTIER_CARDS } from "../config/frontierExpansion.js";
 export class AbilityEffectsView {
@@ -20,6 +21,9 @@ export class AbilityEffectsView {
       new THREE.MeshBasicMaterial({ color: 0xfff4c3 }),
       128,
     );
+    const axe=enemyAxeGeometry();
+    this.enemyAxeShafts=instances(axe.shaft,new THREE.MeshStandardMaterial({color:0x9b6a3c}),40);
+    this.enemyAxeHeads=instances(axe.head,new THREE.MeshStandardMaterial({color:0xc3cbd5,metalness:.6,roughness:.35}),40);
     this.bottles = instances(
       new THREE.CylinderGeometry(0.1, 0.13, 0.4, this.highQuality ? 12 : 7),
       new THREE.MeshStandardMaterial({ color: 0x527349, roughness: 0.4 }),
@@ -316,8 +320,15 @@ export class AbilityEffectsView {
       if(this.highQuality)this.silver.setColorAt(i,this.silverColor.setHex(shot.source==="boneStorm"?0xc7e9d9:0xf2e7cc));
     });
     this.silver.count=Math.min(80,run.silverShots.length);
-    run.enemyShots.slice(0,40).forEach((shot,i)=>this.put(this.enemyBullets,i,shot.x,0.85,shot.z));
-    this.enemyBullets.count=Math.min(40,run.enemyShots.length);
+    let orbs=0,axes=0;
+    for(const shot of run.enemyShots.slice(0,40)){
+      if(shot.kind==='axe'){
+        const heading=Math.atan2(shot.vx,shot.vz),spin=shot.age*14;
+        this.put(this.enemyAxeShafts,axes,shot.x,.85,shot.z,1,1,1,spin,heading,0);
+        this.put(this.enemyAxeHeads,axes++,shot.x,.85,shot.z,1,1,1,spin,heading,0);
+      }else this.put(this.enemyBullets,orbs++,shot.x,.85,shot.z);
+    }
+    this.enemyBullets.count=orbs;this.enemyAxeShafts.count=this.enemyAxeHeads.count=axes;
     this.lanternAura.visible=Boolean(run.abilities.lantern || run.abilities.inferno);
     if (run.abilities.lantern || run.abilities.inferno) {
       const radius=abilityStats("lantern",Math.max(1,run.abilities.lantern)).radius;

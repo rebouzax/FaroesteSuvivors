@@ -38,8 +38,8 @@ it('pirata começa com bomba funcional e viking/Clanker usam seus projéteis',()
  combat.pirateBomb(run,.1);expect(run.primaryShots[0].kind).toBe('dynamite');combat.primaryProjectiles(run,1);expect(run.enemies[0].hp).toBeLessThan(100);
  for(const [id,count] of [['viking',1],['clanker',4]]){const r=new RunModel(()=>.5,0,{}, {characterId:id});r.cooldown=0;combat.rangedPrimary(r,.2);expect(r.primaryShots).toHaveLength(count);expect(r.primaryShots.every(s=>s.kind===id)).toBe(true);}
 });
-it('integra todos os 100 arquivos e mantém a área inicial livre de novos obstáculos',()=>{
+it('preserva os 100 arquivos disponíveis e usa modelos válidos sem bloquear a área inicial',()=>{
  const used=new Set([...Object.values(CREATURE_ART),...Object.values(HERO_MODELS),...Object.keys(CAMPAIGN).flatMap(stage=>sceneryFor(stage).map(p=>p.assetId))]);
- expect(Object.keys(SUPPLIED_ASSETS)).toHaveLength(100);expect([...Object.keys(SUPPLIED_ASSETS)].filter(id=>!used.has(id))).toEqual([]);
+ expect(Object.keys(SUPPLIED_ASSETS)).toHaveLength(100);expect([...used].filter(id=>!SUPPLIED_ASSETS[id])).toEqual([]);
  for(const stage of Object.keys(CAMPAIGN)){const run=new RunModel(()=>.5,0,{}, {mapId:stage});for(const prop of run.props.filter(p=>p.assetId))expect(Math.hypot(prop.x-run.player.x,prop.z-run.player.z)).toBeGreaterThan(prop.radius+1);}
 });

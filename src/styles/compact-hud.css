@@ -1,0 +1,24 @@
+.playing-screen .hud{padding:12px 14px;background:none}
+.playing-screen .hud-hero{padding:9px 11px;min-width:220px;background:#211a20b8;border:1px solid #d6b16b55;border-radius:5px}
+.playing-screen .hud-hero>strong{font-size:10px;letter-spacing:1px}
+.playing-screen .hp-track{width:100%;height:6px;margin-top:7px}
+.playing-screen .hud-vitals{display:flex;align-items:center;gap:12px;margin-top:6px;white-space:nowrap;font-size:11px}
+.playing-screen .hud-vitals #hp-label{margin:0;font-size:11px}
+.playing-screen .hud-vitals #coins{padding:0;border:0;border-radius:0;box-shadow:none;background:none;font-size:11px;gap:4px;min-width:0;margin:0}
+.playing-screen .hud-vitals #coins strong{font-size:11px;letter-spacing:0}
+.playing-screen .hud-vitals #coins .game-icon{width:13px;height:13px}
+.playing-screen .hud-stats,.playing-screen #boss-hud,.playing-screen #level-toast{display:none!important}
+.playing-screen .clock{padding:5px 10px;border:0;background:#211a2080;border-radius:5px}
+.playing-screen .clock strong{font-size:23px}
+.playing-screen .clock small{font-size:9px}
+.playing-screen .mission-hud{top:96px;max-width:260px;font-size:10px;padding:5px 8px;background:#211a2080;border:0}
+.playing-screen .weather-hud{position:absolute;top:126px;left:14px;right:auto;transform:none;font-size:11px;padding:6px 9px;max-width:280px;border:0;background:#211a2080}
+@media(max-width:650px){
+ .playing-screen .hud{padding:10px 8px}
+ .playing-screen .hud-hero{min-width:0;width:190px;padding:7px}
+ .playing-screen .hud-vitals{gap:8px}
+ .playing-screen .clock{top:93px;left:auto;right:8px;transform:none}
+ .playing-screen .clock small{display:none}
+ .playing-screen .clock strong{font-size:19px}
+ .playing-screen .mission-hud{top:99px;max-width:190px}
+}

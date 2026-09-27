@@ -1,8 +1,8 @@
 import { FRONTIER_STAGES } from "./frontierExpansion.js";
 export const MAPS = Object.freeze({
   desert: { name: "Deserto dos Condenados", ground: 0x77798b, sky: 0x1b2a45, fog: 0x293750, warm: 0xd9e7ff, ambient: 0xc5d4f0 },
-  mine: { name: "Mina da Noite", ground: 0x82766c, sky: 0x49424b, fog: 0x49424b, warm: 0xe6b771, ambient: 0xc5bad1 },
-  town: { name: "Cidade Fantasma", ground: 0xad865d, sky: 0x9c7169, fog: 0x9c7169, warm: 0xffbd88, ambient: 0xfad0ab },
+  mine: { name: "Mina da Noite", ground: 0x4b4140, sky: 0x211c24, fog: 0x211c24, warm: 0xe6b771, ambient: 0x91899c },
+  town: { name: "Cidade Fantasma", ground: 0x494856, sky: 0x111827, fog: 0x192131, warm: 0xc6d5ef, ambient: 0x8795b5 },
   canyon: { name: "Desfiladeiro das Cinzas", ground: 0xaa6c54, sky: 0x915d70, fog: 0x915d70, warm: 0xffba78, ambient: 0xf3c0ab },
   cemetery: { name: "Necrópole da Fronteira", ground: 0x646c65, sky: 0x343b53, fog: 0x343b53, warm: 0x9caacc, ambient: 0xb8bfc9 },
   bellTown: { name: "Pueblo das Campanas", ground: 0x6f696f, sky: 0x3c324b, fog: 0x514458, warm: 0xe6bc75, ambient: 0xb8a8c7 },

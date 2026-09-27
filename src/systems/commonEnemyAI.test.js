@@ -23,6 +23,8 @@ it("atiradores mostram a mira antes de disparar e travam uma direção esquiváv
   expect(run.enemies[0].aimTimer).toBe(0);
   expect(run.enemies[0].aimX).toBe(lockedX);
   expect(run.enemyShots).toHaveLength(1);
+  expect(run.enemyShots[0].kind).toBe('axe');
+  expect(run.enemies[0].throwRelease).toBeGreaterThan(0);
 });
 
 it("inimigos de carga dão aviso antes de avançar",()=>{

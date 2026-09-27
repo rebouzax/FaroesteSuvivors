@@ -5,7 +5,8 @@ import { MAPS } from "../config/mapConfig.js";
 // per particle. The light sprite is generated once in memory.
 export class AtmosphereView {
   constructor(scene, mapId, quality, coarsePointer) {
-    this.count = quality === "high" ? (coarsePointer ? 112 : 224) : 0;
+    this.ghostTown=mapId==='town';
+    this.count = quality === "high" ? (coarsePointer ? 112 : 224) : this.ghostTown?72:0;
     if (!this.count) return;
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = 32;
@@ -36,10 +37,10 @@ export class AtmosphereView {
       new THREE.PointsMaterial({
         color,
         map: this.texture,
-        size: 0.38,
+        size: this.ghostTown?1.5:0.38,
         transparent: true,
-        opacity: 0.52,
-        blending: THREE.AdditiveBlending,
+        opacity: this.ghostTown?.17:0.52,
+        blending: this.ghostTown?THREE.NormalBlending:THREE.AdditiveBlending,
         depthWrite: false,
         sizeAttenuation: true,
       }),
@@ -55,9 +56,9 @@ export class AtmosphereView {
       const seed = this.seeds[i];
       points.setXYZ(
         i,
-        run.player.x + seed.x + Math.sin(time * seed.speed + seed.phase) * 0.65,
-        seed.y + Math.sin(time * 1.7 + seed.phase) * 0.24,
-        run.player.z + seed.z + Math.cos(time * seed.speed + seed.phase) * 0.65,
+        run.player.x + (this.ghostTown?((seed.x+time*(2+seed.speed)+10000)%48)-24:seed.x+Math.sin(time*seed.speed+seed.phase)*.65),
+        this.ghostTown?.15+seed.y*.25:seed.y+Math.sin(time*1.7+seed.phase)*.24,
+        run.player.z + seed.z + Math.cos(time * seed.speed + seed.phase) * (this.ghostTown?1.3:.65),
       );
     }
     points.needsUpdate = true;

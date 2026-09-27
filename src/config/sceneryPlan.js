@@ -1,8 +1,10 @@
 import { SUPPLIED_ASSETS } from './suppliedAssets.js';
+import { stageLayout } from './stageLayout.js';
 const ground=id=>/tile|road-|ground|scatter|verge|ceiling/.test(id);
 const passage=id=>/arch|corridor|gate|door/.test(id);
 const widthFor=id=>id==='model-western'?30:id==='cemetery-1'?16:id==='canyon-scene-1'?24:id==='cathedral'?15:/house|saloon|store|crypta|shed|shack|shelter|shell/.test(id)?8:/wagon|van/.test(id)?7:/track|road|tile/.test(id)?6:/tree/.test(id)?4:/arch|corridor|ceiling/.test(id)?5:/boulder|rock/.test(id)?3.5:1.8;
 export function sceneryFor(stage){
+  const planned=stageLayout(stage);if(planned)return planned;
   const assets=Object.entries(SUPPLIED_ASSETS).filter(([,a])=>a.role==='environment'&&a.stage===stage);
   const placements=assets.map(([assetId],index)=>{
     const width=widthFor(assetId),angle=index*2.399963,radius=Math.max(20,width*.6+14)+Math.floor(index/6)*20;

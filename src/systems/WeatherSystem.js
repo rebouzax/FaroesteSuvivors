@@ -1,11 +1,14 @@
+import { STAGE_WEATHER } from '../config/stageWeather.js';
 export class WeatherSystem {
   update(run,dt) {
     const weather=run.weather;
     weather.strikes??=[];
+    const allowed=STAGE_WEATHER[run.mapId]||[];
+    if(!allowed.length){weather.kind=null;weather.remaining=0;weather.strikes=[];run.tornadoes=[];if(['rain','sand','tornado','wind'].includes(weather.alert))weather.alertUntil=0;return;}
     if(run.bossEncounter.active)return;
     if(run.time>=weather.nextAt){
       weather.nextAt=run.time+95+run.random()*85;
-      weather.kind=['tornado','rain','sand'][Math.min(2,Math.floor(run.random()*3))];
+      weather.kind=allowed[Math.min(allowed.length-1,Math.floor(run.random()*allowed.length))];
       weather.remaining=24+run.random()*12;weather.strikeTimer=1;
       const angle=run.random()*Math.PI*2;
       weather.windX=Math.cos(angle)*1.1;

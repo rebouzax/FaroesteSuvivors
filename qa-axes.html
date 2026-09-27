@@ -1,0 +1,10 @@
+<!doctype html><html><meta charset="utf-8"><title>Eixos de criaturas</title><style>body{margin:0;background:#444;color:white;font:15px sans-serif}#labels{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:10px}</style><button id="top">Vista superior</button><button id="front">Vista frontal</button><div id="labels"></div><script type="module">
+import * as T from 'three';import {SUPPLIED_ASSETS} from './src/config/suppliedAssets.js';import {loadActor} from './src/views/SuppliedAssetLoader.js';import {MODEL_KINDS} from './src/config/creatureArt.js';import {clone} from 'three/addons/utils/SkeletonUtils.js';
+const scene=new T.Scene();scene.background=new T.Color('#666666');scene.add(new T.HemisphereLight(0xffffff,0xaaaaaa,3));const light=new T.DirectionalLight(0xffffff,3);light.position.set(3,10,8);scene.add(light);
+const r=new T.WebGLRenderer({antialias:true});r.setSize(1260,650);document.body.append(r.domElement);const c=new T.OrthographicCamera(-11,11,5.67,-5.67,.1,100);
+const requested=new URLSearchParams(location.search).get('models');
+const ids=requested?requested.split(','):Object.keys(SUPPLIED_ASSETS).filter(id=>SUPPLIED_ASSETS[id].role==='actor');document.querySelector('#labels').innerHTML=ids.map((id,i)=>`<span>${i+1}. ${id}</span>`).join('');
+for(let i=0;i<ids.length;i++){const id=ids[i],asset=await loadActor(id,MODEL_KINDS[id]||'humanoid'),m=clone(asset.scene);m.position.set((i%7-3)*3,0,(Math.floor(i/7)-1)*3.5);scene.add(m);scene.add(new T.ArrowHelper(new T.Vector3(0,0,1),new T.Vector3(m.position.x,.03,m.position.z),1.3,0x00ccff));}
+const target=requested?new T.Vector3(-6,0,-3.5):new T.Vector3();if(requested){c.zoom=2.2;c.updateProjectionMatrix();}
+function top(){c.position.copy(target).add(new T.Vector3(0,15,0));c.up.set(0,0,-1);c.lookAt(target);r.render(scene,c);}document.querySelector('#top').onclick=top;document.querySelector('#front').onclick=()=>{c.position.copy(target).add(new T.Vector3(0,8,14));c.up.set(0,1,0);c.lookAt(target);r.render(scene,c);};top();
+</script></html>

@@ -1,4 +1,5 @@
 import logoUrl from "../assets/logo-faroeste-survivors.webp";
+import '../styles/compact-hud.css';
 import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { CHARACTERS } from "../config/characterConfig.js";
 import { t, LANGUAGES } from "../services/I18n.js";
@@ -66,6 +67,9 @@ export class ScreenView {
     this.root.innerHTML = `<div id="game-host"></div><section class="hud" aria-label="HUD"><div class="xp-track"><div id="xp-fill"></div></div><div class="hud-row"><div class="hud-hero"><strong>${CHARACTERS[run.characterId].name.toUpperCase()}</strong><div class="hp-track"><div id="hp-fill"></div></div><small id="hp-label"></small></div><div class="clock"><strong id="timer">15:00</strong><small id="timer-caption">${t(lang, "map." + run.mapId)}</small></div><button class="pause-button" data-action="pause" aria-label="${t(lang, "pause")}">Ⅱ</button></div><div class="hud-stats"><span id="level"></span><span id="xp-label"></span><span id="kills"></span><span id="coins"></span></div><div id="mission-hud" class="mission-hud" hidden></div><div id="weather-hud" class="weather-hud" hidden></div><p id="vulture-warning" class="vulture-warning" role="status" hidden></p><div id="boss-hud" class="boss-hud" role="status" hidden><strong id="boss-name"></strong><div class="boss-health"><i id="boss-health-fill"></i></div><small id="boss-health-label"></small></div></section><div id="merchant-compass" class="merchant-compass" role="status" hidden><span class="merchant-compass-arrow" aria-hidden="true">▲</span>${gameIcon("merchant")}<span class="merchant-compass-distance" id="merchant-range"></span></div><div class="ability-bar" id="ability-bar" aria-label="${t(lang, "abilitiesTitle")}"></div><div id="intro-caption" aria-live="polite"></div><div id="level-toast" role="status" hidden></div><div id="joystick" aria-hidden="true"><i></i></div><dialog id="run-dialog" aria-labelledby="run-dialog-title"></dialog>`;
     if (run.mode === "story")
       this.root.querySelector(".hud-stats").insertAdjacentHTML("beforeend", '<span id="story-progress"></span>');
+    const vitals=document.createElement('div');vitals.className='hud-vitals';
+    for(const id of ['hp-label','level','coins'])vitals.append(this.root.querySelector('#'+id));
+    this.root.querySelector('.hud-hero').append(vitals);
     this.abilityKey = "";
     this.hud = {};
     for (const id of [
@@ -116,7 +120,7 @@ export class ScreenView {
         `${Math.round(Math.hypot(dx, dz))} m`;
     }
     const warning = this.root.querySelector("#vulture-warning");
-    warning.hidden = !run.enemies.some((e)=>e.type==="vulture"&&e.warning>0) && !run.bossTelegraph;
+    warning.hidden = true; // Ground telegraphs communicate attacks without a second banner.
     warning.textContent = run.bossTelegraph ? `${t(lang,"boss."+run.bossEncounter.bossId)} · ${t(lang,"pattern."+run.bossTelegraph.pattern)}`:t(lang,"warningVultures");
     const boss = run.enemies.find(
         (e) => ["boss", "marshal"].includes(e.type) && e.hp > 0,
@@ -139,7 +143,7 @@ export class ScreenView {
     const mission = this.root.querySelector("#mission-hud");
     mission.hidden = !run.mission;
     if (run.mission)
-      mission.textContent = `✦ ${t(lang, "mission")} · ${t(lang, "mission" + run.mission.kind[0].toUpperCase() + run.mission.kind.slice(1))} ${run.mission.progress}/${run.mission.target} · ${t(lang, "missionTime", { time: Math.ceil(run.mission.expiresAt - run.time) })}`;
+      mission.textContent = `✦ ${t(lang, "mission" + run.mission.kind[0].toUpperCase() + run.mission.kind.slice(1))}`;
     const weather = this.root.querySelector("#weather-hud");
     weather.hidden = !(run.time < run.weather.alertUntil);
     if (!weather.hidden)
@@ -157,7 +161,7 @@ export class ScreenView {
     this.hud["hp-label"].textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.hud["hp-fill"].style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
     this.hud["xp-fill"].style.width = `${(p.xp / run.requiredXp) * 100}%`;
-    this.hud.level.textContent = `${t(lang, "level")} ${p.level}`;
+    this.hud.level.textContent = `NV ${p.level}`;
     this.hud["xp-label"].textContent = `${p.xp} / ${run.requiredXp} XP`;
     this.hud.kills.textContent = `☠ ${run.kills}`;
     this.hud.coins.innerHTML = `${gameIcon("coins")}<strong>${run.coins}</strong>`;

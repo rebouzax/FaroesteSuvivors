@@ -14,6 +14,7 @@ import { AbilityEffectsView } from "./AbilityEffectsView.js";
 import { EnemyAssetView, enemyAppearance } from "./EnemyAssetView.js";
 import { resetBossHigh, animateBossHigh } from "./HighQualityBossAnimation.js";
 import { resetEnemyHigh, animateEnemyHigh } from "./HighQualityEnemyAnimation.js";
+import {resetEnemyThrow,animateEnemyThrow} from './EnemyMotion.js';
 import { MapMerchantView } from "./MapMerchantView.js";
 import { buildDesertWorld } from "./DesertWorldView.js";
 import { buildOtherWorld } from "./OtherWorldView.js";
@@ -75,7 +76,7 @@ export class GameView {
     );
     const sun = new THREE.DirectionalLight(
       palette.warm,
-      run.mapId === "mine" ? 1.5 : run.mapId === "desert" ? 1.35 : 3,
+      run.mapId === "mine" ? 1.5 : run.mapId === "town" ? .85 : run.mapId === "desert" ? 1.35 : 3,
     );
     sun.position.set(-15, 30, 10);
     this.scene.add(sun);
@@ -432,7 +433,7 @@ export class GameView {
         view.userData.bossId = enemy.bossId||enemy.type;
         view.userData.tinted = view.children.length > 0;
       }
-      view.scale.setScalar((enemy.treasure?1.8:enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.12 : 1));
+      view.scale.setScalar((enemy.treasure?1.8:enemy.bossId?enemy.bossId==="giantBat"||enemy.bossId==="giantMoth"?2.8:1.9:1)*(enemy.hitFlash > 0 ? 1.035 : 1));
       const airborne = view.userData.airborne || ["bat","vulture","crow","swampCrow","cinderHawk","ironLocust"].includes(enemy.type) || ["giantBat","giantMoth","stormVulture","windmillWidow","crowKing"].includes(enemy.bossId);
       view.position.set(
         enemy.x,
@@ -458,6 +459,12 @@ export class GameView {
         view.userData.attacking = true;
       } else if ((this.highQuality&&enemy.bossId?enemy.releaseFlash<=0.25:enemy.attackFlash<=0.45)) view.userData.attacking = false;
       if(this.highQuality&&enemy.bossId)resetBossHigh(view);
+      resetEnemyThrow(view);
+      if(view.userData.healthBar){
+        const {bar,fill}=view.userData.healthBar,ratio=Math.max(0,Math.min(1,enemy.hp/enemy.maxHp));
+        bar.quaternion.copy(view.quaternion).invert().multiply(this.camera.quaternion);
+        fill.scale.x=ratio;fill.position.x=-(1-ratio)*.81;
+      }
       if(this.highQuality&&!enemy.bossId)resetEnemyHigh(view);
       const nearPlayer=Math.hypot(enemy.x-p.x,enemy.z-p.z)<(this.coarsePointer?27:34);
       if (nearPlayer)
@@ -466,6 +473,7 @@ export class GameView {
         animateBossHigh(view,enemy,run.bossTelegraph,time,delta);
       else if(this.highQuality&&nearPlayer)
         animateEnemyHigh(view,enemy,time,delta);
+      if(nearPlayer)animateEnemyThrow(view,enemy);
     }
     if(this.contactShadows){
       let index=0;

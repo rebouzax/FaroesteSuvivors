@@ -55,9 +55,9 @@ export function animateEnemyHigh(view,enemy,time,dt) {
   };
   const turn=(part,x=0,y=0,z=0)=>{
     if(!part||(!x&&!y&&!z)||!remember(part))return;
-    euler.set(x,y,z);rotation.setFromEuler(euler);part.quaternion.multiply(rotation);
+    euler.set(x*.5,y*.5,z*.5);rotation.setFromEuler(euler);part.quaternion.multiply(rotation);
   };
-  const lift=(part,y)=>{if(remember(part))part.position.y+=y;};
+  const lift=(part,y)=>{if(remember(part))part.position.y+=y*.5;};
   const p=state.parts;
   // Additive silhouettes complement the shared GLB locomotion clips. The
   // warning, shot, charge and hit states all remain legible at game camera size.
@@ -75,7 +75,7 @@ export function animateEnemyHigh(view,enemy,time,dt) {
     turn(p.frame,.018*breath+charge*-.12+hurt*.19,step*.035*state.move,hurt*.12);
     turn(p.head,-.015*breath+aim*-.08+hurt*.12,aim*.07,step*.025*state.move);
     turn(p.armR,-aim*.5-attack*.28+hurt*.24,0,-aim*.1);
-    turn(p.armL,-aim*.18+hurt*.18,0,aim*.08);
+    if(!view.userData.axeThrower)turn(p.armL,-aim*.18+hurt*.18,0,aim*.08);
     turn(p.legL,-step*.07*state.move);
     turn(p.legR,step*.07*state.move);
   }

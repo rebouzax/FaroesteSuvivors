@@ -4,6 +4,9 @@ import { EARLY_ENEMIES } from "../config/earlyEnemies.js";
 import { CREATURE_SHAPES, createCreatureAsset } from "./CreatureGeometry.js";
 import { CREATURE_ART, MODEL_KINDS, SPECIAL_ART, AIRBORNE_ART } from '../config/creatureArt.js';
 import { loadActor } from './SuppliedAssetLoader.js';
+import { AXE_THROWERS } from '../config/enemyWeapons.js';
+import { softenEnemyClip } from './EnemyMotion.js';
+import {enemyAxeGeometry} from './EnemyAxeGeometry.js';
 import { TREASURE_CREATURES } from '../config/treasureCreatures.js';
 import { createSpecialCreature } from './SpecialCreatureGeometry.js';
 import { equipCreature } from './CreatureEquipment.js';
@@ -25,8 +28,11 @@ const SPECIES={...Object.fromEntries(Object.entries(FRONTIER_ENEMIES).map(([id,s
   whiskeyImp:"dog",pianoCrawler:"miner",railWitch:"marshal",coalMimic:"miner",ironLocust:"vulture",graveRider:"dog",
   boneCactus:"dog",sundownBandit:"marshal",rattlesnake:"dog"};
 export function meshFor(type, bossId) {
-  if(type.startsWith('treasure:'))return 'supplied:'+TREASURE_CREATURES[type.slice(9)].model;
+  if(type.startsWith('treasure:')){const model=TREASURE_CREATURES[type.slice(9)].model;return model==='bats-01'?'bat':'supplied:'+model;}
   const id=bossId||type;
+  // The supplied bats-01 is a decorative flock with several facing directions.
+  // A combatant needs one independently oriented, animated bat.
+  if(CREATURE_ART[id]==='bats-01')return 'bat';
   if(CREATURE_ART[id])return 'supplied:'+CREATURE_ART[id];
   if(SPECIAL_ART[id])return 'special:'+SPECIAL_ART[id];
   if(bossId==="ashSerpent")return "snake";
@@ -72,11 +78,13 @@ export class EnemyAssetView {
   create(type,bossId){
     const view=new THREE.Group();
     view.userData.species=enemyAppearance(type,bossId);
+    view.userData.axeThrower=!bossId&&AXE_THROWERS.has(type);
     const shape=meshFor(type,bossId);
     view.userData.shape=shape;
     view.userData.imported=shape.startsWith('supplied:');
     view.userData.airborne=AIRBORNE_ART.has(shape.split(':').at(-1));
     view.userData.ready=asset(shape).then(({scene,animations})=>{
+      animations=animations.map(clip=>softenEnemyClip(clip, bossId?.7:.5));
       if (view.userData.disposed) return;
       const model=cloneSkinned(scene);
       if (bossId || !["bat","dog","vulture","skeleton","miner"].includes(type))
@@ -85,21 +93,35 @@ export class EnemyAssetView {
         });
       if(!['bat','dog','vulture','skeleton','miner'].includes(type)||bossId)equipCreature(model,bossId||type,Boolean(bossId));
       view.add(model);
+      if(view.userData.axeThrower&&!model.getObjectByName('Weapon_Axe')){
+        const hand=model.getObjectByName('ArmL');
+        if(hand){const geometry=enemyAxeGeometry(),weapon=new THREE.Group();weapon.name='Weapon_Axe';
+          weapon.add(new THREE.Mesh(geometry.shaft,new THREE.MeshStandardMaterial({color:0x795336})),new THREE.Mesh(geometry.head,new THREE.MeshStandardMaterial({color:0xb4b8be,metalness:.6,roughness:.4})));
+          weapon.position.set(-.12,-.38,.12);weapon.scale.setScalar(.8);hand.add(weapon);
+        }
+      }
+      if(bossId){
+        const bar=new THREE.Group(),back=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.14),new THREE.MeshBasicMaterial({color:0x21151b,depthTest:false}));
+        const fill=new THREE.Mesh(new THREE.PlaneGeometry(1.62,.08),new THREE.MeshBasicMaterial({color:0xe95c4f,depthTest:false}));
+        back.renderOrder=80;fill.renderOrder=81;fill.position.z=.005;bar.add(back,fill);bar.position.y=new THREE.Box3().setFromObject(model).max.y+.18;view.add(bar);view.userData.healthBar={bar,fill};
+      }
       if(type.startsWith('treasure:')){
         const sack=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),new THREE.MeshStandardMaterial({color:0xe6b34b,metalness:.55,roughness:.4}));
         sack.position.set(0,1,-.2);model.add(sack);
         const ring=new THREE.Mesh(new THREE.TorusGeometry(.75,.045,6,24),sack.material);ring.rotation.x=Math.PI/2;ring.position.y=.07;model.add(ring);
       }
       const mixer=new THREE.AnimationMixer(model);
+      mixer.timeScale=.85;
       const preferred=shape==="bat"||shape==="vulture"?"Fly":shape==="dog"?"Run":"Walk";
       const clip=animations.find(item=>item.name===preferred)||animations.find(item=>item.name==='Walk')||animations[0];
       if(clip){mixer.clipAction(clip).play();mixer.setTime((view.userData.seed||0)*0.17%clip.duration);}
       view.userData.mixer=mixer;
       const attack=animations.find(item=>["Shoot","Lurch","Attack","Primary"].includes(item.name));
-      if(attack){
+      if(attack&&!view.userData.axeThrower){
         const action=mixer.clipAction(THREE.AnimationUtils.makeClipAdditive(attack.clone()));
         action.setLoop(THREE.LoopOnce,1);
-        action.clampWhenFinished=true;
+        action.clampWhenFinished=false;
+        action.setEffectiveWeight(.65);
         view.userData.attackAction=action;
       }
     }).catch(error=>{view.userData.loadError=String(error);console.warn("Modelo de inimigo indisponível: "+type,error);});
