@@ -1,6 +1,6 @@
 import { CONFIG } from "../config/gameConfig.js";
 import { AXE_THROWERS } from '../config/enemyWeapons.js';
-import { pushOut } from './SceneryCollision.js';
+import { nearbyProps, pushOut } from './SceneryCollision.js';
 import { FRONTIER_ENEMIES } from "../config/frontierExpansion.js";
 import { enemyStats } from "../config/abilityConfig.js";
 import { ENEMY_STAGE_GROUPS } from "../config/campaignConfig.js";
@@ -12,22 +12,8 @@ const CELL = 2.5;
 const cellKey = (x,z) => `${Math.floor(x/CELL)},${Math.floor(z/CELL)}`;
 const tacticFor = type => EARLY_ENEMIES[type]?.behavior || (RANGED_ENEMIES.has(type)||type==="skeleton" ? "ranged" : FRONTIER_ENEMIES[type]?.behavior||"chase");
 export class EnemySystem {
-  constructor(){this.propGrids=new WeakMap();}
   nearbyProps(run,x,z){
-    if(this.propGrids.get(run)?.props!==run.props){
-      const cells=new Map();
-      for(const prop of run.props||[]){
-        const extent=(prop.radius||0)+1.5;
-        for(let cx=Math.floor((prop.x-extent)/CELL);cx<=Math.floor((prop.x+extent)/CELL);cx++)
-          for(let cz=Math.floor((prop.z-extent)/CELL);cz<=Math.floor((prop.z+extent)/CELL);cz++){
-            const key=`${cx},${cz}`;
-            if(!cells.has(key))cells.set(key,[]);
-            cells.get(key).push(prop);
-          }
-      }
-      this.propGrids.set(run,{cells,props:run.props});
-    }
-    return this.propGrids.get(run).cells.get(cellKey(x,z))||[];
+    return nearbyProps(run,x,z);
   }
   keepOutOfProps(run,enemy){
     let blocked=false;

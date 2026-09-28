@@ -25,7 +25,7 @@ export function preparationMarkup(profile,step,selectedCharacter="joao",selected
   const name=character?(unlocked?hero.name:t(lang,"hiddenHero")):t(lang,"map."+id);
   const hint=character?(MERCHANT_HEROES[id]?t(lang,'merchantHeroLock',{stage:t(lang,'map.'+MERCHANT_HEROES[id].after)}):HERO_MODELS[id]?t(lang,'heroLock.'+id):unlockRequirementText(lang,{after:HERO_REWARDS[id],mission:MISSION_HERO_REWARDS[id]})):t(lang,"clearStage",{stage:t(lang,"map."+previousStage(id))});
   const artwork=character
-    ? unlocked?(HERO_MODELS[id]?`<div id="special-hero-preview" style="width:100%;height:100%" aria-label="${hero.name}"></div>`:`<img src="${HERO_PORTRAITS[id]}" alt="${hero.name}" loading="eager">`):`<span class="carousel-mystery" aria-label="${t(lang,"hiddenHero")}">?</span>`
+    ? unlocked?`<span class="hero-cover" style="--hero-cover:url('${HERO_PORTRAITS[id]}')"><img src="${HERO_PORTRAITS[id]}" alt="${hero.name}" loading="eager" decoding="async"></span>`:`<span class="carousel-mystery" aria-label="${t(lang,"hiddenHero")}">?</span>`
     : `<span class="carousel-landscape map-${id}"><img src="${STAGE_ART[id]}" alt="" loading="eager">${unlocked?"":'<span class="stage-lock" aria-hidden="true">?</span>'}</span>`;
   const details=unlocked
     ? character?`<p>${t(lang,"hero."+id)}</p><p class="hero-facts">${t(lang,"life")} ${hero.hp+stats.healthRank*20} · ${t(lang,"damage")} ${hero.damage+stats.primaryRank*2} · ${t(lang,"speed")} ${hero.speed} · ${t(lang,"armor")} ${hero.armor||0}</p>`

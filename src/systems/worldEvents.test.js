@@ -4,11 +4,19 @@ import {RunSystem} from './RunSystem.js';
 import {WeatherSystem} from './WeatherSystem.js';
 import {TreasureSystem} from './TreasureSystem.js';
 import {EnemySystem} from './EnemySystem.js';
-import {pushOut} from './SceneryCollision.js';
+import {nearbyProps,pushOut} from './SceneryCollision.js';
 import {TREASURE_CREATURES} from '../config/treasureCreatures.js';
 import {sceneryFor} from '../config/sceneryPlan.js';
 const runFor=()=>{const r=new RunModel(()=>.5);r.phase='playing';return r;};
 describe('world events and solid scenery',()=>{
+ it('checks nearby obstacles without losing rotated walls or reusing an old map grid',()=>{
+  const r=runFor(),near={x:0,z:0,halfX:.1,halfZ:10,rotation:Math.PI/2},far=Array.from({length:200},(_,i)=>({x:30+i,z:30,radius:.5}));
+  r.props=[near,...far];
+  expect(nearbyProps(r,0,0)).toContain(near);
+  expect(nearbyProps(r,0,0)).not.toContain(far[0]);
+  r.props=[{x:0,z:0,radius:1}];
+  expect(nearbyProps(r,0,0)).toEqual(r.props);
+ });
  it('blocks crossing a thin fence, even with a long player movement step',()=>{
   const r=runFor();r.props=[{x:0,z:0,halfX:.1,halfZ:10,radius:10}];r.player.x=-2;r.player.z=0;
   new RunSystem().move(r,1,{x:1,z:0});expect(r.player.x).toBeLessThanOrEqual(-.499);

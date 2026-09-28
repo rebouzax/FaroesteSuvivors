@@ -1,5 +1,5 @@
 import { CONFIG } from "../config/gameConfig.js";
-import { pushOut } from './SceneryCollision.js';
+import { nearbyProps, pushOut } from './SceneryCollision.js';
 import { TreasureSystem } from './TreasureSystem.js';
 import { EnemySystem } from "./EnemySystem.js";
 import { CombatSystem } from "./CombatSystem.js";
@@ -113,7 +113,7 @@ export class RunSystem {
     const steps=Math.max(1,Math.ceil(run.moveSpeed*dt/.25));
     for(let i=0;i<steps;i++){
       p.x=clamp(p.x+moveX*run.moveSpeed*dt/steps);p.z=clamp(p.z+moveZ*run.moveSpeed*dt/steps);
-      for(let pass=0;pass<3;pass++)for(const prop of run.props)pushOut(p,prop,.4);
+      for(let pass=0;pass<3;pass++)for(const prop of nearbyProps(run,p.x,p.z))pushOut(p,prop,.4);
     }
     p.moving = Math.hypot(p.x - oldX, p.z - oldZ) > 0.001;
     if (p.moving) p.walkTime += dt;

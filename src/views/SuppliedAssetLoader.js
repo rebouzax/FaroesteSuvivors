@@ -10,7 +10,7 @@ const loader=new GLTFLoader().setDRACOLoader(draco),cache=new Map(),actors=new M
 // Authored forward axes, verified in an orthographic top view: the wolf faces
 // -X/-Z and the scorpion +X. Gameplay and procedural rigs use +Z as forward.
 // Apply this before skinning so legs, head and equipment share the same frame.
-const ACTOR_FORWARD_YAW={lobo:Math.PI*3/4,scropiao:-Math.PI/2,'aranha-1':Math.PI/2,morte:-Math.PI/2};
+const ACTOR_FORWARD_YAW={lobo:Math.PI*3/4,scropiao:-Math.PI/2,'aranha-1':Math.PI/2,morte:-Math.PI/2,clanker:Math.PI};
 export function loadSupplied(id){
   if(!SUPPLIED_ASSETS[id])return Promise.reject(new Error('Unknown supplied asset: '+id));
   if(!cache.has(id))cache.set(id,loader.loadAsync(SUPPLIED_ASSETS[id].url).catch(error=>{cache.delete(id);throw error;}));
@@ -25,9 +25,10 @@ export function normalizeModel(source,size=1.6,axis='height'){
 }
 // Assign static meshes a lightweight skeletal rig. Geometry/materials remain shared
 // by all clones of an actor; animation mixers and skeletons are instance-local.
-function rigStatic(root,kind){
+function rigStatic(root,kind,id){
   root.updateMatrixWorld(true);
-  const bounds=new THREE.Box3().setFromObject(root),size=bounds.getSize(new THREE.Vector3()),h=size.y,tPose=kind==='humanoid'&&size.x/h>.7;
+  const bounds=new THREE.Box3().setFromObject(root),size=bounds.getSize(new THREE.Vector3()),h=size.y;
+  const tPose=kind==='humanoid'&&size.x/h>.7;
   const frame=new THREE.Bone();frame.name='Frame';
   const specs=kind==='spectral'?[]:kind==='arthropod'?Array.from({length:8},(_,i)=>['Leg'+i,(i%2?1:-1)*size.x*.2,h*.2,(Math.floor(i/2)-1.5)*size.z*.18]):kind==='bird'?[['WingL',-.05,h*.5,0],['WingR',.05,h*.5,0],['Head',0,h*.6,size.z*.25]]:
     kind==='quadruped'?[['LegL',-.2,h*.4,size.z*.25],['LegR',.2,h*.4,size.z*.25],['RearL',-.2,h*.4,-size.z*.25],['RearR',.2,h*.4,-size.z*.25],['Head',0,h*.65,size.z*.3]]:
@@ -59,7 +60,11 @@ function rigStatic(root,kind){
       const attack=['Primary','Throw'].includes(name),hurt=name==='Hurt';
       const amount=head?.035:attack&&arm?1.1:amplitude*(wing?1.9:1);
       const sign=index%2?1:-1;
-      const values=attack&&arm?[0,-amount,-amount*.7,.2,0]:[0,amount*sign,0,-amount*sign,0];
+      let values=attack&&arm?[0,-amount,-amount*.7,.2,0]:[0,amount*sign,0,-amount*sign,0];
+      if(attack&&id==='clanker'){
+        if(bone.name==='ArmR')values=[0,-.55,-1.3,-.35,0];
+        else if(bone.name==='ArmL')values=[0,-.12,-.22,-.08,0];
+      }
       if(arm&&tPose){
         const rest=bone.name==='ArmL'?1.02:-1.02;
         tracks.push(new THREE.QuaternionKeyframeTrack(`${bone.name}.quaternion`,times,values.flatMap(v=>new THREE.Quaternion().setFromEuler(new THREE.Euler(v,0,rest)).toArray())));
@@ -80,7 +85,7 @@ export function loadActor(id,kind='humanoid'){
     oriented.add(source);
     const upright=kind==='humanoid'||kind==='spectral';
     const scene=normalizeModel(oriented,upright?1.65:1.5,upright?'height':'width');
-    if(!gltf.animations.length)return rigStatic(scene,kind);
+    if(!gltf.animations.length)return rigStatic(scene,kind,id);
     const animations=gltf.animations.map(clip=>{
       const copy=clip.clone();
       const name=['Idle','Walk','Run','Attack','Sword','Punch','HitReact','HitRecieve'].find(n=>new RegExp(`(?:_|\\|)${n}$`,'i').test(copy.name));

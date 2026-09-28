@@ -3,7 +3,6 @@ import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { HighQualityCharacterAnimation } from "./HighQualityCharacterAnimation.js";
 import { HERO_MODELS } from '../config/specialHeroes.js';
 import { loadActor } from './SuppliedAssetLoader.js';
-import { equipChampion } from './ChampionEquipment.js';
 import joaoUrl from "../assets/models/joao.glb?url";
 import mariaUrl from "../assets/models/maria.glb?url";
 import indigoUrl from "../assets/models/indigo.glb?url";
@@ -30,7 +29,7 @@ const URLs = { joao: joaoUrl, maria: mariaUrl, indigo: indigoUrl, labuta: labuta
 const cache = new Map();
 export function preloadCowboyAsset(id = "joao") {
   if(HERO_MODELS[id]){
-    if(!cache.has(id))cache.set(id,loadActor(HERO_MODELS[id]).then(source=>equipChampion({scene:cloneSkinned(source.scene),animations:source.animations},id)).catch(error=>{cache.delete(id);throw error;}));
+    if(!cache.has(id))cache.set(id,loadActor(HERO_MODELS[id]).then(source=>({scene:cloneSkinned(source.scene),animations:source.animations})).catch(error=>{cache.delete(id);throw error;}));
     return cache.get(id);
   }
   if (!URLs[id]) throw new Error("Personagem desconhecido: " + id);
@@ -142,7 +141,7 @@ export function animateCowboyPreview(root, dt) {
 }
 export function animateCowboy(root, run, dt, highQuality = false) {
   const p = run.player,
-    direction = highQuality && run.attack
+    direction = (highQuality || run.characterId === 'clanker') && run.attack
       ? Math.atan2(Math.cos(run.attack.angle), Math.sin(run.attack.angle))
       : Math.atan2(p.dx, p.dz);
   const difference = Math.atan2(
@@ -169,9 +168,11 @@ export function animateCowboy(root, run, dt, highQuality = false) {
   const attacking = Boolean(run.attack);
   if (attacking && !rig.attacking && run.characterId === "joao")
     playCombat(rig, "Whip");
+  if (attacking && !rig.attacking && run.characterId === 'clanker')
+    playCombat(rig, 'Primary');
   rig.attacking = attacking;
   const shooting = run.shotFlash > 0.15 || run.primaryFlash > 0.15;
-  if (shooting && !rig.shooting) {
+  if (shooting && !rig.shooting && run.characterId !== 'clanker') {
     const action=run.characterId==="joao"?"Shot":["dynamite","boomerang","axe"].includes(run.hero.primary)?"Throw":["pistol","dual"].includes(run.hero.primary)?"Shot":"Primary";
     playCombat(rig,action);
     if(run.hero.primary==="bow")rig.bowHold=.64;
@@ -186,7 +187,7 @@ export function animateCowboy(root, run, dt, highQuality = false) {
   }
   if (rig.flash) rig.flash.visible = shooting;
   const throwing = run.throwFlash > 0.57;
-  if (throwing && !rig.throwing) playCombat(rig, "Throw");
+  if (throwing && !rig.throwing && run.characterId !== 'clanker') playCombat(rig, "Throw");
   rig.throwing = throwing;
   const hurt = p.invulnerable > 0.84 && p.invulnerable <= 0.9;
   if (hurt && !rig.hurt) playCombat(rig, "Hurt");

@@ -4,6 +4,7 @@ import { ABILITY_IDS } from "../config/abilityConfig.js";
 import { FUSIONS, BENTO_CARDS, STARTER_CARDS, STARTER_DECK, DECK_MIN, DECK_MAX, fusionUnlocked } from "../config/deckConfig.js";
 import { CAMPAIGN, BOSS_IDS, ENEMY_IDS, MISSION_IDS, unlockedGameplayCards } from "../config/campaignConfig.js";
 const KEY = "faroeste:profile:v2";
+const RETIRED_HERO_REFUNDS={viking:850,centurion:1250};
 import { MERCHANT_HEROES } from '../config/specialHeroes.js';
 export class ProfileService {
   constructor(storage) {
@@ -75,7 +76,12 @@ export class ProfileService {
           this.data.forgedCards = [...new Set(saved.forgedCards.filter((id) => id in FUSIONS))];
         if (Array.isArray(saved.bentoCards))
           this.data.bentoCards=[...new Set(saved.bentoCards.filter(id=>id in BENTO_CARDS))];
-        if(Array.isArray(saved.ownedHeroes))this.data.ownedHeroes=[...new Set(saved.ownedHeroes.filter(id=>Object.hasOwn(MERCHANT_HEROES,id)))];
+        if(Array.isArray(saved.ownedHeroes)){
+          const owned=[...new Set(saved.ownedHeroes)];
+          this.data.ownedHeroes=owned.filter(id=>Object.hasOwn(MERCHANT_HEROES,id));
+          this.data.coins=Math.min(Number.MAX_SAFE_INTEGER,this.data.coins+
+            owned.reduce((refund,id)=>refund+(RETIRED_HERO_REFUNDS[id]||0),0));
+        }
         this.data.legacyProgression = saved.legacyProgression === true ||
           (!saved.progressionVersion && (this.data.completedRuns > 0 || this.data.coins > 0 ||
             Object.keys(this.data.storyClears).length > 0 ||

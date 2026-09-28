@@ -1,6 +1,6 @@
 import { CONFIG, levelCost } from "../config/gameConfig.js";
 import { FRONTIER_CARDS } from "../config/frontierExpansion.js";
-import { ABILITY_IDS } from "../config/abilityConfig.js";
+import { ABILITY_IDS, abilityMaxLevel } from "../config/abilityConfig.js";
 import { createWorld } from "./WorldModel.js";
 import { temporaryPrice } from "../config/shopConfig.js";
 import { CHARACTERS } from "../config/characterConfig.js";
@@ -106,6 +106,7 @@ export class RunModel {
     this.pulses = [];
     this.projectiles = [];
     this.primaryShots = [];
+    this.pendingPrimaryShots = [];
     this.primaryFlash = 0;
     this.bottles = [];
     this.fires = [];
@@ -119,7 +120,7 @@ export class RunModel {
     while (this.player.xp >= levelCost(this.player.level)) {
       this.player.xp -= levelCost(this.player.level);
       this.player.level++;
-      if(this.deck.some(id=>this.abilities[id]<4))this.pendingChoices++;
+      if(this.deck.some(id=>this.abilities[id]<abilityMaxLevel(id)))this.pendingChoices++;
       else this.coins+=12;
       this.levelFlash = 2;
       this.events.push("level");
@@ -130,7 +131,7 @@ export class RunModel {
     }
   }
   dealCards() {
-    const deck = this.deck.filter(id=>this.abilities[id]<4);
+    const deck = this.deck.filter(id=>this.abilities[id]<abilityMaxLevel(id));
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.min(i, Math.floor(this.random() * (i + 1)));
       [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -141,7 +142,7 @@ export class RunModel {
     if (
       this.phase !== "upgrade" ||
       !this.pendingChoices ||
-      !this.cardOffers.includes(id)
+      !this.cardOffers.includes(id) || this.abilities[id]>=abilityMaxLevel(id)
     )
       return false;
     this.chain =
@@ -168,7 +169,7 @@ export class RunModel {
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
     }
     this.applyCardEffects(id);
-    if (!this.pendingChoices || !this.deck.some(card=>this.abilities[card]<4)) {
+    if (!this.pendingChoices || !this.deck.some(card=>this.abilities[card]<abilityMaxLevel(card))) {
       this.coins+=this.pendingChoices*12;
       this.pendingChoices=0;
       this.phase = "playing"; this.cardOffers = [];
@@ -182,7 +183,7 @@ export class RunModel {
       this.player.maxHp+=20;
       this.player.hp=Math.min(this.player.maxHp,this.player.hp+40);
     }else if(reward==="card"){
-      const available=this.deck.filter(id=>this.abilities[id]<4);
+      const available=this.deck.filter(id=>this.abilities[id]<abilityMaxLevel(id));
       if(!available.length){this.coins+=25;this.mission=null;this.phase="playing";return true;}
       const owned=available.filter(id=>this.abilities[id]>0);
       this.missionOffers=(owned.length?owned:available).slice(0,3);
@@ -194,7 +195,7 @@ export class RunModel {
     return true;
   }
   chooseMissionCard(id) {
-    if(this.phase!=="mission-card"||!this.missionOffers.includes(id))return false;
+    if(this.phase!=="mission-card"||!this.missionOffers.includes(id)||this.abilities[id]>=abilityMaxLevel(id))return false;
     this.abilities[id]++;
     if(id==="ironWill")this.playerArmor+=3;
     if(id==="heart"){
@@ -216,7 +217,7 @@ export class RunModel {
     return levelCost(this.player.level);
   }
   get merchantCards() {
-    return ["whip", "haste", "spur", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0 && this.abilities[id]<4)];
+    return ["whip", "haste", "spur", ...ABILITY_IDS.filter((id) => this.abilities[id] > 0 && this.abilities[id]<abilityMaxLevel(id))];
   }
   buyRunUpgrade(id) {
     if (this.phase !== "merchant" || !this.merchantCards.includes(id))

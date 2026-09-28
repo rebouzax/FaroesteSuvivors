@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/gameConfig.js";
+import { intercept, trackTargets } from './ChampionAim.js';
 import { abilityStats } from "../config/abilityConfig.js";
 export class CombatSystem {
   rate(run){return run.attackRate*(run.abilities.lastStand&&run.player.hp/run.player.maxHp<0.35?1+run.abilities.lastStand*0.2:1);}
@@ -27,12 +28,14 @@ export class CombatSystem {
       : 1;
   }
   update(run, dt) {
+    trackTargets(run,dt);
     run.empowered.remaining = Math.max(0, run.empowered.remaining - dt);
     run.shotFlash = Math.max(0, run.shotFlash - dt);
     run.throwFlash = Math.max(0, run.throwFlash - dt);
     run.primaryFlash=Math.max(0,run.primaryFlash-dt);
     this.whip(run, dt);
     this.primaryProjectiles(run,dt);
+    this.releasePrimaryShots(run,dt);
     this.returningCards(run,dt);
     this.pirateBomb(run,dt);
     this.pistol(run, dt);
@@ -61,8 +64,10 @@ export class CombatSystem {
     run.pirateBombTimer-=dt;if(run.pirateBombTimer>0)return;
     const stats=abilityStats('pirateBomb',run.abilities.pirateBomb),target=this.closest(run,stats.range);
     if(!target){run.pirateBombTimer=.25;return;}
-    const dx=target.x-run.player.x,dz=target.z-run.player.z,flight=Math.max(.3,Math.hypot(dx,dz)/15);
+    const aim=intercept(run.player,target,15,.3),dx=aim.x-run.player.x,dz=aim.z-run.player.z,flight=aim.flight;
+    const first=run.primaryShots.length;
     run.primaryShots.push({x:run.player.x,z:run.player.z,vx:dx/flight,vz:dz/flight,age:0,flight,damage:stats.damage*this.multiplier(run,'pirateBomb'),pierce:1,hit:new Set(),kind:'dynamite'});
+    this.extraPrimaryShots(run,first);
     run.pirateBombTimer=stats.cooldown/this.rate(run);run.throwFlash=.65;run.events.push('throw');
   }
   whip(run, dt) {
@@ -93,6 +98,8 @@ export class CombatSystem {
       attack.hit = true;
       run.events.push("whip");
       const p = run.player;
+      const target=this.closest(run,CONFIG.whipRange+2);
+      if(target)attack.angle=Math.atan2(target.z-p.z,target.x-p.x);
       for (const enemy of run.enemies) {
         const dx = enemy.x - p.x,
           dz = enemy.z - p.z,
@@ -123,6 +130,11 @@ export class CombatSystem {
     if(!attack.hit&&attack.age>=0.16){
       attack.hit=true;
       const p=run.player;
+      const target=this.closest(run,run.primaryRange);
+      const speed=["maria","rosa","teo"].includes(run.characterId)?25:["labuta","ruth"].includes(run.characterId)?21:run.characterId==="silas"?18:17;
+      const aim=target?(hero.primary==='sword'?target:intercept(p,target,hero.primary==='dynamite'?15:hero.primary==='boomerang'?16:speed,hero.primary==='dynamite'?.28:0)):null;
+      if(aim)attack.angle=Math.atan2(aim.z-p.z,aim.x-p.x);
+      const first=run.primaryShots.length;
       const count=hero.pellets || (run.characterId === "rosa" || run.characterId === "silas" ? 2 : run.characterId==="maria"&&run.abilities.boneStorm>2?2:1);
       if(hero.primary==='sword'){
         for(const enemy of run.enemies){
@@ -134,18 +146,20 @@ export class CombatSystem {
         run.primaryFlash=.25;run.events.push('whip');return;
       }
       if(hero.primary==="boomerang"){
-        const target=this.closest(run,run.primaryRange),distance=target?Math.min(run.primaryRange,Math.hypot(target.x-p.x,target.z-p.z)):Math.min(11,run.primaryRange*.75),flight=Math.max(.38,distance/16);
+        const distance=aim?Math.hypot(aim.x-p.x,aim.z-p.z):Math.min(11,run.primaryRange*.75),flight=Math.max(.38,distance/16);
         run.primaryShots.push({x:p.x,z:p.z,startX:p.x,startZ:p.z,vx:Math.cos(attack.angle)*distance/flight,vz:Math.sin(attack.angle)*distance/flight,age:0,flight,returnAge:0,returnLeg:false,damage:run.primaryDamage*1.15,pierce:99,hit:new Set(),kind:"boomerang"});
+        this.extraPrimaryShots(run,first);
         run.primaryFlash=.22;run.throwFlash=.65;run.events.push("throw");
         if(run.primaryShots.length>64)run.primaryShots.shift();
         return;
       }
       if(hero.primary==="dynamite"){
-        const target=this.closest(run,run.primaryRange),distance=target?Math.min(run.primaryRange,Math.hypot(target.x-p.x,target.z-p.z)):Math.min(10,run.primaryRange*.65);
-        const flight=Math.max(.28,distance/15),start=0.72;
-        run.primaryShots.push({x:p.x+Math.cos(attack.angle)*start,z:p.z+Math.sin(attack.angle)*start,
-          vx:Math.cos(attack.angle)*distance/flight,vz:Math.sin(attack.angle)*distance/flight,age:0,flight,
+        const flight=aim?.flight??Math.max(.28,Math.min(10,run.primaryRange*.65)/15);
+        const dx=aim?aim.x-p.x:Math.cos(attack.angle)*15*flight,dz=aim?aim.z-p.z:Math.sin(attack.angle)*15*flight;
+        run.primaryShots.push({x:p.x,z:p.z,
+          vx:dx/flight,vz:dz/flight,age:0,flight,
           damage:run.primaryDamage*1.35,pierce:1,hit:new Set(),kind:"dynamite"});
+        this.extraPrimaryShots(run,first);
         run.primaryFlash=.2;run.throwFlash=.65;run.events.push("throw");
         if(run.primaryShots.length>64)run.primaryShots.shift();
         return;
@@ -153,15 +167,49 @@ export class CombatSystem {
       for(let i=0;i<count;i++){
         const angle=attack.angle+(i-(count-1)/2)*(["labuta","ruth"].includes(run.characterId)?0.28:run.characterId==="silas"?0.25:0.11);
         const speed=["maria","rosa","teo"].includes(run.characterId)?25:["labuta","ruth"].includes(run.characterId)?21:run.characterId==="silas"?18:17;
-        run.primaryShots.push({x:p.x,z:p.z,vx:Math.cos(angle)*speed,vz:Math.sin(angle)*speed,age:0,
+        // The robot's emitter is on its raised right forearm, ahead of the
+        // torso. Keep its collision path and rendered fireball aligned.
+        const forward=run.characterId==='clanker'?.36:0,side=run.characterId==='clanker'?.3:0;
+        const x=p.x+Math.cos(angle)*forward+Math.sin(angle)*side;
+        const z=p.z+Math.sin(angle)*forward-Math.cos(angle)*side;
+        run.primaryShots.push({x,z,vx:Math.cos(angle)*speed,vz:Math.sin(angle)*speed,age:0,
           damage:(run.primaryDamage+run.whipRank*3)*(run.random()<(hero.crit||0)+run.critBonus?1.7:1),
           pierce:hero.pierce||(["indigo","ada"].includes(run.characterId)?2:run.characterId==="elias"?3:run.characterId==="rosa"?2:1),
           hit:new Set(),kind:run.characterId});
       }
+      this.extraPrimaryShots(run,first);
       run.primaryFlash=0.2;
       run.events.push(["indigo","ada","silas"].includes(run.characterId)?"arrow":"shot");
     }
     if(attack.age>=0.4)run.attack=null;
+  }
+  extraPrimaryShots(run,first){
+    const extra=Math.min(6,Math.max(0,run.abilities.doubleShot||0));
+    const originals=run.primaryShots.slice(first);
+    if(!originals.length)return;
+    for(let i=0;i<extra;i++){
+      const source={...originals[i%originals.length]};
+      // A duplicate follows the previous projectile rather than making an
+      // instantaneous fan. Its direction is captured when the attack aims.
+      run.pendingPrimaryShots.push({source,delay:(i+1)*.11});
+    }
+  }
+  releasePrimaryShots(run,dt){
+    if(!run.pendingPrimaryShots?.length)return;
+    const remaining=[];
+    for(const pending of run.pendingPrimaryShots){
+      pending.delay-=dt;
+      if(pending.delay>0){remaining.push(pending);continue;}
+      const source=pending.source,length=Math.hypot(source.vx,source.vz)||1;
+      const dx=source.vx/length,dz=source.vz/length;
+      const offsetX=source.kind==='clanker'?dx*.36+dz*.3:0;
+      const offsetZ=source.kind==='clanker'?dz*.36-dx*.3:0;
+      const x=run.player.x+offsetX,z=run.player.z+offsetZ;
+      run.primaryShots.push({...source,x,z,startX:x,startZ:z,age:0,returnAge:0,returnLeg:false,prevX:undefined,prevZ:undefined,hit:new Set()});
+      run.primaryFlash=Math.max(run.primaryFlash,.18);
+    }
+    run.pendingPrimaryShots=remaining;
+    if(run.primaryShots.length>64)run.primaryShots.splice(0,run.primaryShots.length-64);
   }
   primaryProjectiles(run,dt){
     run.primaryShots=run.primaryShots.filter(shot=>{

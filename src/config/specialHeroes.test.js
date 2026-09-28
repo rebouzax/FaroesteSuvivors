@@ -1,45 +1,80 @@
 import {it,expect} from 'vitest';
-import { heroUnlocked,CAMPAIGN } from './campaignConfig.js';
-import { MERCHANT_HEROES } from './specialHeroes.js';
-import { ProfileService } from '../services/ProfileService.js';
-import { RunModel } from '../models/RunModel.js';
-import { CombatSystem } from '../systems/CombatSystem.js';
-import { SUPPLIED_ASSETS } from './suppliedAssets.js';
-import { CREATURE_ART } from './creatureArt.js';
-import { HERO_MODELS } from './specialHeroes.js';
-import { sceneryFor } from './sceneryPlan.js';
+import {heroUnlocked,CAMPAIGN} from './campaignConfig.js';
+import {CHARACTERS} from './characterConfig.js';
+import {HERO_MODELS,MERCHANT_HEROES} from './specialHeroes.js';
+import {HERO_PORTRAITS} from './portraitConfig.js';
+import {SUPPLIED_ASSETS} from './suppliedAssets.js';
+import {CREATURE_ART} from './creatureArt.js';
+import {sceneryFor} from './sceneryPlan.js';
+import {permanentShopMarkup} from '../views/ShopView.js';
+import {ProfileService} from '../services/ProfileService.js';
+import {RunModel} from '../models/RunModel.js';
+import {CombatSystem} from '../systems/CombatSystem.js';
+
 const storage=()=>{let data;return {getItem:()=>data||null,setItem:(key,value)=>{data=value;}};};
-it('preserva compras únicas e não libera os campeões especiais para perfil novo',()=>{
- const disk=storage(),profile=new ProfileService(disk);profile.data.coins=5000;
- for(const id of ['viking','centurion','pirate','clanker'])expect(heroUnlocked(profile.data,id)).toBe(false);
- expect(profile.buyHero('viking')).toBe(false);profile.data.storyClears.mine=true;
- expect(profile.buyHero('viking')).toBe(true);expect(profile.data.coins).toBe(5000-MERCHANT_HEROES.viking.price);
- expect(profile.buyHero('viking')).toBe(false);expect(heroUnlocked(new ProfileService(disk).data,'viking')).toBe(true);
+
+it('mantém 22 campeões originais e Clanker, sem os três descartados no menu ou mercador',()=>{
+  expect(Object.keys(CHARACTERS)).toHaveLength(23);
+  expect(Object.keys(HERO_PORTRAITS)).toHaveLength(23);
+  expect(HERO_MODELS).toEqual({clanker:'clanker'});
+  expect(Object.keys(MERCHANT_HEROES)).toHaveLength(0);
+  const profile=new ProfileService(storage());
+  for(const id of ['viking','centurion','pirate']){
+    expect(CHARACTERS[id]).toBeUndefined();
+    expect(HERO_PORTRAITS[id]).toBeUndefined();
+    expect(profile.buyHero(id)).toBe(false);
+    expect(new RunModel(()=>.5,0,{}, {characterId:id}).characterId).toBe('joao');
+  }
+  const shop=permanentShopMarkup(profile,'menu');
+  expect(shop).not.toContain('shop-filter:heroes');
+  expect(shop).not.toContain('buy-hero:');
 });
-it('exige vitória real contra Clanker e as duas missões do contrato pirata',()=>{
- const profile=new ProfileService(storage());profile.data.discoveries.encounteredBosses=['clanker'];
- expect(heroUnlocked(profile.data,'clanker')).toBe(false);
- const run=new RunModel();run.time=550;run.phase='defeat';run.defeatedBosses.add('clanker');profile.recordRun(run);
- expect(heroUnlocked(profile.data,'clanker')).toBe(true);
- profile.data.missionClears=['town:4'];expect(heroUnlocked(profile.data,'pirate')).toBe(false);
- profile.data.missionClears.push('glassMarsh:4');expect(heroUnlocked(profile.data,'pirate')).toBe(true);
- expect(CAMPAIGN.forsakenRail.bosses.map(b=>b.id)).toContain('clanker');
+
+it('libera Clanker só após missão final, chefe e vitória da Ferrovia na campanha',()=>{
+  const disk=storage(),profile=new ProfileService(disk);
+  profile.data.discoveries.encounteredBosses=['clanker'];
+  expect(heroUnlocked(profile.data,'clanker')).toBe(false);
+  profile.data.discoveries.bosses=['clanker'];
+  expect(heroUnlocked(profile.data,'clanker')).toBe(false);
+  profile.data.missionClears=['forsakenRail:4'];
+  expect(heroUnlocked(profile.data,'clanker')).toBe(false);
+  profile.data.storyClears.forsakenRail=true;
+  expect(heroUnlocked(profile.data,'clanker')).toBe(true);
+  delete profile.data.storyClears.forsakenRail;
+  profile.data.missionClears=[];profile.data.discoveries.bosses=[];
+  const run=new RunModel(()=>.5,0,{}, {mapId:'forsakenRail',mode:'story'});
+  run.time=900;run.phase='victory';run.missionsCompleted=CAMPAIGN.forsakenRail.missions.length;
+  run.bossEncounter.nextBoss=CAMPAIGN.forsakenRail.bosses.length;
+  run.completedMissionIds=new Set(CAMPAIGN.forsakenRail.missions.map((_,i)=>`forsakenRail:${i+1}`));
+  run.defeatedBosses.add('clanker');profile.recordRun(run);
+  expect(heroUnlocked(profile.data,'clanker')).toBe(true);
+  expect(heroUnlocked(new ProfileService(disk).data,'clanker')).toBe(true);
 });
-it('centurião tem 10 de armadura e a espada atinge apenas o arco próximo',()=>{
- const run=new RunModel(()=>.5,0,{}, {characterId:'centurion'});expect(run.playerArmor).toBe(10);
- run.player.x=0;run.player.z=0;run.cooldown=0;
- run.enemies=[{id:1,x:2,z:0,hp:100,armor:0},{id:2,x:-2,z:0,hp:100,armor:0},{id:3,x:8,z:0,hp:100,armor:0}];
- new CombatSystem().rangedPrimary(run,.2);
- expect(run.enemies[0].hp).toBeLessThan(100);expect(run.enemies[1].hp).toBe(100);expect(run.enemies[2].hp).toBe(100);expect(run.primaryShots).toHaveLength(0);
+
+it('reembolsa uma vez as compras antigas dos campeões retirados',()=>{
+  const disk=storage();
+  disk.setItem('faroeste:profile:v2',JSON.stringify({coins:100,ownedHeroes:['viking','centurion','viking']}));
+  const profile=new ProfileService(disk);
+  expect(profile.data.coins).toBe(2200);
+  expect(profile.data.ownedHeroes).toEqual([]);
+  profile.save();
+  expect(new ProfileService(disk).data.coins).toBe(2200);
 });
-it('pirata começa com bomba funcional e viking/Clanker usam seus projéteis',()=>{
- const combat=new CombatSystem(),run=new RunModel(()=>.5,0,{}, {characterId:'pirate'});
- expect(run.abilities.pirateBomb).toBe(1);run.enemies=[{id:1,x:3,z:8,hp:100,armor:0}];run.pirateBombTimer=0;
- combat.pirateBomb(run,.1);expect(run.primaryShots[0].kind).toBe('dynamite');combat.primaryProjectiles(run,1);expect(run.enemies[0].hp).toBeLessThan(100);
- for(const [id,count] of [['viking',1],['clanker',4]]){const r=new RunModel(()=>.5,0,{}, {characterId:id});r.cooldown=0;combat.rangedPrimary(r,.2);expect(r.primaryShots).toHaveLength(count);expect(r.primaryShots.every(s=>s.kind===id)).toBe(true);}
+
+it('mantém Clanker como chefe e campeão com quatro projéteis',()=>{
+  expect(CAMPAIGN.forsakenRail.bosses.map(b=>b.id)).toContain('clanker');
+  const run=new RunModel(()=>.5,0,{}, {characterId:'clanker'}),combat=new CombatSystem();
+  run.cooldown=0;combat.rangedPrimary(run,.2);
+  expect(run.primaryShots).toHaveLength(4);
+  expect(run.primaryShots.every(shot=>shot.kind==='clanker')).toBe(true);
 });
-it('preserva os 100 arquivos disponíveis e usa modelos válidos sem bloquear a área inicial',()=>{
- const used=new Set([...Object.values(CREATURE_ART),...Object.values(HERO_MODELS),...Object.keys(CAMPAIGN).flatMap(stage=>sceneryFor(stage).map(p=>p.assetId))]);
- expect(Object.keys(SUPPLIED_ASSETS)).toHaveLength(100);expect([...used].filter(id=>!SUPPLIED_ASSETS[id])).toEqual([]);
- for(const stage of Object.keys(CAMPAIGN)){const run=new RunModel(()=>.5,0,{}, {mapId:stage});for(const prop of run.props.filter(p=>p.assetId))expect(Math.hypot(prop.x-run.player.x,prop.z-run.player.z)).toBeGreaterThan(prop.radius+1);}
+
+it('mantém somente os modelos admitidos utilizados nas fases',()=>{
+  const used=new Set([...Object.values(CREATURE_ART),...Object.values(HERO_MODELS),...Object.keys(CAMPAIGN).flatMap(stage=>sceneryFor(stage).map(p=>p.assetId))]);
+  expect(Object.keys(SUPPLIED_ASSETS)).toHaveLength(97);
+  expect([...used].filter(id=>!SUPPLIED_ASSETS[id])).toEqual([]);
+  for(const stage of Object.keys(CAMPAIGN)){
+    const run=new RunModel(()=>.5,0,{}, {mapId:stage});
+    for(const prop of run.props.filter(p=>p.assetId))expect(Math.hypot(prop.x-run.player.x,prop.z-run.player.z)).toBeGreaterThan(prop.radius+1);
+  }
 });

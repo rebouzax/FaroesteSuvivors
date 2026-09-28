@@ -22,7 +22,6 @@ import {
   runShopMarkup,
 } from "../views/ShopView.js";
 import { FUSIONS } from "../config/deckConfig.js";
-import { CharacterPreview } from '../views/CharacterPreview.js';
 
 export class GameApplication {
   constructor(root, canvas) {
@@ -130,8 +129,6 @@ export class GameApplication {
         this.mapId,
         this.mode,
       );
-      const host=this.root.querySelector('#special-hero-preview');
-      if(host)this.heroPreview=new CharacterPreview(host,this.characterId);
     } else if (name === "arsenal" || name === "bestiary") {
       this.root.className = "selection-screen progression-screen";
       this.root.innerHTML = name === "arsenal" ? arsenalMarkup(this.profile,this.progressReturn,this.fusionPage) : bestiaryMarkup(this.profile,this.progressReturn);
@@ -240,14 +237,10 @@ export class GameApplication {
       if(this.profile.buyBentoCard(action.slice(9)))this.refreshShop(action);
       return;
     }
-    if(action.startsWith('buy-hero:')){
-      if(this.current==='shop'&&this.profile.buyHero(action.slice(9)))this.refreshShop(action);
-      return;
-    }
     if(action.startsWith("shop-filter:")){
       if(this.current!=="shop")return;
       const filter=action.slice(12);
-      if(["all","upgrades","cards","heroes"].includes(filter)){
+      if(["all","upgrades","cards"].includes(filter)){
         this.shopFilter=filter;this.applyShopFilter();
         this.root.querySelector("#permanent-products").scrollTop=0;
       }
@@ -349,6 +342,7 @@ export class GameApplication {
   }
   applyShopFilter(){
     if(this.current!=="shop")return;
+    if(!["all","upgrades","cards"].includes(this.shopFilter))this.shopFilter="all";
     for(const button of this.root.querySelectorAll(".shop-filters button")){
       const active=button.dataset.action===`shop-filter:${this.shopFilter||"all"}`;
       button.setAttribute("aria-pressed",String(active));button.classList.toggle("active",active);

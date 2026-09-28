@@ -1,5 +1,5 @@
 import {TREASURE_CREATURES} from '../config/treasureCreatures.js';
-import {pushOut} from './SceneryCollision.js';
+import {nearbyProps,pushOut} from './SceneryCollision.js';
 const clamp=n=>Math.max(-112,Math.min(112,n));
 export class TreasureSystem{
  update(run,dt){
@@ -12,7 +12,7 @@ export class TreasureSystem{
   if(!run.bossEncounter.active&&run.treasureSpawned<2&&run.time>=run.treasureSchedule[run.treasureSpawned]){
    const spec=TREASURE_CREATURES[run.mapId],a=run.random()*Math.PI*2;
    const e={id:++run.nextId,type:'treasure:'+run.mapId,treasure:true,name:spec.name,hp:600,maxHp:600,armor:0,damage:0,xp:30,speed:4.3,x:clamp(run.player.x+Math.cos(a)*16),z:clamp(run.player.z+Math.sin(a)*16),hitFlash:0,life:100,reward:600+Math.floor(run.random()*601)};
-   for(let pass=0;pass<3;pass++)for(const p of run.props)pushOut(e,p,.85);
+   for(let pass=0;pass<3;pass++)for(const p of nearbyProps(run,e.x,e.z))pushOut(e,p,.85);
    run.enemies.push(e);run.treasureSpawned++;
    run.weather.alert='treasure';run.weather.alertUntil=run.time+6;
   }
@@ -22,8 +22,7 @@ export class TreasureSystem{
    e.life-=dt;e.hitFlash=Math.max(0,e.hitFlash-dt);
    const dx=e.x-run.player.x,dz=e.z-run.player.z,d=Math.hypot(dx,dz)||1;
    let vx=dx/d,vz=dz/d;
-   for(const prop of run.props){
-    if(Math.hypot(e.x-prop.x,e.z-prop.z)>(prop.radius||0)+2)continue;
+   for(const prop of nearbyProps(run,e.x,e.z)){
     const probe={x:e.x+vx*.5,z:e.z+vz*.5};
     if(pushOut(probe,prop,1.3)){
      const nx=probe.x-e.x-vx*.5,nz=probe.z-e.z-vz*.5,side=e.id%2?1:-1;
@@ -38,7 +37,7 @@ export class TreasureSystem{
    const steps=Math.max(1,Math.ceil(e.speed*dt/.25));
    for(let i=0;i<steps;i++){
     e.x=clamp(e.x+vx*e.speed*dt/steps);e.z=clamp(e.z+vz*e.speed*dt/steps);
-    for(let pass=0;pass<2;pass++)for(const p of run.props)pushOut(e,p,.85);
+    for(let pass=0;pass<2;pass++)for(const p of nearbyProps(run,e.x,e.z))pushOut(e,p,.85);
    }
    e.facing=Math.atan2(e.x-oldX,e.z-oldZ);
   }
@@ -48,7 +47,7 @@ export class TreasureSystem{
   const pieces=24,base=Math.floor(e.reward/pieces),rest=e.reward%pieces;
   for(let i=0;i<pieces;i++){
    const a=i*Math.PI*2/pieces,p={x:e.x+Math.cos(a)*(1+i%3*.4),z:e.z+Math.sin(a)*(1+i%3*.4)};
-   for(const prop of run.props)pushOut(p,prop,.1);
+   for(const prop of nearbyProps(run,p.x,p.z))pushOut(p,prop,.1);
    drop(p.x,p.z,'treasureCoin',base+(i<rest?1:0));
   }
   run.treasureBursts.push({x:e.x,z:e.z,age:0});run.events.push('glass');

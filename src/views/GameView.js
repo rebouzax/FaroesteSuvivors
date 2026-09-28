@@ -31,6 +31,7 @@ export class GameView {
     this.quality = options.quality === "high" ? "high" : "normal";
     this.highQuality = this.quality === "high";
     this.enemyViews = new Map();
+    this.liveEnemyIds = new Set();
     this.enemyPools = new Map();
     this.enemyAssets = new EnemyAssetView();
     this.dummy = new THREE.Object3D();
@@ -279,6 +280,7 @@ export class GameView {
     const boomerang = run.hero.primary === "boomerang";
     const knives = run.hero.primary === "knives";
     const axe=run.hero.primary==='axe',scrap=run.hero.primary==='scrap';
+    const fireball=run.hero.primary==='fireball';
     const pellets = ["shotgun","sawedoff"].includes(run.hero.primary);
     this.primaryBody = new THREE.InstancedMesh(
       axe?new THREE.CylinderGeometry(.028,.035,.65,8):scrap?new THREE.TetrahedronGeometry(.18):boomerang ? new THREE.TorusGeometry(.23,.055,5,9,Math.PI*1.55) : dynamite ? new THREE.BoxGeometry(.17,.42,.18) : arrow ? new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6) : knives ? new THREE.CylinderGeometry(0.05,0.075,0.6,6) : pellets ? new THREE.SphereGeometry(0.13,8,6) : new THREE.CylinderGeometry(0.09, 0.09, 0.36, 8),
@@ -288,6 +290,14 @@ export class GameView {
       axe?new THREE.CylinderGeometry(.19,.19,.05,10,1,false,0,Math.PI).rotateZ(Math.PI/2):scrap?new THREE.OctahedronGeometry(.07):dynamite ? new THREE.ConeGeometry(.09,.2,5) : arrow || knives ? new THREE.ConeGeometry(knives ? 0.16 : 0.115, knives ? 0.34 : 0.23, 5) : new THREE.SphereGeometry(pellets ? 0.065 : 0.1, 8, 5),
       new THREE.MeshStandardMaterial({color: dynamite ? 0xffaa39 : arrow || knives ? 0xc4d1ce : 0xffe6a2, metalness: dynamite ? 0 : 0.7, roughness: 0.24, emissive: dynamite ? 0xd74711 : arrow || knives ? 0x163331 : 0x754614}), 64,
     );
+    if(fireball){
+      this.primaryBody.geometry.dispose();this.primaryBody.material.dispose();
+      this.primaryTip.geometry.dispose();this.primaryTip.material.dispose();
+      this.primaryBody.geometry=new THREE.IcosahedronGeometry(.18,2);
+      this.primaryBody.material=new THREE.MeshBasicMaterial({color:0xffb52c});
+      this.primaryTip.geometry=new THREE.IcosahedronGeometry(.25,2);
+      this.primaryTip.material=new THREE.MeshBasicMaterial({color:0xff5515,transparent:true,opacity:.38,depthWrite:false,blending:THREE.AdditiveBlending});
+    }
     this.primaryFletch = arrow ? new THREE.InstancedMesh(
       new THREE.ConeGeometry(0.16, 0.27, 4),
       new THREE.MeshStandardMaterial({color: 0x58a8a4, side: THREE.DoubleSide, flatShading: true}), 64,
@@ -390,7 +400,9 @@ export class GameView {
       }
       points.needsUpdate = true;
     }
-    const live = new Set(run.enemies.map((enemy) => enemy.id));
+    const live = this.liveEnemyIds;
+    live.clear();
+    for (const enemy of run.enemies) live.add(enemy.id);
     for (const [id, view] of this.enemyViews)
       if (!live.has(id)) {
         view.visible = false;
@@ -675,14 +687,14 @@ export class GameView {
       this.projectileHeading.set(shot.vx, 0, shot.vz).normalize();
       this.dummy.quaternion.setFromUnitVectors(this.projectileAxis, this.projectileHeading);
       if(shot.kind==="boomerang")this.dummy.rotateOnWorldAxis(this.projectileAxis,(shot.age+(shot.returnAge||0))*13*(shot.returnLeg?-1:1));
-      if(shot.kind==='viking'||shot.kind==='clanker')this.dummy.rotateOnWorldAxis(this.projectileAxis,shot.age*15);
+      if(shot.kind==='clanker')this.dummy.rotateOnWorldAxis(this.projectileAxis,shot.age*15);
       const flightProgress=shot.kind==="dynamite"?Math.min(1,shot.age/shot.flight):0;
       const flightHeight=shot.kind==="dynamite"?Math.sin(flightProgress*Math.PI)*1.15:0;
-      this.dummy.position.set(shot.x, 0.96+flightHeight, shot.z);
+      this.dummy.position.set(shot.x, (shot.kind==='clanker'?1.02:0.96)+flightHeight, shot.z);
       this.dummy.scale.setScalar(1);
       this.dummy.updateMatrix();
       (bomb?this.bombBody:this.primaryBody).setMatrixAt(index, this.dummy.matrix);
-      this.dummy.position.addScaledVector(this.projectileHeading, ["dynamite","boomerang"].includes(shot.kind)?.13:arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
+      this.dummy.position.addScaledVector(this.projectileHeading, shot.kind==='clanker'?-.12:["dynamite","boomerang"].includes(shot.kind)?.13:arrow ? 0.59 : shot.kind === "silas" ? 0.44 : 0.22);
       this.dummy.updateMatrix();
       (bomb?this.bombTip:this.primaryTip).setMatrixAt(index, this.dummy.matrix);
       if (arrow&&!bomb) {

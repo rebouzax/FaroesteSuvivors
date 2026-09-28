@@ -3,7 +3,6 @@ import { t, localizedCardDescription, unlockRequirementText } from "../services/
 import { gameIcon } from "./GameIcons.js";
 import { BENTO_PORTRAIT } from "../config/portraitConfig.js";
 import { BENTO_CARDS } from "../config/deckConfig.js";
-import { MERCHANT_HEROES,SPECIAL_HEROES } from '../config/specialHeroes.js';
 export function permanentProducts(profile) {
   const lang = profile.data.language;
   return Object.entries(PERMANENT_UPGRADES)
@@ -14,15 +13,12 @@ export function permanentProducts(profile) {
     .join("")+Object.entries(BENTO_CARDS).map(([id,item])=>{
       const owned=profile.data.bentoCards.includes(id),locked=!profile.data.storyClears[item.after];
       return `<article class="market-product bento-product ${locked?"is-locked":""}" data-kind="cards"><span class="product-symbol" aria-hidden="true">${gameIcon(id)}</span><p class="eyebrow">${t(lang,"exclusiveBento")}</p><h3>${locked?"???":t(lang,"ability."+id)}</h3><p>${locked?t(lang,"clearStage",{stage:t(lang,"map."+item.after)}):t(lang,"bentoDesc."+id)}</p><button data-action="buy-card:${id}" ${owned||locked||profile.data.coins<item.price?"disabled":""}>${owned?t(lang,"ownedCard"):t(lang,"buy",{price:item.price})}</button></article>`;
-    }).join("")+Object.entries(MERCHANT_HEROES).map(([id,item])=>{
-      const owned=profile.data.ownedHeroes.includes(id),locked=!profile.data.storyClears[item.after];
-      return `<article class="market-product" data-kind="heroes"><span class="product-symbol">${SPECIAL_HEROES[id].icon}</span><p class="eyebrow">${t(lang,'specialChampion')}</p><h3>${SPECIAL_HEROES[id].name}</h3><p>${locked?t(lang,'clearStage',{stage:t(lang,'map.'+item.after)}):t(lang,'hero.'+id)}</p><button data-action="buy-hero:${id}" ${owned||locked||profile.data.coins<item.price?'disabled':''}>${owned?t(lang,'ownedCard'):t(lang,'buy',{price:item.price})}</button></article>`;
-    }).join('');
+    }).join("");
 }
 export function permanentShopMarkup(profile, back) {
   const lang = profile.data.language;
   return `<header class="topline"><button class="text-button" data-action="${back}">← ${t(lang, "back")}</button><span>${t(lang, "shopTitle")}</span><strong id="shop-wallet" class="coin-wallet">${gameIcon("coins")} ${t(lang, "savedCoins", { coins: profile.data.coins })}</strong></header>
-    <section class="merchant-layout"><div class="merchant-side"><div id="merchant-preview" class="portrait-stage merchant-portrait" aria-label="${t(lang, "merchantName")}"><img src="${BENTO_PORTRAIT}" alt="${t(lang, "merchantName")}" fetchpriority="high"></div><div class="merchant-caption"><h2>${t(lang, "merchantName")}</h2><p id="merchant-speech" role="status"></p></div></div><div class="shop-products"><p class="eyebrow">${t(lang, "shopPermanent")} · ${t(lang,"bentoCollection")}</p><div class="shop-filters" role="group" aria-label="${t(lang,"shopFilter")}"><button class="active" aria-pressed="true" data-action="shop-filter:all">${t(lang,"shopAll")}</button><button aria-pressed="false" data-action="shop-filter:upgrades">${t(lang,"shopUpgrades")}</button><button aria-pressed="false" data-action="shop-filter:cards">${t(lang,"shopCards")}</button><button aria-pressed="false" data-action="shop-filter:heroes">${t(lang,"specialChampion")}</button></div><div id="permanent-products" class="permanent-products">${permanentProducts(profile)}</div></div></section>`;
+    <section class="merchant-layout"><div class="merchant-side"><div id="merchant-preview" class="portrait-stage merchant-portrait" aria-label="${t(lang, "merchantName")}"><img src="${BENTO_PORTRAIT}" alt="${t(lang, "merchantName")}" fetchpriority="high"></div><div class="merchant-caption"><h2>${t(lang, "merchantName")}</h2><p id="merchant-speech" role="status"></p></div></div><div class="shop-products"><p class="eyebrow">${t(lang, "shopPermanent")} · ${t(lang,"bentoCollection")}</p><div class="shop-filters" role="group" aria-label="${t(lang,"shopFilter")}"><button class="active" aria-pressed="true" data-action="shop-filter:all">${t(lang,"shopAll")}</button><button aria-pressed="false" data-action="shop-filter:upgrades">${t(lang,"shopUpgrades")}</button><button aria-pressed="false" data-action="shop-filter:cards">${t(lang,"shopCards")}</button></div><div id="permanent-products" class="permanent-products">${permanentProducts(profile)}</div></div></section>`;
 }
 export function runShopMarkup(run, lang = "en") {
   return `<h2 id="run-dialog-title">${t(lang, "runShopTitle")}</h2><p class="run-coin-balance">${gameIcon("coins")} ${t(lang, "runMoney", { coins: run.coins })}</p><div class="run-shop-products">${run.merchantCards

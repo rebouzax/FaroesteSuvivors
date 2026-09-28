@@ -34,7 +34,7 @@ describe("progressão de novos jogadores", () => {
     expect(Object.keys(CHARACTERS).filter(id => heroUnlocked(p.data,id))).toEqual(["joao"]);
     expect(Object.keys(CAMPAIGN).filter(id => stageUnlocked(p.data,id))).toEqual(["desert"]);
     expect(p.data.deck).toEqual(STARTER_DECK);
-    expect(STARTER_CARDS).toHaveLength(4);
+    expect(STARTER_CARDS).toHaveLength(5);
     expect(unlockedGameplayCards(p.data)).toEqual([]);
     expect(p.toggleDeck("pistol")).toBe(false);
     p.data.coins = 10000;

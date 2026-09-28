@@ -1,6 +1,9 @@
 import { FRONTIER_CARDS, FRONTIER_ENEMIES, frontierCardStats } from "./frontierExpansion.js";
 export const ABILITY_IDS = [...Object.keys(FRONTIER_CARDS), "pistol", "molotov", "heart", "horseshoe", "ghostShot", "requiem", "silverRain", "lantern", "soulHarvest", "boneStorm", "ironWill", "lastStand", "bulwark", "inferno", "silverStorm", "ironCharm", "deadeye", "bloodOath", "saltedRounds", "dustWaltz", "ironRosary", "blueTonic", "longshot", "bentoHourglass", "bentoLuckyStar", "bentoSaddle", "bentoMercyCoin", "bentoGhostLead", "windwardOath", "saloonTempest", "marshfire", "railbreaker", "crowstorm"];
+export const abilityMaxLevel = id => id === 'doubleShot' ? 6 : 4;
+ABILITY_IDS.push('doubleShot');
 export const ABILITIES = {
+  doubleShot: {name:'Disparo Duplicado',icon:'⇶',suit:'FERRO',color:'steel'},
   ...FRONTIER_CARDS,
   pistol: {
     name: "Pistola do Sertão",
@@ -47,6 +50,7 @@ export const ABILITIES = {
   crowstorm: { name: "Nuvem de Corvos", icon: "✷", suit: "SOMBRA", color: "heart" },
 };
 export function abilityStats(id, level) {
+  if(id==='doubleShot')return {count:Math.min(6,Math.max(0,level))};
   if (FRONTIER_CARDS[id]) return frontierCardStats(id, level);
   const extra = Math.max(0, level - 1);
   if (id === "pistol")
@@ -97,6 +101,7 @@ export function abilityStats(id, level) {
 }
 export function cardDescription(id, nextLevel, attackRate = 1) {
   const stats = abilityStats(id, nextLevel);
+  if(id==='doubleShot')return `+${stats.count} projéteis da arma principal por ataque, lançados em sequência (máximo +6). Não afeta golpes corpo a corpo.`;
   if (id === "pistol")
     return `${stats.damage} de dano · um tiro a cada ${Math.max(0.15, stats.cooldown / attackRate).toFixed(2)} s.`;
   if (id === "molotov")

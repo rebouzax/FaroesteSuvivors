@@ -23,7 +23,7 @@ export const BENTO_CARDS = Object.freeze({
   bentoMercyCoin: {after:"forsakenRail",price:540},
   bentoGhostLead: {after:"crowFortress",price:600},
 });
-export const STARTER_CARDS = Object.freeze(["pistol", "molotov", "heart", "horseshoe"]);
+export const STARTER_CARDS = Object.freeze(["pistol", "molotov", "heart", "horseshoe", "doubleShot"]);
 export const STARTER_DECK = Object.freeze([...STARTER_CARDS]);
 export const fusionUnlocked = (profile, id) => Boolean(FUSIONS[id]) &&
   (profile.forgedCards?.includes(id) || (id === "bulwark" && profile.legacyProgression) || requirementMet(profile, FUSIONS[id]));

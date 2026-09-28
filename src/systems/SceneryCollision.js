@@ -1,3 +1,27 @@
+const CELL_SIZE=2.5;
+const propGrids=new WeakMap();
+const EMPTY_PROPS=[];
+
+export function nearbyProps(run,x,z){
+  let grid=propGrids.get(run);
+  if(!grid||grid.props!==run.props){
+    const cells=new Map();
+    for(const prop of run.props||[]){
+      // The treasure creature probes half a unit ahead with a 1.3-unit body.
+      const extent=Math.max(prop.radius||0,Math.hypot(prop.halfX||0,prop.halfZ||0))+2;
+      for(let cx=Math.floor((prop.x-extent)/CELL_SIZE);cx<=Math.floor((prop.x+extent)/CELL_SIZE);cx++)
+        for(let cz=Math.floor((prop.z-extent)/CELL_SIZE);cz<=Math.floor((prop.z+extent)/CELL_SIZE);cz++){
+          const key=`${cx},${cz}`;
+          if(!cells.has(key))cells.set(key,[]);
+          cells.get(key).push(prop);
+        }
+    }
+    grid={props:run.props,cells};
+    propGrids.set(run,grid);
+  }
+  return grid.cells.get(`${Math.floor(x/CELL_SIZE)},${Math.floor(z/CELL_SIZE)}`)||EMPTY_PROPS;
+}
+
 export function pushOut(entity,prop,radius=.4){
   let dx=entity.x-prop.x,dz=entity.z-prop.z;
   if(prop.halfX!=null){

@@ -1,0 +1,162 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-09-27",
+  "assets": [
+    {
+      "id": "joao",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-1aac1aee-e462-4a0d-8097-27aa9a1ee0db.png",
+      "destination": "src/assets/portraits/heroic/joao.webp",
+      "prompt": "Create a finished cinematic heroic character selection illustration for Faroeste Survivors. Single image, portrait 4:5 composition. João Vaqueiro, young Brazilian cowboy with brown wide brim hat, weathered brown leather duster, cream open collar shirt, dark blue trousers, boots, coiled lasso at belt. Heroically swinging a leather whip in the foreground on a moonlit desert ridge, full body large and centered, brave determined expression. Background cursed desert mesas, cacti, distant menacing vultures and skeletal outlaws, dust lit by amber lanterns and large blue moon. Refined stylized low-poly 3D game cover aesthetic, sculpted forms, painterly cinematic detail, coherent with PS2-inspired western fantasy but polished cover quality; rich navy and amber lighting, atmospheric depth, beautiful heroic pose, legible face and weapon. No text, no logo, no border, no collage. Opaque complete background. Keep entire hat and feet inside frame with margins."
+    },
+    {
+      "id": "maria",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-c56de017-f1d8-47e4-9acb-c034abc53738.png",
+      "destination": "src/assets/portraits/heroic/maria.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Maria Bonita, adult Brazilian female gunslinger, warm tan skin, dark braided hair, red leather duster, cream blouse, dark red cowboy hat, red scarf, revolver raised confidently. On abandoned ghost-town main street at midnight, blue moon, warm saloon lanterns, dust and distant undead cowboys."
+    },
+    {
+      "id": "indigo",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-2854938a-cbed-4e00-a012-19ce2b75a5fd.png",
+      "destination": "src/assets/portraits/heroic/indigo.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Indigo, adult indigenous Brazilian male archer, long dark hair, blue frontier coat and dark navy cowboy hat, leather boots, drawing a wood longbow with arrow. On a high red canyon ledge in violet twilight; giant vipers and predatory wolves on rocks behind."
+    },
+    {
+      "id": "labuta",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-84089bfe-ee5d-4e4d-9ef5-8ccd1b69226e.png",
+      "destination": "src/assets/portraits/heroic/labuta.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Labuta, stocky muscular adult Brazilian bearded male cowboy in olive green coat and hat, cream shirt, gripping pump shotgun firmly with both hands in aiming stance. Inside an underground mine with beams, carts and amber lanterns, skeletal miners and giant spiders lurking behind. No rain or open sky."
+    },
+    {
+      "id": "rosa",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-649abe4b-0887-42a3-9615-b566119b68b3.png",
+      "destination": "src/assets/portraits/heroic/rosa.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Rosa Trilhos, adult Brazilian female dual-revolver gunslinger, tan skin, dark braid, burgundy leather coat, rose scarf, brown cowboy hat, both revolvers drawn in heroic balanced stance on locomotive roof. Haunted railroad viaduct at blue twilight, spectral train steam, iron locusts and ghost riders behind."
+    },
+    {
+      "id": "elias",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-2eac357c-6690-4cd0-8141-3b2e1722d6c3.png",
+      "destination": "src/assets/portraits/heroic/elias.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Elias Ferro, tall broad-shouldered Brazilian male rifleman with full dark beard, gray-green leather coat, brown hat and brass details, bracing a long rifle with both hands. Hero guarding a ruined iron bridge at stormy dusk, drowned prospectors and spectral marsh creatures below, glowing blue mist."
+    },
+    {
+      "id": "silas",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-65330c44-8d53-4fe4-bc93-3c4a36e45405.png",
+      "destination": "src/assets/portraits/heroic/silas.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Silas Corvo, lean adult male knife fighter, long black hair, black coat, gray scarf, feathered black cowboy hat, throwing knife in each hand in poised heroic stance. Crumbling raven fortress battlements, swirling ravens and armored skeletons behind, silver moonlight and violet clouds."
+    },
+    {
+      "id": "ada",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-9c6714bb-00bb-4ba0-a23e-aaed7fd37ab2.png",
+      "destination": "src/assets/portraits/heroic/ada.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Ada Morrow, dark-skinned adult female crossbow hunter, tied dark hair, midnight blue frontier coat, cream scarf, dark cowboy hat, wood and steel crossbow gripped with both hands. Hero at ruined cemetery gate, teal fog and amber candles, distant skeletal guards and ghostly mourning souls."
+    },
+    {
+      "id": "ruth",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-aa2a4c2d-f147-4bc1-884f-faf089815e99.png",
+      "destination": "src/assets/portraits/heroic/ruth.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Ruth Faísca, tough adult female gunslinger, copper-red tied hair, rust-red leather coat, ochre scarf, brown cowboy hat, aiming sawed-off double barrel shotgun with both hands. Hero on burning foundry steps, orange furnace glow and indigo smoke, slag hounds and rivet imps in background."
+    },
+    {
+      "id": "teo",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-11048792-f66c-466b-93cf-a58957ecd077.png",
+      "destination": "src/assets/portraits/heroic/teo.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Teo Carril, lean young adult male railway gunslinger, olive green coat, ochre scarf, brown cowboy hat, lever-action repeating rifle held ready. Hero at windswept abandoned railway switch yard at dawn, telegraph poles, sparks, sinister coal mimics and iron locusts behind."
+    },
+    {
+      "id": "valeria",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-3006f20b-0a1b-45e2-8cdc-fe287cc10912.png",
+      "destination": "src/assets/portraits/heroic/valeria.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Valéria Vento, tan-skinned adult female duelist, dark tied hair, plum burgundy coat, cream scarf, black cowboy hat, silver revolver aimed outward while coat swirls in wind. Heroic stance in abandoned adobe bell-town plaza, violet sunset, distant windmill wraiths and dust coyotes."
+    },
+    {
+      "id": "tomas",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-dfab0d88-cc02-47ae-8656-55101cbcea90.png",
+      "destination": "src/assets/portraits/heroic/tomas.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Tomás Trabuco, stocky adult male breacher, heavy dark beard, charcoal olive heavy leather coat, black cowboy hat, ochre scarf, gripping robust four-barrel blunderbuss shotgun with both hands. Holding a barricade in haunted saloon interior, shattered piano, warm oil lamps, distant ghostly cardsharps and banshee behind."
+    },
+    {
+      "id": "luzia",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-9441e1b0-dfb4-4f6a-8b61-a260d53f5bb5.png",
+      "destination": "src/assets/portraits/heroic/luzia.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Luzia do Brejo, dark-skinned adult female marsh healer, dark braided hair, deep green coat and hat, mint scarf, herb pouches at belt, raising antique green-gold magic lantern to repel evil. Hero on crooked boardwalk above glass marsh, luminous reeds, drowned prospectors and reed stalkers behind in teal mist."
+    },
+    {
+      "id": "benicio",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-99ecffb8-718c-4887-895c-4ad62950af6c.png",
+      "destination": "src/assets/portraits/heroic/benicio.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Benício Fagulha, adult male rifleman, small dark beard, brass goggles on brown cowboy hat, brown work coat, ochre scarf, long precision rifle aimed with both hands. Hero atop an abandoned water tower, golden sunset across frontier tracks, brass hornets and skeletal railway gunmen behind."
+    },
+    {
+      "id": "ines",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-6bdec520-8d04-4d53-9c8c-e452f58d72fb.png",
+      "destination": "src/assets/portraits/heroic/ines.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Inês Corvo, dark-skinned adult female raven scout, dark braid, midnight violet coat, pale gray scarf, black feather in dark cowboy hat, drawing a longbow. Hero on ruined stone watchtower against huge moon, flying ravens and bone cactus creatures on cliff below."
+    },
+    {
+      "id": "dynamite",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-4068f2f0-9ca4-4212-b829-65363ac72f85.png",
+      "destination": "src/assets/portraits/heroic/dynamite.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Neco Pavio, stocky adult male frontier miner, thick dark mustache, russet coat, orange scarf, brown cowboy hat, mining belt, one arm raised about to throw a bundle of red dynamite with glowing fuse. Hero at mine entrance in red canyon, dusty blast in distance, skeletal miners and coal skulls behind."
+    },
+    {
+      "id": "jacinto",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-ad74616b-3b65-4dcd-980e-25ea2ce15843.png",
+      "destination": "src/assets/portraits/heroic/jacinto.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Jacinto Escama, original anthropomorphic green lizard cowboy, narrow reptile snout and expressive eyes, visible scaly tail, brown cowboy hat, green leather coat, ochre shirt, rust scarf, dark trousers and boots, curved wooden boomerang raised ready to throw. Hero in salt flats near giant crystalline arch under turquoise sky, crystal moths and salt scorpions behind. Clearly reptile not human, original character."
+    },
+    {
+      "id": "aurora",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-81e222d5-4151-4c24-9705-3824cc74c54f.png",
+      "destination": "src/assets/portraits/heroic/aurora.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Aurora Salina, tan-skinned adult female crossbow ranger with dark braid, slate blue coat and hat, teal scarf, pale shirt, gold accents, aiming ornate wood and steel crossbow firmly. Hero on white salt ridge under cold blue moon, reflecting pools, bleached jackals and translucent crystal moths behind."
+    },
+    {
+      "id": "gaspar",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-212d18b5-4d46-4097-a3df-99ad22bd41f2.png",
+      "destination": "src/assets/portraits/heroic/gaspar.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Gaspar Caldeira, tall heavy-built bearded adult male industrial cowboy, brown leather work coat and hat, cream shirt, brass fittings, gripping powerful multi-barrel shotgun with both hands. Hero on foundry catwalk amid steel gears, orange furnaces and purple smoke, furnace keepers and copper hornets behind."
+    },
+    {
+      "id": "celeste",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-f33c9075-b2e3-4e1a-9833-ba5a13b62a0a.png",
+      "destination": "src/assets/portraits/heroic/celeste.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Celeste do Eclipse, brown-skinned adult female mystic gunslinger with long dark hair, violet coat and hat, lavender scarf, raising a silver lantern spilling pale lunar magic. Hero in ruined moon monastery cloister, eclipsed moon through broken arches, spectral monks and crescent-winged creatures behind."
+    },
+    {
+      "id": "severino",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-81b7f4f3-479b-49c2-ab65-f7df461fe15f.png",
+      "destination": "src/assets/portraits/heroic/severino.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Severino Ferrão, lean adult male knife fighter, tan skin, short dark hair, russet coat and brown cowboy hat, red scarf, curved throwing knives in poised hands. Hero on twisted roots in thorn garden at green dusk, carnivorous flowers and giant thorn spiders lurking behind."
+    },
+    {
+      "id": "amara",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-f52d6d3b-08d0-41ae-a87f-2f5cb863515d.png",
+      "destination": "src/assets/portraits/heroic/amara.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Amara Alvorada, dark-skinned adult female frontier guardian with dark braid, deep green coat and hat, cream shirt and brass trim, lever action repeating rifle gripped confidently. Hero against a colossal sunrise portal amid five obelisks, gold pink sky, spectral armored guardians and dark winged enemies behind."
+    },
+    {
+      "id": "clanker",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-8e96fa4f-b8a1-4f3b-bc7d-17c5b7a9fead.png",
+      "destination": "src/assets/portraits/heroic/clanker.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Clanker, compact friendly heroic mechanical robot, weathered olive-gray riveted armor, cylindrical helmet-like head with narrow visor, jointed slim legs and claw hands, large circular exposed gear on chest. Hero projecting orange fireballs directly from an open mechanical hand, no held gun and no bulky hand cannon. Haunted railway forge at night, embers and steam, hostile iron locust machines and coal creatures behind. Maintain charming low-poly robot proportions."
+    },
+    {
+      "id": "viking",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-1c3ace92-29d2-4853-bcf7-22f472c08ad4.png",
+      "destination": "src/assets/portraits/heroic/viking.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Viking Errante, adult male wandering viking warrior, horned iron helmet, brown beard, gray armor over ochre tunic, leather bracers and boots, firmly gripping a single throwing axe at its handle. Heroic raised axe on snowy rocky frontier pass, windswept cloak, frost wolves and undead warriors behind, amber aurora."
+    },
+    {
+      "id": "centurion",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-e5ac9fbc-6dee-42ef-9c6b-c9d7a08ce58c.png",
+      "destination": "src/assets/portraits/heroic/centurion.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Centurião de Ferro, adult male Roman centurion, iron breastplate, red crested helmet, short red tunic and cape, leather bracers and boots, one short gladius firmly gripped at hilt and extended forward. Heroic defense at ruined desert fortress arch, sand blowing in gold dusk, undead legionnaires and skeletal ravens behind."
+    },
+    {
+      "id": "pirate",
+      "source": "C:\\Users\\JC INFORMATICA\\.codex\\generated_images\\01a0de06-e92a-75b3-9857-a64d87b05f84\\exec-5040dd7a-f039-4e74-8bc4-15218f80b84f.png",
+      "destination": "src/assets/portraits/heroic/pirate.webp",
+      "prompt": "Use case stylized-concept. Finished heroic character-selection cover art for Faroeste Survivors, single portrait 4:5 image. Polished stylized low-poly 3D/painterly western dark-fantasy game cover, sculpted realistic anatomy, textured leather and metal, dramatic cinematic light and atmospheric depth like a beautiful moonlit western game cover. Hero full body large in foreground in a brave dynamic heroic pose, entire hat, weapon and boots inside frame with margin. Detailed scenery and smaller threatening enemies behind, clear subject separation. No text, logo, frame or collage. Opaque background. Capitão Pavio, adult male pirate hero, red gold-trimmed long coat, dark tricorn hat, black beard, eyepatch, yellow waistcoat, one wooden peg leg, metallic hook replacing his RIGHT hand, a SINGLE curved cutlass held in LEFT hand. Heroic pose on wrecked ghost ship stranded in a frontier swamp, teal fog, warm lanterns, drowned undead pirates and ghostly crows behind. No additional sword, no sword on hook hand, dynamite bundle at belt."
+    }
+  ]
+}

@@ -29,7 +29,7 @@ describe("campanha e meta de conteúdo 1.0", () => {
       "crowFortress",
     ]);
     expect(STAGE_ORDER.slice(10)).toEqual(["saltFlats","emberFoundry","moonMonastery","thornGarden","lastDawn"]);
-    expect(Object.keys(CHARACTERS)).toHaveLength(26);
+    expect(Object.keys(CHARACTERS)).toHaveLength(23);
     expect(ENEMY_IDS).toHaveLength(73);
     expect(BOSS_IDS).toHaveLength(36);
     for (const id of STAGE_ORDER.slice(5)) expect(CAMPAIGN[id].bosses).toHaveLength(id==='forsakenRail'?3:2);
